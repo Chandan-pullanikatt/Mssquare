@@ -1,0 +1,364 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-background: #06070a;
+  --color-surface: #0d0f14;
+  --color-card: #111318;
+  --color-border: rgba(255, 255, 255, 0.07);
+  --color-primary-blue: #3b82f6;
+  --color-primary-cyan: #06b6d4;
+  --color-primary-green: #10d98a;
+  --color-primary-purple: #7C3AED;
+  --color-foreground: #f0f2f7;
+  --color-muted: #8892a4;
+
+  --font-sans: var(--font-urbanist), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-urbanist), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+/* NOISE OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.4;
+}
+
+/* ═══════════════════════════════════════════
+   HERO ENTRANCE KEYFRAMES
+   ═══════════════════════════════════════════ */
+
+/* fup — core fade-up entrance */
+@keyframes fup {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* wrise — word rise punch-in */
+@keyframes wrise {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* accentin — accent line fade+rise */
+@keyframes accentin {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* gradflow — shifting gradient on accent text */
+@keyframes gradflow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* blink — live dot pulse */
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);
+  }
+
+  50% {
+    opacity: 0.2;
+    box-shadow: 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+}
+
+/* sdown — scroll wheel indicator drop */
+@keyframes sdown {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  60% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* barg — progress bar grow */
+@keyframes barg {
+  from {
+    width: 0;
+  }
+}
+
+/* pulse-glow — decorative glow */
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: translateX(-50%) scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.08);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   HERO ANIMATION CLASSES
+   ═══════════════════════════════════════════ */
+
+.anim-fup {
+  opacity: 0;
+  animation: fup 0.75s ease both;
+}
+
+.anim-wrise {
+  display: inline-block;
+  opacity: 0;
+  overflow: hidden;
+  animation: wrise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-accentin {
+  opacity: 0;
+  animation: accentin 0.7s ease both;
+}
+
+.anim-gradflow {
+  background: linear-gradient(90deg, var(--color-primary-blue), var(--color-primary-cyan), var(--color-primary-green), var(--color-primary-blue));
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradflow 5s ease infinite;
+}
+
+.anim-blink {
+  animation: blink 1.8s ease-in-out infinite;
+}
+
+.anim-sdown {
+  animation: sdown 1.9s ease-in-out infinite;
+}
+
+.anim-barg {
+  animation: barg 1.6s ease both;
+  animation-play-state: paused;
+}
+
+.anim-barg.playing {
+  animation-play-state: running;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow-reverse {
+  animation: pulse-glow 8s ease-in-out infinite reverse;
+}
+
+/* Staggered delays for hero elements */
+.d-02 {
+  animation-delay: 0.2s;
+}
+
+.d-035 {
+  animation-delay: 0.35s;
+}
+
+.d-05 {
+  animation-delay: 0.5s;
+}
+
+.d-065 {
+  animation-delay: 0.65s;
+}
+
+.d-07 {
+  animation-delay: 0.7s;
+}
+
+.d-082 {
+  animation-delay: 0.82s;
+}
+
+.d-09 {
+  animation-delay: 0.9s;
+}
+
+.d-10 {
+  animation-delay: 1.0s;
+}
+
+.d-12 {
+  animation-delay: 1.2s;
+}
+
+.d-14 {
+  animation-delay: 1.4s;
+}
+
+.d-17 {
+  animation-delay: 1.7s;
+}
+
+/* ═══════════════════════════════════════════
+   SCROLL-TRIGGERED REVEAL CLASSES
+   ═══════════════════════════════════════════ */
+
+.rev {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.rev.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger delays for cards in the same row */
+.rev-d1 {
+  transition-delay: 0.08s;
+}
+
+.rev-d2 {
+  transition-delay: 0.16s;
+}
+
+.rev-d3 {
+  transition-delay: 0.24s;
+}
+
+.rev-d4 {
+  transition-delay: 0.32s;
+}
+
+/* ═══════════════════════════════════════════
+   HOVER MICRO-INTERACTIONS
+   ═══════════════════════════════════════════ */
+
+/* Card lift + shadow bloom */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(59, 130, 246, 0.06);
+}
+
+/* Button micro-lift */
+.hover-btn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Step row nudge */
+.hover-nudge {
+  transition: padding-left 0.3s ease, background 0.3s ease;
+}
+
+.hover-nudge:hover {
+  padding-left: 8px;
+}
+
+/* Metric row background lighten */
+.hover-lighten {
+  transition: background 0.3s ease;
+}
+
+.hover-lighten:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Arrow pull-forward */
+.hover-arrow {
+  transition: gap 0.25s ease;
+}
+
+.hover-arrow:hover {
+  gap: 10px;
+}
+
+/* ═══════════════════════════════════════════
+   GRADIENT TEXT UTILITY
+   ═══════════════════════════════════════════ */
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-primary-blue) 0%, var(--color-primary-cyan) 50%, var(--color-primary-green) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-33.333333%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
