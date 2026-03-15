@@ -130,8 +130,8 @@ export function Hero() {
           {/* Buttons — fup at 1.0s */}
           <div className="anim-fup d-10 flex gap-5 flex-wrap">
             <Link
-              href="/auth"
-              className="hover-btn inline-flex items-center justify-center bg-[#7C3AED] text-white px-8 py-4 rounded-xl text-[1rem] font-bold tracking-wide shadow-[0_0_30px_rgba(124,58,237,0.4)] transition-all duration-300 font-heading"
+              href="/auth/register"
+              className="hover-btn inline-flex items-center justify-center bg-[#7C3AED] text-white px-8 py-4 rounded-xl text-[1rem] font-bold tracking-wide shadow-[0_0_30_px_rgba(124,58,237,0.4)] transition-all duration-300 font-heading"
             >
               Apply Now (Student)
             </Link>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useReveal } from "@/hooks/useReveal";
+import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
 const faqs = [
@@ -32,34 +32,53 @@ const faqs = [
 ];
 
 export function FAQ() {
-  const revealRef = useReveal();
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [openIndices, setOpenIndices] = useState<number[]>([]);
 
   const toggleFAQ = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
+    setOpenIndices(prev =>
+      prev.includes(index)
+        ? prev.filter(i => i !== index)
+        : [...prev, index]
+    );
   };
 
   return (
-    <section id="faq" className="bg-white pt-[60px] pb-[120px] px-[5%] relative border-b border-gray-100" ref={revealRef as React.RefObject<HTMLElement>}>
+    <section id="faq" className="bg-white pt-[60px] pb-[120px] px-[5%] relative border-b border-gray-100">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-16">
-          <div className="rev inline-flex items-center gap-2 text-[0.78rem] font-bold tracking-[0.12em] uppercase text-[#7C3AED] mb-4 justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 text-[0.78rem] font-bold tracking-[0.12em] uppercase text-[#7C3AED] mb-4 justify-center"
+          >
             <span className="w-5 h-[1px] bg-[#7C3AED]"></span>
             FAQ
-          </div>
-          <h2 className="rev text-[clamp(2.2rem,4vw,3.2rem)] font-extrabold tracking-[-0.03em] leading-[1.1] font-heading text-gray-900">
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="text-[clamp(2.2rem,4vw,3.2rem)] font-extrabold tracking-[-0.03em] leading-[1.1] font-heading text-gray-900"
+          >
             Common Questions
-          </h2>
+          </motion.h2>
         </div>
 
         <div className="flex flex-col gap-4">
           {faqs.map((faq, index) => {
-            const isOpen = openIndex === index;
+            const isOpen = openIndices.includes(index);
 
             return (
-              <div
+              <motion.div
                 key={index}
-                className={`rev rev-d${index % 5 + 1} overflow-hidden transition-all duration-300 bg-gray-50 rounded-2xl ${isOpen ? 'ring-2 ring-violet-100' : ''}`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className={`overflow-hidden transition-all duration-300 bg-gray-50 rounded-2xl ${isOpen ? 'ring-2 ring-violet-100' : ''}`}
               >
                 <button
                   onClick={() => toggleFAQ(index)}
@@ -83,7 +102,7 @@ export function FAQ() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>

@@ -69,7 +69,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
             Login
           </Link>
           <Link
-            href="/dashboard"
+            href="/auth/register"
             className="bg-primary-purple hover:bg-primary-purpleDark text-white font-heading px-6 py-2.5 rounded-xl text-[0.85rem] font-bold transition-all duration-200 shadow-glow-purple"
           >
             Apply Now
@@ -145,7 +145,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
                 Login
               </Link>
               <Link
-                href="/dashboard"
+                href="/auth/register"
                 className="bg-primary-purple hover:bg-primary-purpleDark text-center text-white px-4 py-3 rounded-xl transition-colors font-heading font-bold shadow-glow-purple"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
