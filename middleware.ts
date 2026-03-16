@@ -94,7 +94,7 @@ export async function middleware(req: NextRequest) {
       return redirectRes;
     }
 
-    const role = userData?.role;
+    const role = (userData as any)?.role;
 
     if (pathname.startsWith('/student') && role !== 'student' && role !== 'ceo' && role !== 'admin') {
       url.pathname = '/unauthorized';
