@@ -15,7 +15,7 @@ export default function UserManagement() {
     setLoading(true);
     try {
       // For now, list users by role since we don't have listAllUsers
-      const data = await usersApi.listUsersByRole(activeTab === "students" ? "student" : "admin");
+      const data = await usersApi.listUsersByRole(activeTab === "students" ? "student" : "cms_admin");
       setUsers(data);
     } catch (err) {
       console.error(err);
@@ -126,10 +126,10 @@ export default function UserManagement() {
             className="text-[10px] font-bold uppercase tracking-widest bg-gray-50 border-none rounded-lg px-2 py-1 outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all"
           >
             <option value="student">Student</option>
-            <option value="admin">Admin</option>
-            <option value="content_admin">Content Admin</option>
-            <option value="support_admin">Support Admin</option>
-            <option value="ceo">Super Admin</option>
+            <option value="cms_admin">CMS Admin</option>
+            <option value="lms_admin">LMS Admin</option>
+            <option value="business_admin">Business Admin</option>
+            <option value="business_client">Business Client</option>
           </select>
         </div>
       )

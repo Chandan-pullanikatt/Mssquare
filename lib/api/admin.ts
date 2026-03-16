@@ -67,8 +67,7 @@ export const adminApi = {
   },
 
   async createCourse(courseData: any) {
-    const { data, error } = await supabase
-      .from('courses')
+    const { data, error } = await (supabase.from('courses') as any)
       .insert([courseData as any])
       .select()
       .single();
