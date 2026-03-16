@@ -55,7 +55,7 @@ export function Footer() {
               <li><Link href="/privacy" className="text-muted hover:text-white text-[0.85rem] transition-colors">Privacy Policy</Link></li>
               <li><Link href="/terms" className="text-muted hover:text-white text-[0.85rem] transition-colors">Terms & Conditions</Link></li>
               <li><Link href="/refund" className="text-muted hover:text-white text-[0.85rem] transition-colors">Refund Policy</Link></li>
-              <li><Link href="#faq" className="text-muted hover:text-white text-[0.85rem] transition-colors">FAQ</Link></li>
+              <li><Link href="/faq" className="text-muted hover:text-white text-[0.85rem] transition-colors">FAQ</Link></li>
             </ul>
           </div>
         </div>

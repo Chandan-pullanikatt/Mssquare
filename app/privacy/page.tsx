@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { LayoutGrid, ArrowLeft } from "lucide-react";
+import { Footer } from "@/components/layout/Footer";
 
 export default function PrivacyPolicyPage() {
     return (
@@ -114,17 +115,9 @@ export default function PrivacyPolicyPage() {
             </main>
 
             {/* Footer */}
-            <footer className="w-full bg-gray-50 border-t border-gray-100 py-8">
-                <div className="max-w-4xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center gap-2 text-[12px] font-semibold text-gray-500">
-                        © {new Date().getFullYear()} MSSquare Inc. All rights reserved.
-                    </div>
-                    <div className="flex items-center gap-6 text-[12px] font-bold text-gray-400">
-                        <Link href="/terms" className="hover:text-[#8b5cf6] transition-colors">Terms of Service</Link>
-                        <Link href="/refund" className="hover:text-[#8b5cf6] transition-colors">Refund Policy</Link>
-                    </div>
-                </div>
-            </footer>
+            <div className="w-full">
+                <Footer />
+            </div>
 
         </div>
     );
