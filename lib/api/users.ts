@@ -1,5 +1,6 @@
-import { supabase } from '../supabaseClient';
+import { supabase } from '../supabase/client';
 import { User, UserRole } from '../../types/database';
+
 
 export const usersApi = {
   async getUser(id: string) {

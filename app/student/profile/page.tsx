@@ -16,18 +16,33 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 
+import { useAuth } from "@/components/providers/AuthProvider";
+import { useEffect } from "react";
+
 export default function StudentProfilePage() {
+    const { user } = useAuth();
     const [isSaving, setIsSaving] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [formData, setFormData] = useState({
-        fullName: "Alex Rivera",
-        email: "alex.rivera@example.com",
+        fullName: "",
+        email: "",
         phone: "+1 (555) 123-4567",
-        studentId: "#8821",
+        studentId: "",
         major: "Fullstack Development",
         location: "San Francisco, CA",
         bio: "Passionate learner exploring the world of UI/UX and Fullstack Web Development. Dedicated to building accessible and beautiful web applications."
     });
+
+    useEffect(() => {
+        if (user) {
+            setFormData(prev => ({
+                ...prev,
+                fullName: user.user_metadata?.full_name || user.email?.split('@')[0] || "",
+                email: user.email || "",
+                studentId: user.id.slice(-4)
+            }));
+        }
+    }, [user]);
 
     const handleSave = () => {
         setIsSaving(true);
@@ -77,7 +92,7 @@ export default function StudentProfilePage() {
                     <div className="bg-white border border-gray-100 rounded-[2.5rem] p-8 shadow-sm flex flex-col items-center text-center">
                         <div className="relative group mb-6">
                             <div className="w-32 h-32 rounded-full bg-[#fed7aa] border-4 border-white shadow-xl overflow-hidden">
-                                <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=Alex&backgroundColor=fed7aa`} alt="Alex" className="w-full h-full object-cover" />
+                                <img src={user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/notionists/svg?seed=${user?.email || 'Alex'}&backgroundColor=fed7aa`} alt="User" className="w-full h-full object-cover" />
                             </div>
                             <button className="absolute bottom-1 right-1 w-10 h-10 bg-[#8b5cf6] text-white rounded-2xl flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95 border-4 border-white">
                                 <Camera size={18} />

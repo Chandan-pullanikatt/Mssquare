@@ -1,5 +1,6 @@
-import { supabase } from '../supabaseClient';
+import { supabase } from '../supabase/client';
 import { Lesson } from '../../types/database';
+
 
 export const lessonsApi = {
   async getLessonsByCourseId(courseId: string) {

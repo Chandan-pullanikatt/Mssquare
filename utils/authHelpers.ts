@@ -1,10 +1,5 @@
-import { createBrowserClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '@/lib/supabase/client';
 import { UserRole, Database } from '../types/database';
-
-const supabase = createBrowserClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
-);
 
 export const authHelpers = {
   async signIn(email: string, password: string) {
@@ -23,26 +18,37 @@ export const authHelpers = {
 
   async getUserRole(userId: string): Promise<UserRole | null> {
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')
       .select('role')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
     
-    if (error) return null;
+    if (error) {
+      // Try falling back to 'users' table if it exists
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', userId)
+        .maybeSingle();
+      
+      if (userError) return null;
+      return (userData as any)?.role as UserRole;
+    }
     return (data as any)?.role as UserRole;
   },
 
-  getRedirectPath(role: UserRole): string {
+  async getRedirectPath(role: UserRole): Promise<string> {
     switch (role) {
       case 'student':
         return '/student/dashboard';
-      case 'admin':
-      case 'ceo':
-      case 'content_admin':
-      case 'support_admin':
-        return '/admin';
+      case 'business_client':
+        return '/business/dashboard';
+      case 'lms_admin':
+        return '/lms-admin/dashboard';
       case 'business_admin':
-        return '/dashboard';
+        return '/business-admin/dashboard';
+      case 'cms_admin':
+        return '/cms-admin';
       default:
         return '/';
     }
@@ -67,16 +73,27 @@ export const authHelpers = {
     if (authError) throw authError;
 
     if (authData.user) {
-      // Create user profile in the users table
+      // Create user profile in the profiles table
       const { error: profileError } = await (supabase as any)
-        .from('users')
-        .insert({
+        .from('profiles')
+        .upsert({
           id: authData.user.id,
-          name: fullName,
+          user_id: authData.user.id,
+          email: email,
           role: role,
-        });
+        }, { onConflict: 'id' });
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error("Error creating profile, trying 'users' table fallback:", profileError.message);
+        // Fallback to 'users' table if it's the one currently configured in the DB
+        await (supabase as any)
+          .from('users')
+          .insert({
+            id: authData.user.id,
+            name: fullName,
+            role: role,
+          });
+      }
     }
 
     return authData;
@@ -87,10 +104,47 @@ export const authHelpers = {
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          prompt: 'select_account',
+          access_type: 'offline'
+        }
       },
     });
 
     if (error) throw error;
     return data;
+  },
+
+  async ensureUserProfile(user: any, portalRole: string): Promise<UserRole> {
+    const existingRole = await this.getUserRole(user.id);
+    if (existingRole) return existingRole;
+
+    // Create a new profile if it doesn't exist
+    const fullName = user.user_metadata?.full_name || user.user_metadata?.name || 'User';
+    const role = portalRole as UserRole;
+
+    const { error: profileError } = await (supabase as any)
+      .from('profiles')
+      .upsert({
+        id: user.id,
+        user_id: user.id,
+        email: user.email,
+        role: role,
+      }, { onConflict: 'id' });
+
+    if (profileError) {
+      console.error("Error creating profile:", profileError.message);
+      // Fallback to 'users' table
+      await (supabase as any)
+        .from('users')
+        .insert({
+          id: user.id,
+          name: fullName,
+          role: role,
+        });
+    }
+
+    return role;
   }
 };
+

@@ -27,9 +27,10 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 const adminSidebarItems = [
-  { name: "LMS Overview", href: "/lms-admin", icon: LayoutDashboard },
+  { name: "LMS Overview", href: "/lms-admin/dashboard", icon: LayoutDashboard },
   { name: "Manage Courses", href: "/lms-admin/courses", icon: BookOpen },
   { name: "Student Management", href: "/lms-admin/students", icon: Users },
   { name: "Enrollments", href: "/lms-admin/enrollments", icon: UserCheck },
@@ -44,6 +45,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { user, role } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -166,7 +168,7 @@ export default function AdminLayout({
                 }}
               >
                   <div className="text-right hidden sm:block">
-                    <div className="text-sm font-bold text-gray-900 group-hover:text-[#8b5cf6] transition-colors">LMS Admin</div>
+                    <div className="text-sm font-bold text-gray-900 group-hover:text-[#8b5cf6] transition-colors capitalize">{role?.replace('_', ' ') || 'Admin'}</div>
                     <div className="text-xs text-[#8b5cf6] font-bold uppercase tracking-tighter">Manager</div>
                   </div>
                 <div className={`w-10 h-10 rounded-full bg-[#8b5cf6] border-2 transition-all overflow-hidden flex items-center justify-center text-white ${isProfileOpen ? 'border-[#8b5cf6] shadow-lg shadow-[#8b5cf6]/20 scale-110' : 'border-white shadow-sm'}`}>
@@ -180,11 +182,11 @@ export default function AdminLayout({
                   <div className="absolute right-0 mt-3 w-64 bg-white border border-gray-100 rounded-3xl shadow-xl shadow-black/5 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                     <div className="p-5 border-b border-gray-50 bg-gray-50/50">
                       <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Signed in as admin</div>
-                      <div className="text-sm font-bold text-gray-900 truncate">admin@mssquare.com</div>
+                      <div className="text-sm font-bold text-gray-900 truncate">{user?.email || 'admin@mssquare.com'}</div>
                     </div>
                     <div className="p-2">
                       <Link
-                        href="/admin/settings"
+                        href="/lms-admin/settings"
                         onClick={() => setIsProfileOpen(false)}
                         className="flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-600 hover:bg-gray-50 hover:text-[#8b5cf6] transition-all font-bold text-sm"
                       >

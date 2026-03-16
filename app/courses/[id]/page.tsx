@@ -141,11 +141,14 @@ export default function CourseDetailPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 md:gap-6 pt-4">
-                <button className="w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 rounded-[1.25rem] md:rounded-[1.5rem] bg-[#8b5cf6] text-white font-black text-xs md:text-sm uppercase tracking-wider hover:bg-[#7c3aed] hover:shadow-xl hover:shadow-[#8b5cf6]/25 transition-all group">
+                <Link 
+                  href={`/student/payment/${id}`}
+                  className="w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 rounded-[1.25rem] md:rounded-[1.5rem] bg-[#8b5cf6] text-white font-black text-xs md:text-sm uppercase tracking-wider hover:bg-[#7c3aed] hover:shadow-xl hover:shadow-[#8b5cf6]/25 transition-all group"
+                >
                   <span className="flex items-center justify-center gap-2">
                     Enroll Now <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                   </span>
-                </button>
+                </Link>
                 <div className="flex flex-row sm:flex-col items-center sm:items-start justify-between sm:justify-center px-4 gap-2 sm:gap-0 border sm:border-0 border-gray-100 rounded-xl py-3 sm:py-0">
                   <div className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Pricing</div>
                   <div className="text-2xl md:text-3xl font-black text-gray-900">{priceFormatted}</div>

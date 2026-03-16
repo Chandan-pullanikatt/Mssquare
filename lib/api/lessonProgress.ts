@@ -1,5 +1,6 @@
-import { supabase } from '../supabaseClient';
+import { supabase } from '../supabase/client';
 import { LessonProgress } from '../../types/database';
+
 
 export const lessonProgressApi = {
   async markLessonAsCompleted(userId: string, lessonId: string) {

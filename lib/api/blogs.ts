@@ -1,5 +1,6 @@
-import { supabase } from '../supabaseClient';
+import { supabase } from '../supabase/client';
 import { Blog } from '../../types/database';
+
 
 export const blogsApi = {
   async getBlogs(includeUnpublished = false) {

@@ -73,7 +73,7 @@ export default function StudentDashboard() {
       
       // Update stats based on fetched data
       setStats({
-        coursesCompleted: enrichedEnrollments.filter(e => e.completed).length,
+        coursesCompleted: enrichedEnrollments.filter((e: any) => e.completed).length,
         hoursStudied: 0, // Placeholder
         certificatesEarned: 0, // Will be fetched from certificatesApi later
         averageGrade: "N/A"
@@ -94,7 +94,7 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-10 pb-10">
+    <div className="w-full max-w-6xl mx-auto space-y-10 pb-10 px-2 lg:px-0">
 
       {/* Header Area */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

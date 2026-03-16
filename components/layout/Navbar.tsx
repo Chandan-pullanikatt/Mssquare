@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Menu, X, LogOut } from "lucide-react";
 import { COLORS, SHADOWS } from "@/lib/design-tokens";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { PortalSwitcher } from "./PortalSwitcher";
 
 interface NavbarProps {
   variant?: "dark" | "light";
@@ -12,6 +15,10 @@ interface NavbarProps {
 export function Navbar({ variant = "dark" }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const pathname = usePathname();
+
+  const isLandingPage = pathname === "/";
 
   // For light variant, always use scrolled styling
   const shouldUseLightStyling = variant === "light" || isScrolled;
@@ -34,8 +41,12 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
       <div className="px-[5%] h-[70px] flex items-center justify-between w-full">
         <div className="flex items-center gap-8">
           {/* Logo */}
-          <Link href="/" className={`text-[1.3rem] font-extrabold tracking-[-0.02em] font-heading transition-colors ${shouldUseLightStyling ? "text-gray-900" : "text-white"}`}>
-            MS<span className="text-primary-blue">square</span>
+          <Link href="/" className="relative h-12 w-48 transition-transform duration-300 hover:scale-[1.02]">
+            <img 
+              src={shouldUseLightStyling ? "/assets/logo-dark.png" : "/assets/logo-light.png"} 
+              alt="MSSquare" 
+              className="h-full w-full object-contain object-left transition-opacity duration-500"
+            />
           </Link>
         </div>
 
@@ -60,20 +71,37 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
         </nav>
 
         <div className="hidden md:flex items-center gap-6">
-          <Link 
-            href="/auth" 
-            className={`text-[0.85rem] font-bold tracking-wide transition-colors ${
-              shouldUseLightStyling ? "text-[#334155] hover:text-primary-purple" : "text-white/90 hover:text-white"
-            }`}
-          >
-            Login
-          </Link>
-          <Link
-            href="/auth/register"
-            className="bg-primary-purple hover:bg-primary-purpleDark text-white font-heading px-6 py-2.5 rounded-xl text-[0.85rem] font-bold transition-all duration-200 shadow-glow-purple"
-          >
-            Apply Now
-          </Link>
+          {user && !isLandingPage ? (
+            <div className="flex items-center gap-4">
+              <PortalSwitcher />
+              <button 
+                onClick={signOut}
+                className={`flex items-center gap-2 text-[0.8rem] font-bold tracking-wide transition-colors ${
+                  shouldUseLightStyling ? "text-rose-500 hover:text-rose-600" : "text-rose-400 hover:text-rose-300"
+                }`}
+              >
+                <LogOut size={16} />
+                Logout
+              </button>
+            </div>
+          ) : (
+            <>
+              <Link 
+                href="/auth" 
+                className={`text-[0.85rem] font-bold tracking-wide transition-colors ${
+                  shouldUseLightStyling ? "text-[#334155] hover:text-primary-purple" : "text-white/90 hover:text-white"
+                }`}
+              >
+                Login
+              </Link>
+              <Link
+                href="/auth/register"
+                className="bg-primary-purple hover:bg-primary-purpleDark text-white font-heading px-6 py-2.5 rounded-xl text-[0.85rem] font-bold transition-all duration-200 shadow-glow-purple"
+              >
+                Apply Now
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -135,22 +163,40 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
               Placements
             </Link>
             <div className={`flex flex-col gap-4 pt-4 border-t ${isScrolled ? "border-light-border" : "border-border"}`}>
-              <Link
-                href="/auth"
-                className={`text-center px-4 py-3 rounded-xl border font-bold transition-colors ${
-                  isScrolled ? "text-light-foreground border-light-border" : "text-light-foreground border-border"
-                }`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Login
-              </Link>
-              <Link
-                href="/auth/register"
-                className="bg-primary-purple hover:bg-primary-purpleDark text-center text-white px-4 py-3 rounded-xl transition-colors font-heading font-bold shadow-glow-purple"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Apply Now
-              </Link>
+              {user && !isLandingPage ? (
+                <div className="flex flex-col gap-4">
+                  <PortalSwitcher />
+                  <button
+                    onClick={() => {
+                      signOut();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-rose-100 text-rose-500 font-bold transition-colors bg-rose-50/30"
+                  >
+                    <LogOut size={18} />
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <Link
+                    href="/auth"
+                    className={`text-center px-4 py-3 rounded-xl border font-bold transition-colors ${
+                      isScrolled ? "text-light-foreground border-light-border" : "text-light-foreground border-border"
+                    }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    className="bg-primary-purple hover:bg-primary-purpleDark text-center text-white px-4 py-3 rounded-xl transition-colors font-heading font-bold shadow-glow-purple"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Apply Now
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         </div>

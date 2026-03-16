@@ -40,10 +40,10 @@ export default function StudentLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
 
   return (
-    <div className="flex min-h-screen bg-white text-gray-900 border-[8px] border-[#ede9fe] overflow-hidden">
+    <div className="flex min-h-screen bg-white text-gray-900 border-[8px] border-violet-50 overflow-hidden relative">
       {/* Mobile Menu Button */}
       <button
         className="lg:hidden fixed bottom-6 right-6 z-50 bg-[#8b5cf6] text-white p-4 rounded-full shadow-lg"
@@ -91,17 +91,19 @@ export default function StudentLayout({
         </div>
 
         {/* AI Assistant Button */}
-        <div className="px-4 py-2">
-          <Link href="/student/ai-coach" className="w-full flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-200 font-bold bg-[#111827] text-white hover:bg-[#1f2937] shadow-lg shadow-[#111827]/10">
-            <Zap size={20} className="text-[#8b5cf6] fill-[#8b5cf6]" />
-            <span className="text-[15px]">Ask AI Assistant</span>
+        <div className="px-4 py-4">
+          <Link href="/student/ai-coach" className="w-full flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 font-bold bg-[#111827] text-white hover:bg-gray-800 shadow-[0_10px_30px_rgba(17,24,39,0.15)] group">
+            <div className="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-400 group-hover:scale-110 transition-transform">
+              <Zap size={18} fill="currentColor" />
+            </div>
+            <span className="text-[14px]">AI Support</span>
           </Link>
         </div>
 
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-h-screen bg-[#fafafc] w-full overflow-hidden lg:pl-[260px]">
+      <main className="flex-1 flex flex-col min-h-screen bg-gray-50/30 w-full overflow-hidden lg:pl-[260px]">
         {/* Top Header */}
         <header className="h-[80px] bg-white/80 backdrop-blur-md px-8 flex items-center justify-between border-b border-gray-100 z-30 sticky top-0">
           <div className="flex-1 max-w-2xl relative">
@@ -157,11 +159,11 @@ export default function StudentLayout({
                 }}
               >
                 <div className="text-right hidden sm:block">
-                  <div className="text-sm font-bold text-gray-900 group-hover:text-[#8b5cf6] transition-colors">Alex Rivera</div>
-                  <div className="text-xs text-gray-500 font-medium">Student ID: #8821</div>
+                  <div className="text-sm font-bold text-gray-900 group-hover:text-[#8b5cf6] transition-colors">{user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User"}</div>
+                  <div className="text-xs text-gray-500 font-medium">Student ID: #{user?.id?.slice(-4) || "8821"}</div>
                 </div>
                 <div className={`w-10 h-10 rounded-full bg-[#fed7aa] border-2 transition-all overflow-hidden ${isProfileOpen ? 'border-[#8b5cf6] shadow-lg shadow-[#8b5cf6]/20 scale-110' : 'border-white shadow-sm'}`}>
-                  <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=Alex&backgroundColor=fed7aa`} alt="Alex" className="w-full h-full object-cover" />
+                  <img src={user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/notionists/svg?seed=${user?.email || 'Alex'}&backgroundColor=fed7aa`} alt="User" className="w-full h-full object-cover" />
                 </div>
               </button>
 
@@ -171,7 +173,7 @@ export default function StudentLayout({
                   <div className="absolute right-0 mt-3 w-64 bg-white border border-gray-100 rounded-3xl shadow-xl shadow-black/5 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                     <div className="p-5 border-b border-gray-50 bg-gray-50/50">
                       <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Signed in as</div>
-                      <div className="text-sm font-bold text-gray-900 truncate">alex.rivera@example.com</div>
+                      <div className="text-sm font-bold text-gray-900 truncate">{user?.email}</div>
                     </div>
                     <div className="p-2">
                       <Link

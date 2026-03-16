@@ -12,16 +12,32 @@ import {
   Mail,
   Lock,
   CheckCircle2,
-  ArrowLeft
+  ArrowLeft,
+  ChevronDown,
+  ShieldCheck,
+  Settings,
+  Grid3X3
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { authHelpers } from "@/utils/authHelpers";
 import { useRouter } from "next/navigation";
 
-type Portal = "student" | "business";
+type PortalType = {
+  id: string;
+  name: string;
+  href: string;
+  icon: any;
+  description: string;
+};
+
+const PORTALS: PortalType[] = [
+  { id: 'student', name: 'Student Account', href: '/student-dashboard', icon: GraduationCap, description: 'Register as a student' },
+  { id: 'business', name: 'Business Account', href: '/business-dashboard', icon: Briefcase, description: 'Register as a business' },
+];
 
 export default function RegisterPage() {
-  const [portal, setPortal] = useState<Portal>("student");
+  const [selectedPortal, setSelectedPortal] = useState<PortalType>(PORTALS[0]);
+  const [showPortalDropdown, setShowPortalDropdown] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,16 +74,18 @@ export default function RegisterPage() {
 
     setIsLoading(true);
     try {
-      await authHelpers.signUp(
+      const authData = await authHelpers.signUp(
         formData.email, 
         formData.password, 
         formData.fullName, 
-        portal === "business" ? "business_admin" : "student"
+        selectedPortal.id === "business" ? "business_admin" : "student"
       );
+      
       setSuccess(true);
-      // Wait a bit then redirect
+      // Wait a bit then redirect to auth (login) as they need to verify email usually
+      // If auto-confirm is on, we could redirect to dashboard, but staying safe.
       setTimeout(() => {
-        router.push("/auth"); // Redirect to login
+        router.push("/auth");
       }, 3000);
     } catch (err: any) {
       setError(err.message || "An error occurred during registration");
@@ -189,42 +207,60 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          {/* Portal Selection Cards */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
+          {/* Portal Selection Dropdown (Consistent with Login) */}
+          <div className="relative mb-4 z-30">
+            <label className="text-[0.7rem] font-bold text-[#334155] ml-1 mb-1.5 block">Registration Type</label>
             <button
-              onClick={() => setPortal("student")}
-              className={`relative flex flex-col items-center gap-2 p-3.5 rounded-xl border-2 transition-all duration-300 bg-white ${
-                portal === "student" 
-                ? "border-primary-purple shadow-xl shadow-primary-purple/5" 
-                : "border-gray-100 hover:border-gray-200"
-              }`}
+              type="button"
+              onClick={() => setShowPortalDropdown(!showPortalDropdown)}
+              className="w-full flex items-center justify-between p-3.5 rounded-xl border-2 border-gray-100 bg-white hover:border-primary-purple/30 transition-all group shadow-sm"
             >
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                portal === "student" ? "bg-primary-purple/10 text-primary-purple" : "bg-gray-50 text-[#94A3B8]"
-              }`}>
-                <GraduationCap size={18} />
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-primary-purple/10 flex items-center justify-center text-primary-purple group-hover:scale-110 transition-transform">
+                  <selectedPortal.icon size={18} />
+                </div>
+                <div className="flex flex-col items-start text-left">
+                  <span className="text-[0.8rem] font-bold text-[#0F172A] leading-tight">{selectedPortal.name}</span>
+                  <span className="text-[0.65rem] text-[#94A3B8] font-medium">{selectedPortal.description}</span>
+                </div>
               </div>
-              <span className={`font-bold text-[0.75rem] tracking-wide ${portal === "student" ? "text-[#0F172A]" : "text-[#94A3B8]"}`}>
-                Student Account
-              </span>
+              <ChevronDown size={18} className={`text-[#94A3B8] transition-transform duration-300 ${showPortalDropdown ? 'rotate-180' : ''}`} />
             </button>
-            <button
-              onClick={() => setPortal("business")}
-              className={`relative flex flex-col items-center gap-2 p-3.5 rounded-xl border-2 transition-all duration-300 bg-white ${
-                portal === "business" 
-                ? "border-primary-purple shadow-xl shadow-primary-purple/5" 
-                : "border-gray-100 hover:border-gray-200"
-              }`}
-            >
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                portal === "business" ? "bg-primary-purple/10 text-primary-purple" : "bg-gray-50 text-[#94A3B8]"
-              }`}>
-                <Briefcase size={18} />
-              </div>
-              <span className={`font-bold text-[0.75rem] tracking-wide ${portal === "business" ? "text-[#0F172A]" : "text-[#94A3B8]"}`}>
-                Business Account
-              </span>
-            </button>
+
+            <AnimatePresence>
+              {showPortalDropdown && (
+                <motion.div
+                  initial={{ opacity: 0, y: 5, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 5, scale: 0.98 }}
+                  className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl p-2 z-50 overflow-hidden"
+                >
+                  {PORTALS.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedPortal(p);
+                        setShowPortalDropdown(false);
+                      }}
+                      className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all group ${
+                        selectedPortal.id === p.id ? 'bg-primary-purple/5' : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                        selectedPortal.id === p.id ? 'bg-primary-purple text-white' : 'bg-gray-50 text-gray-400 group-hover:text-primary-purple'
+                      }`}>
+                        <p.icon size={16} />
+                      </div>
+                      <div className="flex flex-col items-start text-left">
+                        <span className={`text-[0.75rem] font-bold ${selectedPortal.id === p.id ? 'text-primary-purple' : 'text-gray-700'}`}>{p.name}</span>
+                        <span className="text-[0.6rem] text-gray-400 font-medium">{p.description}</span>
+                      </div>
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Register Form Card */}
@@ -347,7 +383,7 @@ export default function RegisterPage() {
                 >
                   {isLoading ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  ) : `Create ${portal.charAt(0).toUpperCase() + portal.slice(1)} Account`}
+                  ) : `Create ${selectedPortal.name}`}
                 </button>
               </div>
             </form>

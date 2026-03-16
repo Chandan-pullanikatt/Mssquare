@@ -7,8 +7,12 @@ export function Footer() {
       <div className="px-[5%] max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-16">
           <div className="flex flex-col gap-4">
-            <Link href="/" className="text-[1.3rem] font-extrabold tracking-[-0.02em] font-heading text-white">
-              MS<span className="text-primary-blue">square</span>
+            <Link href="/" className="relative h-12 w-48 transition-transform duration-300 hover:scale-[1.02]">
+              <img 
+                src="/assets/logo-light.png" 
+                alt="MSSquare" 
+                className="h-full w-full object-contain object-left"
+              />
             </Link>
             <p className="text-muted text-[0.85rem] leading-[1.6]">
               Hyderabad's leading tech training and consultancy company. We train developers, build products, and accelerate startups — all under one roof.

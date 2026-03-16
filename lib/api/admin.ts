@@ -1,4 +1,5 @@
-import { supabase } from '../supabaseClient';
+import { supabase } from '../supabase/client';
+
 
 export const adminApi = {
   async getDashboardStats() {
@@ -12,8 +13,8 @@ export const adminApi = {
       { data: recentActivity },
       { data: recentSignups }
     ] = await Promise.all([
-      supabase.from('users').select('*', { count: 'exact', head: true }),
-      supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'student'),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
       supabase.from('courses').select('*', { count: 'exact', head: true }),
       supabase.from('blogs').select('*', { count: 'exact', head: true }),
       supabase.from('enrollments').select('*', { count: 'exact', head: true }),
@@ -27,8 +28,8 @@ export const adminApi = {
         `)
         .order('enrolled_at', { ascending: false })
         .limit(5),
-      supabase.from('users')
-        .select('id, name, created_at, role')
+      supabase.from('profiles')
+        .select('id, email, created_at, role')
         .order('created_at', { ascending: false })
         .limit(5)
     ]);
@@ -43,5 +44,36 @@ export const adminApi = {
       recentActivity: recentActivity || [],
       recentSignups: recentSignups || []
     };
+  },
+
+  async getCourses() {
+    const { data, error } = await supabase
+      .from('courses')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteCourse(id: string) {
+    const { error } = await supabase
+      .from('courses')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+    return true;
+  },
+
+  async createCourse(courseData: any) {
+    const { data, error } = await supabase
+      .from('courses')
+      .insert([courseData as any])
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
   }
 };

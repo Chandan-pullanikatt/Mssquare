@@ -1,5 +1,6 @@
-import { supabase } from '../supabaseClient';
+import { supabase } from '../supabase/client';
 import { Lead } from '../../types/database';
+
 
 export const leadsApi = {
   async submitLead(lead: Omit<Lead, 'id' | 'created_at'>) {

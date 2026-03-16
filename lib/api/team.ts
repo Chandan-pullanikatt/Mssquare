@@ -1,5 +1,6 @@
-import { supabase } from '../supabaseClient';
+import { supabase } from '../supabase/client';
 import { TeamMember } from '../../types/database';
+
 
 export const teamApi = {
   async getTeamMembers() {

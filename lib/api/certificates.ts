@@ -1,5 +1,6 @@
-import { supabase } from '../supabaseClient';
+import { supabase } from '../supabase/client';
 import { Certificate } from '../../types/database';
+
 
 export const certificatesApi = {
   async issueCertificate(certificate: Omit<Certificate, 'id' | 'issued_at'>) {

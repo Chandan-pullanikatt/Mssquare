@@ -11,11 +11,12 @@ export function CoursesNavbar() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
       <div className="px-[5%] h-[70px] flex items-center justify-between w-full max-w-7xl mx-auto">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 relative z-50">
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#7C3AED] to-[#9333EA] rounded-lg flex items-center justify-center text-white shadow-lg">
-            <Rocket size={18} fill="white" className="md:w-5 md:h-5" />
-          </div>
-          <span className="text-lg md:text-xl font-extrabold text-gray-900 tracking-tight">MSSquare</span>
+        <Link href="/" className="relative h-10 w-40 transition-transform duration-300 hover:scale-[1.02]">
+          <img 
+            src="/assets/logo-dark.png" 
+            alt="MSSquare" 
+            className="h-full w-full object-contain object-left"
+          />
         </Link>
 
         {/* Desktop Nav */}

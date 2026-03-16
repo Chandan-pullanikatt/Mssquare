@@ -1,5 +1,6 @@
-import { supabase } from '../supabaseClient';
+import { supabase } from '../supabase/client';
 import { Enrollment } from '../../types/database';
+
 
 export const enrollmentsApi = {
   async getEnrollmentsByUser(userId: string) {

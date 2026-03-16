@@ -8,11 +8,12 @@ export function WebServicesNavbar() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
       <div className="px-[5%] h-[70px] flex items-center justify-between w-full max-w-7xl mx-auto">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-[#7C3AED] to-[#9333EA] rounded-lg flex items-center justify-center text-white shadow-lg">
-            <Rocket size={20} fill="white" />
-          </div>
-          <span className="text-xl font-extrabold text-gray-900">MSSquare</span>
+        <Link href="/" className="relative h-10 w-40 transition-transform duration-300 hover:scale-[1.02]">
+          <img 
+            src="/assets/logo-dark.png" 
+            alt="MSSquare" 
+            className="h-full w-full object-contain object-left"
+          />
         </Link>
 
         {/* Desktop Nav */}

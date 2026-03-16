@@ -1,5 +1,6 @@
-import { supabase } from '../supabaseClient';
+import { supabase } from '../supabase/client';
 import { Testimonial } from '../../types/database';
+
 
 export const testimonialsApi = {
   async getTestimonials() {

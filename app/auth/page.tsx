@@ -8,32 +8,64 @@ import {
   Eye,
   EyeOff,
   Rocket,
-  ArrowLeft
+  ArrowLeft,
+  ChevronDown,
+  ShieldCheck,
+  Settings,
+  Grid3X3,
+  Mail,
+  Lock
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { COLORS } from "@/lib/design-tokens";
 
 import { authHelpers } from "@/utils/authHelpers";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 
-type Portal = "student" | "business";
+type PortalType = {
+  id: string;
+  name: string;
+  href: string;
+  icon: any;
+  description: string;
+};
+
+const PORTALS: PortalType[] = [
+  { id: 'student', name: 'Student LMS', href: '/student/dashboard', icon: GraduationCap, description: 'Your learning journey' },
+  { id: 'business_client', name: 'Business Client', href: '/business/dashboard', icon: Briefcase, description: 'Track your projects' },
+  { id: 'lms_admin', name: 'LMS Admin', href: '/lms-admin/dashboard', icon: Settings, description: 'Course management' },
+  { id: 'business_admin', name: 'Business Admin', href: '/business-admin/dashboard', icon: ShieldCheck, description: 'Client request management' },
+  { id: 'cms_admin', name: 'CMS Admin', href: '/cms-admin', icon: Grid3X3, description: 'CEO content control' },
+];
 
 export default function AuthPage() {
-  const [portal, setPortal] = useState<Portal>("student");
+  const [selectedPortal, setSelectedPortal] = useState<PortalType>(PORTALS[0]);
+  const [showPortalDropdown, setShowPortalDropdown] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const pathname = usePathname();
+  const { user, role, loading: authLoading } = useAuth();
 
+  // The user explicitly requested to always see the login page, so we removed the auto-redirect effect.
+
+  // Auto-redirect if already logged in – only if they are not in the middle of an explicit selection
   useEffect(() => {
-    if (!authLoading && user) {
-      router.push("/dashboard");
+    // Only auto-redirect if session exists and we are NOT loading and not currently submitting
+    if (!authLoading && user && role && !isLoading) {
+      // Check if current role matches what's selected to avoid fighting the user
+      if (role === selectedPortal.id) {
+        const path = authHelpers.getRedirectPath(role);
+        path.then(p => {
+          if (pathname !== p) window.location.href = p;
+        });
+      }
     }
-  }, [user, authLoading, router]);
+  }, [user, role, authLoading, pathname, isLoading, selectedPortal.id]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,10 +76,30 @@ export default function AuthPage() {
       const { data, error: authError } = await authHelpers.signIn(email, password);
       if (authError) throw authError;
       
-      router.push("/dashboard");
+      if (data.user) {
+        // Fetch real role from DB to compare with selection
+        const userRole = await authHelpers.getUserRole(data.user.id);
+        
+        if (userRole !== selectedPortal.id) {
+          // Allow LMS Admin to access Student portal for testing/oversight
+          const isAdminAccessingStudent = userRole === 'lms_admin' && selectedPortal.id === 'student';
+          
+          if (!isAdminAccessingStudent) {
+            setError(`Access denied. Your account is registered as ${userRole?.replace('_', ' ')} but you chose ${selectedPortal.name}.`);
+            setIsLoading(false);
+            // Sign out so they don't get auto-redirected by middleware/context on reload
+            await authHelpers.signOut();
+            return;
+          }
+        }
+
+        // Use window.location.href for a forceful full-page reload to the dashboard
+        window.location.href = selectedPortal.href;
+      } else {
+        setIsLoading(false);
+      }
     } catch (err: any) {
       setError(err.message || "Invalid email or password");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -55,6 +107,7 @@ export default function AuthPage() {
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
+      localStorage.setItem("portal", selectedPortal.id);
       await authHelpers.signInWithGoogle();
     } catch (err: any) {
       setError(err.message || "Google login failed");
@@ -133,49 +186,67 @@ export default function AuthPage() {
 
         <div className="w-full max-w-[400px] flex flex-col h-full justify-between py-2">
           
-          <div className="text-center mt-4 mb-2">
+          <div className="text-center mt-4 mb-3">
             <h1 className="text-[1.8rem] lg:text-[2.1rem] font-black mb-1 font-heading tracking-tight leading-tight" style={{ color: '#0F172A' }}>Welcome to MSSquare</h1>
             <p className="font-medium text-[0.85rem] leading-relaxed" style={{ color: '#334155' }}>
-              Access your learning dashboard or manage your business projects.
+              Select your destination and sign in to continue.
             </p>
           </div>
 
-          {/* Portal Selection Cards */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
+          {/* New Portal Selection Dropdown */}
+          <div className="relative mb-4 z-30">
+            <label className="text-[0.7rem] font-bold text-[#334155] ml-1 mb-1.5 block">Select Destination</label>
             <button
-              onClick={() => setPortal("student")}
-              className={`relative flex flex-col items-center gap-2 p-3.5 rounded-xl border-2 transition-all duration-300 bg-white ${
-                portal === "student" 
-                ? "border-primary-purple shadow-xl shadow-primary-purple/5" 
-                : "border-light-border hover:border-light-border/50"
-              }`}
+              type="button"
+              onClick={() => setShowPortalDropdown(!showPortalDropdown)}
+              className="w-full flex items-center justify-between p-3.5 rounded-xl border-2 border-gray-100 bg-white hover:border-primary-purple/30 transition-all group shadow-sm"
             >
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                portal === "student" ? "bg-primary-purple/10 text-primary-purple" : "bg-light-surface text-[#94A3B8]"
-              }`}>
-                <GraduationCap size={18} />
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-primary-purple/10 flex items-center justify-center text-primary-purple group-hover:scale-110 transition-transform">
+                  <selectedPortal.icon size={18} />
+                </div>
+                <div className="flex flex-col items-start text-left">
+                  <span className="text-[0.8rem] font-bold text-[#0F172A] leading-tight">{selectedPortal.name}</span>
+                  <span className="text-[0.65rem] text-[#94A3B8] font-medium">{selectedPortal.description}</span>
+                </div>
               </div>
-              <span className={`font-bold text-[0.75rem] tracking-wide ${portal === "student" ? "text-[#0F172A]" : "text-[#94A3B8]"}`}>
-                Student Portal
-              </span>
+              <ChevronDown size={18} className={`text-[#94A3B8] transition-transform duration-300 ${showPortalDropdown ? 'rotate-180' : ''}`} />
             </button>
-            <button
-              onClick={() => setPortal("business")}
-              className={`relative flex flex-col items-center gap-2 p-3.5 rounded-xl border-2 transition-all duration-300 bg-white ${
-                portal === "business" 
-                ? "border-primary-purple shadow-xl shadow-primary-purple/5" 
-                : "border-light-border hover:border-light-border/50"
-              }`}
-            >
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                portal === "business" ? "bg-primary-purple/10 text-primary-purple" : "bg-light-surface text-[#94A3B8]"
-              }`}>
-                <Briefcase size={18} fill={portal === "business" ? "currentColor" : "none"} className={portal === "business" ? "opacity-80" : ""} />
-              </div>
-              <span className={`font-bold text-[0.75rem] tracking-wide ${portal === "business" ? "text-[#0F172A]" : "text-[#94A3B8]"}`}>
-                Business Portal
-              </span>
-            </button>
+
+            <AnimatePresence>
+              {showPortalDropdown && (
+                <motion.div
+                  initial={{ opacity: 0, y: 5, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 5, scale: 0.98 }}
+                  className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl p-2 z-50 max-h-[280px] overflow-y-auto"
+                >
+                  {PORTALS.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedPortal(p);
+                        setShowPortalDropdown(false);
+                      }}
+                      className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all group ${
+                        selectedPortal.id === p.id ? 'bg-primary-purple/5' : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                        selectedPortal.id === p.id ? 'bg-primary-purple text-white' : 'bg-gray-50 text-gray-400 group-hover:text-primary-purple'
+                      }`}>
+                        <p.icon size={16} />
+                      </div>
+                      <div className="flex flex-col items-start text-left">
+                        <span className={`text-[0.75rem] font-bold ${selectedPortal.id === p.id ? 'text-primary-purple' : 'text-gray-700'}`}>{p.name}</span>
+                        <span className="text-[0.6rem] text-gray-400 font-medium">{p.description}</span>
+                      </div>
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Login Form Card */}
@@ -189,36 +260,44 @@ export default function AuthPage() {
 
               <div className="space-y-1.5">
                 <label className="text-[0.7rem] font-bold text-[#334155] ml-1">Email address</label>
-                <input 
-                  required
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@company.com"
-                  className="w-full bg-light-surface/30 border border-light-border rounded-lg py-2.5 px-4 text-sm focus:ring-4 focus:ring-primary-purple/5 focus:border-primary-purple outline-none transition-all placeholder:text-[#94A3B8] font-medium text-[#0F172A]"
-                />
+                <div className="relative group">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary-purple transition-colors">
+                    <Mail size={16} />
+                  </span>
+                  <input 
+                    required
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@company.com"
+                    className="w-full bg-gray-50/50 border border-gray-100 rounded-lg py-2.5 pl-11 pr-4 text-sm focus:ring-4 focus:ring-primary-purple/5 focus:border-primary-purple outline-none transition-all placeholder:text-gray-300 font-medium text-[#0F172A]"
+                  />
+                </div>
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center ml-1">
                   <label className="text-[0.7rem] font-bold text-[#334155]">Password</label>
                   <button type="button" className="text-[0.65rem] font-black text-primary-purple uppercase tracking-wider hover:underline">
-                    Forgot password?
+                    Forgot?
                   </button>
                 </div>
                 <div className="relative group">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary-purple transition-colors">
+                    <Lock size={16} />
+                  </span>
                   <input 
                     required
                     type={showPassword ? "text" : "password"} 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-light-surface/30 border border-light-border rounded-lg py-2.5 pl-4 pr-12 text-sm focus:ring-4 focus:ring-primary-purple/5 focus:border-primary-purple outline-none transition-all placeholder:text-[#94A3B8] font-medium text-[#0F172A]"
+                    className="w-full bg-gray-50/50 border border-gray-100 rounded-lg py-2.5 pl-11 pr-12 text-sm focus:ring-4 focus:ring-primary-purple/5 focus:border-primary-purple outline-none transition-all placeholder:text-gray-300 font-medium text-[#0F172A]"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#334155]"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500"
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -270,25 +349,6 @@ export default function AuthPage() {
             </div>
           </div>
 
-          {/* Demo Access Section */}
-          <div className="shrink-0 mb-4 px-2">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="h-[1px] flex-1 bg-light-border"></div>
-              <span className="text-[0.6rem] font-black text-light-foreground/40 uppercase tracking-[0.2em]">Try the Demo</span>
-              <div className="h-[1px] flex-1 bg-light-border"></div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <Link href="/student/dashboard" className="flex items-center justify-center gap-2 px-3 py-2 bg-white hover:bg-gray-50 border border-gray-100 rounded-lg transition-all group shadow-sm">
-                <Eye size={14} className="text-gray-400 group-hover:text-gray-600" />
-                <span className="text-[0.7rem] font-bold text-gray-500">Student Demo</span>
-              </Link>
-              <Link href="/business/dashboard" className="flex items-center justify-center gap-2 px-3 py-2 bg-white hover:bg-gray-50 border border-gray-100 rounded-lg transition-all group shadow-sm">
-                <Eye size={14} className="text-gray-400 group-hover:text-gray-600" />
-                <span className="text-[0.7rem] font-bold text-gray-500">Business Demo</span>
-              </Link>
-            </div>
-          </div>
 
           {/* Footer links */}
           <div className="flex items-center justify-center gap-4 lg:gap-6 text-[0.6rem] font-bold text-gray-400 uppercase tracking-[0.15em] shrink-0 pb-4">

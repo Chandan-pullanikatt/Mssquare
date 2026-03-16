@@ -6,27 +6,30 @@ import Link from "next/link";
 
 const programs = [
   {
-    image: "/assets/course-fullstack.png",
+    image: "/assets/courses/ArtificialIntelligence.jpg",
     badge: "POPULAR",
-    title: "Advanced Fullstack Mastery",
-    desc: "Next.js, TypeScript, and AWS Serverless architecture.",
+    title: "Artificial Intelligence",
+    desc: "Learn the fundamentals of AI including intelligent systems, neural networks, and real-world AI applications.",
     meta: "12 WEEKS · INTENSIVE",
+    slug: "artificial-intelligence",
     highlight: true,
   },
   {
-    image: "/assets/course-design.png",
+    image: "/assets/courses/machinelearning.jpg",
     badge: null,
-    title: "UX & Product Design",
-    desc: "Figma, Design Systems, and Behavioral Psychology.",
-    meta: "8 WEEKS · PRACTICAL",
+    title: "Machine Learning",
+    desc: "Understand machine learning algorithms, data modeling, predictive systems, and practical ML implementation.",
+    meta: "10 WEEKS · PRACTICAL",
+    slug: "machine-learning",
     highlight: false,
   },
   {
-    image: "/assets/course-backend.png",
+    image: "/assets/courses/humanresources.jpg",
     badge: null,
-    title: "Distributed Systems",
-    desc: "Go, Kubernetes, and Scalable Database Design.",
-    meta: "10 WEEKS · ENGINEERING",
+    title: "Human Resources",
+    desc: "Learn HR management fundamentals including recruitment, employee relations, performance management, and organizational development.",
+    meta: "8 WEEKS · PROFESSIONAL",
+    slug: "human-resources",
     highlight: false,
   },
 ];
@@ -56,7 +59,7 @@ export function Programs() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
         {programs.map((program, i) => (
           <div
             key={i}
@@ -81,17 +84,27 @@ export function Programs() {
               {program.title}
             </h3>
 
-            <p className="text-gray-400 text-[0.92rem] leading-[1.5] font-medium mb-4">
+            <p className="text-gray-500 text-[0.92rem] leading-[1.5] font-medium mb-6 line-clamp-2">
               {program.desc}
             </p>
 
-            <div className="flex items-center gap-3 text-[0.7rem] font-bold tracking-widest text-gray-900 uppercase">
-              {program.meta.split(' · ').map((m, idx) => (
-                <span key={idx} className="flex items-center gap-3">
-                  {m}
-                  {idx === 0 && <span className="w-1 h-1 bg-gray-300 rounded-full"></span>}
-                </span>
-              ))}
+            <div className="mt-auto">
+              <div className="flex items-center gap-3 text-[0.7rem] font-bold tracking-widest text-gray-400 uppercase mb-6">
+                {program.meta.split(' · ').map((m, idx) => (
+                  <span key={idx} className="flex items-center gap-3">
+                    {m}
+                    {idx === 0 && <span className="w-1 h-1 bg-gray-300 rounded-full"></span>}
+                  </span>
+                ))}
+              </div>
+
+              <Link 
+                href={`/courses/${program.slug}`}
+                className="inline-flex items-center justify-center gap-2 w-full py-4 bg-gray-900 text-white rounded-xl font-bold text-[0.9rem] hover:bg-[#7C3AED] transition-all duration-300 group/btn"
+              >
+                Enroll Now
+                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+              </Link>
             </div>
           </div>
         ))}
@@ -99,3 +112,4 @@ export function Programs() {
     </section>
   );
 }
+

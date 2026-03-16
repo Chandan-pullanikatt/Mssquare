@@ -1,4 +1,4 @@
-export type UserRole = 'student' | 'admin' | 'business_admin' | 'ceo' | 'content_admin' | 'support_admin';
+export type UserRole = 'student' | 'business_client' | 'lms_admin' | 'business_admin' | 'cms_admin';
 
 export interface User {
   id: string;
@@ -116,6 +116,29 @@ export interface Certificate {
 export interface Database {
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          id: string;
+          user_id: string;
+          email: string | null;
+          role: UserRole;
+          created_at: string;
+        };
+        Insert: {
+          id: string;
+          user_id: string;
+          email?: string | null;
+          role?: UserRole;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          email?: string | null;
+          role?: UserRole;
+          created_at?: string;
+        };
+      };
       users: {
         Row: User;
         Insert: Omit<User, 'id' | 'created_at'> & { id?: string; created_at?: string };
@@ -170,6 +193,38 @@ export interface Database {
         Row: Certificate;
         Insert: Omit<Certificate, 'id' | 'issued_at'> & { id?: string; issued_at?: string };
         Update: Partial<Omit<Certificate, 'id' | 'issued_at'>>;
+      };
+      student_enrollments: {
+        Row: {
+          id: string;
+          student_id: string;
+          course_id: string;
+          payment_id: string | null;
+          order_id: string | null;
+          payment_status: string;
+          amount: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          student_id: string;
+          course_id: string;
+          payment_id?: string | null;
+          order_id?: string | null;
+          payment_status?: string;
+          amount: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          student_id?: string;
+          course_id?: string;
+          payment_id?: string | null;
+          order_id?: string | null;
+          payment_status?: string;
+          amount?: number;
+          created_at?: string;
+        };
       };
     };
   };

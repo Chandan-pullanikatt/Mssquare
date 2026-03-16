@@ -1,5 +1,6 @@
-import { supabase } from '../supabaseClient';
+import { supabase } from '../supabase/client';
 import { Module } from '../../types/database';
+
 
 export const modulesApi = {
   async getModulesByCourse(courseId: string) {

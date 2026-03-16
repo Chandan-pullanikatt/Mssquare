@@ -1,11 +1,21 @@
-import type { Metadata } from "next";
-import { Urbanist } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 
-const urbanist = Urbanist({
+const urbanist = localFont({
+  src: [
+    {
+      path: "../public/fonts/urbanist-latin-normal.woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/urbanist-latin-italic.woff2",
+      weight: "100 900",
+      style: "italic",
+    },
+  ],
   variable: "--font-urbanist",
-  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -19,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`dark scroll-smooth ${urbanist.variable}`}>
+    <html lang="en" className={`scroll-smooth ${urbanist.variable}`}>
       <body className={`font-sans antialiased min-h-screen flex flex-col bg-background text-foreground selection:bg-primary-blue/30`}>
         <AuthProvider>
           {children}
