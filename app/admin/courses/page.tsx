@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Layout, MoreHorizontal, BookOpen, Layers, Trash2 } from "lucide-react";
+import { Plus, Layout, MoreHorizontal, BookOpen, Layers, Trash2, Globe } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { coursesApi } from "@/lib/api/courses";
@@ -134,14 +134,16 @@ export default function CourseManagement() {
                 </div>
 
                 <div className="flex items-center gap-2 mt-auto">
-                  <Link href={`/courses/${course.id}`} className="flex-1">
+                  <Link href={`/admin/courses/edit/${course.id}`} className="flex-1">
                     <button className="w-full py-3 rounded-xl bg-gray-50 text-gray-600 font-bold text-xs uppercase tracking-widest hover:bg-[#8b5cf6] hover:text-white transition-all flex items-center justify-center gap-2">
-                       View Page
+                       Edit Course
                     </button>
                   </Link>
-                  <button className="p-3 rounded-xl border border-gray-100 text-gray-400 hover:text-gray-900 transition-all">
-                    <MoreHorizontal size={20} />
-                  </button>
+                  <Link href={`/courses/${course.id}`} target="_blank">
+                    <button className="p-3 rounded-xl border border-gray-100 text-gray-400 hover:text-gray-900 transition-all">
+                      <Globe size={18} />
+                    </button>
+                  </Link>
                 </div>
               </div>
             </div>

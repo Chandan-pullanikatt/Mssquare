@@ -1,10 +1,11 @@
-export type UserRole = 'student' | 'admin' | 'business_admin' | 'ceo';
+export type UserRole = 'student' | 'admin' | 'business_admin' | 'ceo' | 'content_admin' | 'support_admin';
 
 export interface User {
   id: string;
   name: string;
   // email removed to match auth.users
   role: UserRole;
+  status?: 'active' | 'suspended';
   created_at: string;
 }
 

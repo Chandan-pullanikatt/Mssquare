@@ -37,11 +37,12 @@ export const authHelpers = {
       case 'student':
         return '/student/dashboard';
       case 'admin':
-        return '/lms-admin/dashboard';
-      case 'business_admin':
-        return '/business-dashboard';
       case 'ceo':
-        return '/adminpanel/dashboard';
+      case 'content_admin':
+      case 'support_admin':
+        return '/admin';
+      case 'business_admin':
+        return '/dashboard';
       default:
         return '/';
     }

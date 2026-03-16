@@ -29,17 +29,13 @@ import { useState } from "react";
 import Image from "next/image";
 
 const adminSidebarItems = [
-  { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { name: "Website Content", href: "/admin/content", icon: Globe },
-  { name: "Courses", href: "/admin/courses", icon: BookOpen },
-  { name: "Blog Posts", href: "/admin/blog", icon: FileText },
-  { name: "Media Manager", href: "/admin/media", icon: ImageIcon },
-  { name: "Users", href: "/admin/users", icon: Users },
-  { name: "Leads & Inquiries", href: "/admin/leads", icon: MessageSquare },
-  { name: "Enrollments", href: "/admin/enrollments", icon: UserCheck },
-  { name: "FAQ & Legal", href: "/admin/faq-legal", icon: ShieldCheck },
-  { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-  { name: "SEO & Settings", href: "/admin/settings", icon: SearchCode },
+  { name: "LMS Overview", href: "/lms-admin", icon: LayoutDashboard },
+  { name: "Manage Courses", href: "/lms-admin/courses", icon: BookOpen },
+  { name: "Student Management", href: "/lms-admin/students", icon: Users },
+  { name: "Enrollments", href: "/lms-admin/enrollments", icon: UserCheck },
+  { name: "Course Analytics", href: "/lms-admin/analytics", icon: BarChart3 },
+  { name: "Certificates", href: "/lms-admin/certificates", icon: Award },
+  { name: "Instructor Management", href: "/lms-admin/instructors", icon: UserCheck },
 ];
 
 export default function AdminLayout({
@@ -74,7 +70,7 @@ export default function AdminLayout({
           </div>
           <div>
             <div className="font-bold text-lg leading-tight text-gray-900">MSsquare</div>
-            <div className="text-xs text-gray-500 font-bold uppercase tracking-wider">Admin Panel</div>
+            <div className="text-xs text-gray-500 font-bold uppercase tracking-wider">LMS Admin</div>
           </div>
         </div>
 
@@ -169,10 +165,10 @@ export default function AdminLayout({
                   setIsNotificationsOpen(false);
                 }}
               >
-                <div className="text-right hidden sm:block">
-                  <div className="text-sm font-bold text-gray-900 group-hover:text-[#8b5cf6] transition-colors">Admin User</div>
-                  <div className="text-xs text-[#8b5cf6] font-bold uppercase tracking-tighter">Super Admin</div>
-                </div>
+                  <div className="text-right hidden sm:block">
+                    <div className="text-sm font-bold text-gray-900 group-hover:text-[#8b5cf6] transition-colors">LMS Admin</div>
+                    <div className="text-xs text-[#8b5cf6] font-bold uppercase tracking-tighter">Manager</div>
+                  </div>
                 <div className={`w-10 h-10 rounded-full bg-[#8b5cf6] border-2 transition-all overflow-hidden flex items-center justify-center text-white ${isProfileOpen ? 'border-[#8b5cf6] shadow-lg shadow-[#8b5cf6]/20 scale-110' : 'border-white shadow-sm'}`}>
                   <Users size={20} />
                 </div>

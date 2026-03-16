@@ -25,6 +25,17 @@ export const blogsApi = {
     return data as Blog;
   },
 
+  async getBlogById(id: string) {
+    const { data, error } = await supabase
+      .from('blogs')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) throw error;
+    return data as Blog;
+  },
+
   async createBlog(blog: Omit<Blog, 'id' | 'created_at'>) {
     const { data, error } = await supabase
       .from('blogs')

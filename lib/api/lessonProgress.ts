@@ -23,6 +23,16 @@ export const lessonProgressApi = {
     return data;
   },
 
+  async getAllUserProgress(userId: string) {
+    const { data, error } = await supabase
+      .from('lesson_progress')
+      .select('*, lessons!inner(course_id)')
+      .eq('user_id', userId);
+    
+    if (error) throw error;
+    return data;
+  },
+
   async isLessonCompleted(userId: string, lessonId: string) {
     const { data, error } = await supabase
       .from('lesson_progress')

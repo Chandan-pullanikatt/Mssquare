@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Settings, Mail, CreditCard, Award, Shield, Globe, Bell, Save } from "lucide-react";
+import { Settings, Mail, CreditCard, Award, Shield, Globe, Bell, Save, SearchCode, ImageIcon } from "lucide-react";
 
 export default function AdminSettings() {
-  const [activeTab, setActiveTab] = useState<"general" | "email" | "payments" | "certificates">("general");
+  const [activeTab, setActiveTab] = useState<"general" | "seo" | "email" | "payments" | "certificates">("general");
 
   const tabs = [
     { id: "general", label: "General", icon: Globe },
+    { id: "seo", label: "Global SEO", icon: SearchCode },
     { id: "email", label: "Email Config", icon: Mail },
     { id: "payments", label: "Payments", icon: CreditCard },
     { id: "certificates", label: "Certificates", icon: Award },
@@ -96,7 +97,68 @@ export default function AdminSettings() {
               </div>
             )}
 
-            {activeTab !== "general" && (
+            {activeTab === "seo" && (
+              <div className="space-y-8 animate-in fade-in duration-300">
+                <div className="flex items-center gap-4 mb-8">
+                   <div className="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-[#8b5cf6]">
+                      <SearchCode size={24} />
+                   </div>
+                   <div>
+                      <h3 className="text-xl font-bold text-gray-900">Global SEO Settings</h3>
+                      <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Master defaults for your entire website</p>
+                   </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Default Title Pattern</label>
+                    <input 
+                      type="text" 
+                      defaultValue="MSSquare | %s"
+                      className="w-full bg-gray-50 border-none rounded-2xl py-3.5 px-5 text-sm font-medium focus:ring-2 focus:ring-[#8b5cf6]/20 outline-none" 
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Global Meta Description</label>
+                    <textarea 
+                      rows={3}
+                      defaultValue="MSSquare is the premier platform for software engineers to build real-world products."
+                      className="w-full bg-gray-50 border-none rounded-2xl py-3.5 px-5 text-sm font-medium focus:ring-2 focus:ring-[#8b5cf6]/20 outline-none resize-none" 
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                       <label className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Social Preview Image</label>
+                       <div className="aspect-video bg-gray-50 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed border-gray-100 hover:border-[#8b5cf6] transition-all cursor-pointer overflow-hidden">
+                          <ImageIcon size={32} className="text-gray-300 mb-2" />
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">OG:IMAGE (1200x630)</span>
+                       </div>
+                    </div>
+                    <div className="space-y-4">
+                       <div className="space-y-3">
+                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Google Analytics ID</label>
+                         <input 
+                           type="text" 
+                           placeholder="G-XXXXXXXXXX"
+                           className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-xs font-bold text-gray-600 outline-none" 
+                         />
+                       </div>
+                       <div className="space-y-3">
+                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Facebook Pixel ID</label>
+                         <input 
+                           type="text" 
+                           placeholder="PF-XXXXXXXXXX"
+                           className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-xs font-bold text-gray-600 outline-none" 
+                         />
+                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab !== "general" && activeTab !== "seo" && (
               <div className="py-20 flex flex-col items-center justify-center text-center opacity-40 grayscale group">
                 <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                    <Shield size={32} />

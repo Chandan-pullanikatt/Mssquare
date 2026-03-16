@@ -1,24 +1,57 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Mail, Shield, UserX, CheckCircle, Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Mail, Shield, UserX, CheckCircle, Search, User as UserIcon, ShieldCheck, LifeBuoy, MoreVertical } from "lucide-react";
 import DataTable from "@/components/admin/DataTable";
-import { COLORS } from "@/lib/design-tokens";
+import { usersApi } from "@/lib/api/users";
+import { User, UserRole } from "@/types/database";
 
 export default function UserManagement() {
-  const [activeTab, setActiveTab] = useState<"students" | "instructors" | "admins">("students");
+  const [activeTab, setActiveTab] = useState<"students" | "admins">("students");
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const students = [
-    { id: 1, name: "Alex Rivera", email: "alex.rivera@example.com", joined: "Oct 12, 2025", status: "Active", courses: 5 },
-    { id: 2, name: "Sarah Connor", email: "sarah.c@example.com", joined: "Oct 10, 2025", status: "Active", courses: 3 },
-    { id: 3, name: "John Doe", email: "john.doe@example.com", joined: "Oct 08, 2025", status: "Suspended", courses: 1 },
-    { id: 4, name: "Emily Blunt", email: "emily.b@example.com", joined: "Oct 05, 2025", status: "Active", courses: 8 },
-  ];
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      // For now, list users by role since we don't have listAllUsers
+      const data = await usersApi.listUsersByRole(activeTab === "students" ? "student" : "admin");
+      setUsers(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const instructors = [
-    { id: 1, name: "Dr. Sarah Jenkins", email: "sarah.j@mssquare.com", joined: "Jan 2025", status: "Active", courses: 12 },
-    { id: 2, name: "Mark Thompson", email: "mark.t@mssquare.com", joined: "Feb 2025", status: "Active", courses: 8 },
-  ];
+  useEffect(() => {
+    fetchUsers();
+  }, [activeTab]);
+
+  const handleRoleChange = async (userId: string, role: UserRole) => {
+    try {
+      await usersApi.updateUser(userId, { role });
+      alert(`User role updated to ${role}`);
+      fetchUsers();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update role.");
+    }
+  };
+
+  const handleStatusChange = async (userId: string, currentStatus: string | undefined) => {
+    const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
+    if (confirm(`Are you sure you want to ${newStatus === 'suspended' ? 'suspend' : 'activate'} this user?`)) {
+      try {
+        await usersApi.updateUser(userId, { status: newStatus as any });
+        alert(`User status updated to ${newStatus}`);
+        fetchUsers();
+      } catch (err) {
+        console.error(err);
+        alert("Failed to update status.");
+      }
+    }
+  };
 
   const columns = [
     {
@@ -26,37 +59,81 @@ export default function UserManagement() {
       accessor: "name",
       render: (val: string, row: any) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-sm font-bold text-indigo-600 border border-indigo-100">
-            {val.charAt(0)}
+          <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-sm font-bold text-indigo-600 border border-indigo-100 relative">
+            {val?.charAt(0) || "U"}
+            {row.status === 'suspended' && (
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-rose-500 rounded-full border-2 border-white flex items-center justify-center">
+                <UserX size={8} className="text-white" />
+              </div>
+            )}
           </div>
           <div>
-            <div className="font-bold text-gray-900">{val}</div>
-            <div className="text-xs text-gray-500 font-medium">{row.email}</div>
+            <div className="font-bold text-gray-900 flex items-center gap-2">
+              {val || "Unknown"}
+              {row.status === 'suspended' && (
+                <span className="text-[8px] font-bold uppercase tracking-tighter bg-rose-50 text-rose-500 px-1.5 py-0.5 rounded">Suspended</span>
+              )}
+            </div>
+            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{row.id.slice(0, 8)}</div>
           </div>
         </div>
       ),
     },
-    { header: "Joined", accessor: "joined" },
+    { 
+      header: "Joined", 
+      accessor: "created_at",
+      render: (val: string) => new Date(val).toLocaleDateString()
+    },
     {
-      header: "Status",
-      accessor: "status",
+      header: "Current Role",
+      accessor: "role",
       render: (val: string) => (
         <span
           className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-            val === "Active"
-              ? "bg-green-50 text-green-600 border border-green-100"
-              : "bg-rose-50 text-rose-600 border border-rose-100"
+            val === "ceo" || val === "admin"
+              ? "bg-purple-50 text-purple-600 border border-purple-100"
+              : "bg-blue-50 text-blue-600 border border-blue-100"
           }`}
         >
-          {val}
+          {val.replace("_", " ")}
         </span>
       ),
     },
     {
-      header: "Courses",
-      accessor: "courses",
-      render: (val: number) => <span className="font-bold text-gray-900">{val}</span>,
+      header: "Status",
+      accessor: "status",
+      render: (val: string, row: any) => (
+        <button
+          onClick={() => handleStatusChange(row.id, val)}
+          className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
+            val === 'suspended'
+              ? "bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100"
+              : "bg-green-50 text-green-600 border border-green-100 hover:bg-green-100"
+          }`}
+        >
+          {val === 'suspended' ? 'Suspended' : 'Active'}
+        </button>
+      )
     },
+    {
+      header: "Actions",
+      accessor: "id",
+      render: (val: string, row: any) => (
+        <div className="flex items-center gap-2">
+          <select 
+            value={row.role}
+            onChange={(e) => handleRoleChange(val, e.target.value as UserRole)}
+            className="text-[10px] font-bold uppercase tracking-widest bg-gray-50 border-none rounded-lg px-2 py-1 outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all"
+          >
+            <option value="student">Student</option>
+            <option value="admin">Admin</option>
+            <option value="content_admin">Content Admin</option>
+            <option value="support_admin">Support Admin</option>
+            <option value="ceo">Super Admin</option>
+          </select>
+        </div>
+      )
+    }
   ];
 
   return (
@@ -64,25 +141,25 @@ export default function UserManagement() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 mb-2">User Management</h1>
-          <p className="text-gray-500 font-medium">Manage students, instructors, and administrative accounts.</p>
+          <h1 className="text-3xl font-extrabold text-gray-900 mb-2 font-heading">User Management</h1>
+          <p className="text-gray-500 font-medium">Manage students, administrators, and assigned roles.</p>
         </div>
-        <button className="px-5 py-3 rounded-2xl bg-primary-purple text-white font-bold text-sm shadow-lg shadow-primary-purple/20 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+        <button className="px-5 py-3 rounded-2xl bg-[#8b5cf6] text-white font-bold text-sm shadow-lg shadow-[#8b5cf6]/20 hover:-translate-y-0.5 transition-all flex items-center gap-2">
           <Plus size={18} />
-          <span>Add New User</span>
+          <span>Invite Administrator</span>
         </button>
       </div>
 
       {/* Tabs */}
       <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-2xl w-fit">
-        {(["students", "instructors", "admins"] as const).map((tab) => (
+        {(["students", "admins"] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-6 py-2.5 rounded-xl text-sm font-bold capitalize transition-all ${
+            className={`px-8 py-2.5 rounded-xl text-sm font-bold capitalize transition-all ${
               activeTab === tab
-                ? "bg-white text-primary-purple shadow-sm"
-                : "text-gray-500 hover:text-gray-900"
+                ? "bg-white text-[#8b5cf6] shadow-sm"
+                : "text-gray-400 hover:text-gray-900"
             }`}
           >
             {tab}
@@ -91,21 +168,27 @@ export default function UserManagement() {
       </div>
 
       {/* Table Area */}
-      <DataTable
-        columns={columns}
-        data={activeTab === "students" ? students : activeTab === "instructors" ? instructors : []}
-        searchPlaceholder={`Search ${activeTab}...`}
-        actions={
-          <div className="flex items-center gap-2">
-            <button className="p-2.5 rounded-xl bg-gray-50 text-gray-500 hover:text-primary-purple transition-all">
-              <Mail size={18} />
-            </button>
-            <button className="p-2.5 rounded-xl bg-gray-50 text-gray-500 hover:text-primary-purple transition-all">
-              <Shield size={18} />
-            </button>
-          </div>
-        }
-      />
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+           <div className="w-12 h-12 border-4 border-[#8b5cf6]/20 border-t-[#8b5cf6] rounded-full animate-spin"></div>
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={users}
+          searchPlaceholder={`Search ${activeTab}...`}
+          actions={
+            <div className="flex items-center gap-2">
+              <button className="p-2.5 rounded-xl bg-gray-50 text-gray-500 hover:text-[#8b5cf6] transition-all">
+                <Mail size={18} />
+              </button>
+              <button className="p-2.5 rounded-xl bg-gray-50 text-gray-500 hover:text-rose-500 transition-all">
+                <UserX size={18} />
+              </button>
+            </div>
+          }
+        />
+      )}
     </div>
   );
 }

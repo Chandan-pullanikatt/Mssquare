@@ -40,13 +40,26 @@ export default function StudentDashboard() {
     if (!user) return;
     try {
       setLoading(true);
-      const data = await enrollmentsApi.getEnrollmentsByUser(user.id);
+      // Fetch enrollments and all lesson progress in parallel for better performance
+      const [enrollmentsData, allProgress] = await Promise.all([
+        enrollmentsApi.getEnrollmentsByUser(user.id),
+        lessonProgressApi.getAllUserProgress(user.id)
+      ]);
       
-      // Calculate progress and completion for each enrollment
-      const enrichedEnrollments = await Promise.all(data.map(async (enrollment: any) => {
-        // Fetch completed lessons for this course
-        const completedLessons = await lessonProgressApi.getUserProgress(user.id, enrollment.course_id);
-        const totalLessons = enrollment.courses?.lessons?.length || 1; // Fallback to avoid division by zero
+      // Group progress by course_id for efficient lookup
+      const progressByCourse = allProgress.reduce((acc: any, curr: any) => {
+        const courseId = curr.lessons?.course_id;
+        if (courseId) {
+          if (!acc[courseId]) acc[courseId] = [];
+          acc[courseId].push(curr);
+        }
+        return acc;
+      }, {});
+
+      // Calculate progress and completion for each enrollment in memory
+      const enrichedEnrollments = enrollmentsData.map((enrollment: any) => {
+        const completedLessons = progressByCourse[enrollment.course_id] || [];
+        const totalLessons = enrollment.courses?.lessons?.length || 1;
         const progress = Math.min(Math.round((completedLessons.length / totalLessons) * 100), 100);
         
         return {
@@ -54,14 +67,14 @@ export default function StudentDashboard() {
           progress,
           completed: progress === 100
         };
-      }));
+      });
 
       setEnrollments(enrichedEnrollments);
       
       // Update stats based on fetched data
       setStats({
         coursesCompleted: enrichedEnrollments.filter(e => e.completed).length,
-        hoursStudied: 0, // Placeholder as we don't track hours yet
+        hoursStudied: 0, // Placeholder
         certificatesEarned: 0, // Will be fetched from certificatesApi later
         averageGrade: "N/A"
       });

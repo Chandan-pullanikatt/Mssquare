@@ -11,7 +11,8 @@ import {
   User as UserIcon,
   Mail,
   Lock,
-  CheckCircle2
+  CheckCircle2,
+  ArrowLeft
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { authHelpers } from "@/utils/authHelpers";
@@ -168,6 +169,17 @@ export default function RegisterPage() {
       {/* Right Side: Register Form Container */}
       <div className="flex-1 flex flex-col items-center p-4 lg:p-8 relative h-full md:overflow-hidden overflow-y-auto bg-white">
         
+        {/* Back to Home Button */}
+        <div className="absolute top-4 left-4 lg:top-8 lg:left-8 z-20">
+          <Link 
+            href="/" 
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[0.7rem] font-bold text-[#334155] hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200 group"
+          >
+            <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+            Back to Home
+          </Link>
+        </div>
+
         <div className="w-full max-w-[420px] flex flex-col h-full justify-between py-2">
           
           <div className="text-center mt-2 mb-4">

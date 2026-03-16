@@ -5,7 +5,7 @@ export const enrollmentsApi = {
   async getEnrollmentsByUser(userId: string) {
     const { data, error } = await supabase
       .from('enrollments')
-      .select('*, courses(*)')
+      .select('*, courses(*, lessons(id))')
       .eq('user_id', userId);
     
     if (error) throw error;
