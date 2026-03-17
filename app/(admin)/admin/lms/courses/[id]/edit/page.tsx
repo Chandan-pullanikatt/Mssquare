@@ -1,28 +1,30 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { 
   ArrowLeft, 
-  Plus, 
+  Save, 
   Image as ImageIcon, 
   DollarSign, 
   Tag, 
   BarChart, 
   Timer,
   Info,
-  Rocket,
   CheckCircle2,
-  Loader2
+  Loader2,
+  Layout
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { adminApi } from "@/lib/api/admin";
 
-export default function CreateCoursePage() {
+export default function EditCoursePage() {
   const router = useRouter();
+  const { id } = useParams() as { id: string };
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -35,31 +37,67 @@ export default function CreateCoursePage() {
     overview: "",
   });
 
+  useEffect(() => {
+    if (id) {
+      fetchCourseData();
+    }
+  }, [id]);
+
+  const fetchCourseData = async () => {
+    try {
+      setLoading(true);
+      const data = await adminApi.getCourseById(id) as any;
+      setFormData({
+        title: data.title || "",
+        description: data.description || "",
+        thumbnail: data.thumbnail || "",
+        price: data.price || 0,
+        category: data.category || "Certification",
+        level: data.level || "Beginner",
+        duration: data.duration || "",
+        overview: data.overview || "",
+      });
+    } catch (err) {
+      console.error("Failed to fetch course data", err);
+      alert("Failed to load course details.");
+      router.push("/admin/lms/courses");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      alert("You must be logged in to create a course.");
+      alert("You must be logged in to edit a course.");
       return;
     }
-    setLoading(true);
+    setSaving(true);
     try {
-      const courseData = {
+      const updates = {
         ...formData,
-        instructor_id: user.id,
         price: Number(formData.price) || 0
       };
-      await adminApi.createCourse(courseData);
+      await adminApi.updateCourse(id, updates);
       setSuccess(true);
       setTimeout(() => {
         router.push("/admin/lms/courses");
       }, 1500);
     } catch (err) {
-      console.error("Failed to create course", err);
-      alert("Failed to create course. Please try again.");
+      console.error("Failed to update course", err);
+      alert("Failed to update course. Please try again.");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="h-[60vh] flex items-center justify-center">
+        <Loader2 className="animate-spin text-purple-600" size={40} />
+      </div>
+    );
+  }
 
   if (success) {
     return (
@@ -67,7 +105,7 @@ export default function CreateCoursePage() {
         <div className="w-24 h-24 bg-green-50 rounded-[2.5rem] flex items-center justify-center text-green-500 mb-8 shadow-sm">
           <CheckCircle2 size={48} />
         </div>
-        <h1 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">Course Created Successfully!</h1>
+        <h1 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">Course Updated Successfully!</h1>
         <p className="text-gray-500 font-medium">Redirecting you to the course list...</p>
       </div>
     );
@@ -88,12 +126,12 @@ export default function CreateCoursePage() {
       <div className="mb-12">
         <h1 className="text-4xl font-black text-gray-900 tracking-tight flex items-center gap-4">
           <div className="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-purple-200">
-            <Rocket size={24} />
+            <Layout size={24} />
           </div>
-          Create New Course
+          Edit Course Settings
         </h1>
         <p className="text-gray-500 font-medium mt-4 max-w-xl">
-          Enter the details below to launch your new course. High-quality thumbnails and clear descriptions lead to better student engagement.
+          Modify the core details of your course. Changes will be reflected immediately across the platform for all students.
         </p>
       </div>
 
@@ -273,18 +311,18 @@ export default function CreateCoursePage() {
           </Link>
           <button 
             type="submit"
-            disabled={loading}
+            disabled={saving}
             className="bg-purple-600 hover:bg-purple-700 text-white px-10 py-5 rounded-3xl font-bold shadow-2xl shadow-purple-100 transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-3 disabled:opacity-50 disabled:translate-y-0"
           >
-            {loading ? (
+            {saving ? (
               <>
                 <Loader2 size={24} className="animate-spin" />
-                <span>Launching...</span>
+                <span>Saving...</span>
               </>
             ) : (
               <>
-                <Plus size={24} />
-                <span>Publish Course</span>
+                <Save size={24} />
+                <span>Save Changes</span>
               </>
             )}
           </button>
@@ -293,4 +331,3 @@ export default function CreateCoursePage() {
     </div>
   );
 }
-

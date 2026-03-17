@@ -25,15 +25,17 @@ export default function MyCoursesPage() {
     const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
-        if (user) {
+        if (user?.id) {
             fetchEnrollments();
         }
-    }, [user]);
+    }, [user?.id]);
 
     const fetchEnrollments = async () => {
-        if (!user) return;
+        if (!user?.id) return;
         try {
-            setLoading(true);
+            if (enrollments.length === 0) {
+                setLoading(true);
+            }
             const data = await enrollmentsApi.getEnrollmentsByUser(user.id);
             
             const enriched = await Promise.all(data.map(async (enrollment: any) => {

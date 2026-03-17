@@ -60,7 +60,7 @@ export default function StudentManagementPage() {
     },
     {
       header: "Enrolled Courses",
-      accessor: "enrollments",
+      accessor: "student_enrollments",
       render: (enrollments: any[]) => (
         <div className="flex flex-wrap gap-2">
           {enrollments && enrollments.length > 0 ? (

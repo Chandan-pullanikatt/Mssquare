@@ -5,17 +5,17 @@ import { Enrollment } from '../../types/database';
 export const enrollmentsApi = {
   async getEnrollmentsByUser(userId: string) {
     const { data, error } = await supabase
-      .from('enrollments')
+      .from('student_enrollments')
       .select('*, courses(*, lessons(id))')
-      .eq('user_id', userId);
+      .eq('student_id', userId);
     
     if (error) throw error;
     return data;
   },
 
   async enrollInCourse(userId: string, courseId: string) {
-    const { data, error } = await (supabase.from('enrollments') as any)
-      .insert([{ user_id: userId, course_id: courseId, progress: 0 }])
+    const { data, error } = await (supabase.from('student_enrollments') as any)
+      .insert([{ student_id: userId, course_id: courseId, payment_status: 'success' }])
       .select()
       .single();
     
@@ -24,9 +24,9 @@ export const enrollmentsApi = {
   },
 
   async updateProgress(userId: string, courseId: string, progress: number) {
-    const { data, error } = await (supabase.from('enrollments') as any)
+    const { data, error } = await (supabase.from('student_enrollments') as any)
       .update({ progress })
-      .eq('user_id', userId)
+      .eq('student_id', userId)
       .eq('course_id', courseId)
       .select()
       .single();

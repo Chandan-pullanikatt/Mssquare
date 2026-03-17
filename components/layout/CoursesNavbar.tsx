@@ -28,7 +28,7 @@ export function CoursesNavbar() {
             { name: "Dashboard", href: "/dashboard" }
           ].map((item) => (
             <Link
-              key={item.href}
+              key={item.name}
               href={item.href}
               className="text-xs font-bold text-gray-500 hover:text-[#7C3AED] transition-colors uppercase tracking-widest"
             >

@@ -31,15 +31,17 @@ export default function StudentDashboard() {
   });
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       fetchData();
     }
-  }, [user]);
+  }, [user?.id]);
 
   const fetchData = async () => {
-    if (!user) return;
+    if (!user?.id) return;
     try {
-      setLoading(true);
+      if (enrollments.length === 0) {
+        setLoading(true);
+      }
       // Fetch enrollments and all lesson progress in parallel for better performance
       const [enrollmentsData, allProgress] = await Promise.all([
         enrollmentsApi.getEnrollmentsByUser(user.id),

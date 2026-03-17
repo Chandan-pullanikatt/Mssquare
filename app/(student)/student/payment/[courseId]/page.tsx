@@ -80,6 +80,13 @@ export default function CoursePaymentPage() {
         return;
       }
 
+      // 1.5. Validate minimum amount for Razorpay (1 INR = 100 paise)
+      if (course.price < 1) {
+        alert("The price of this course is too low for online payment. Please contact support or select a different course.");
+        setLoading(false);
+        return;
+      }
+
       // 2. Create order on backend
       const orderRes = await fetch("/api/razorpay/order", {
         method: "POST",
@@ -87,7 +94,7 @@ export default function CoursePaymentPage() {
         body: JSON.stringify({
           amount: course.price,
           currency: "INR",
-          receipt: `course_${courseId}_${user.id}`,
+          receipt: `rcpt_${courseId.slice(-8)}_${user.id.slice(-8)}`,
         }),
       });
 
@@ -108,7 +115,7 @@ export default function CoursePaymentPage() {
         currency: orderData.currency,
         name: "MSSquare",
         description: `Enrollment for ${course.title}`,
-        image: "/logo.png", // Replace with your logo
+        // image: "/logo.png", // Removed to prevent CORS errors on localhost
         order_id: orderData.id,
         handler: async function (response: any) {
           // Verification logic

@@ -11,7 +11,8 @@ import {
   Clock,
   ExternalLink,
   Settings as SettingsIcon,
-  FileCode
+  FileCode,
+  Pencil
 } from "lucide-react";
 import Link from "next/link";
 import { adminApi } from "@/lib/api/admin";
@@ -112,6 +113,13 @@ export default function CoursesPage() {
             title="View Course"
           >
             <ExternalLink size={18} />
+          </Link>
+          <Link 
+            href={`/admin/lms/courses/${row.id}/edit`}
+            className="p-2 rounded-xl bg-gray-50 text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-all"
+            title="Edit Info"
+          >
+            <Pencil size={18} />
           </Link>
           <Link 
             href={`/admin/lms/courses/${row.id}/manage`}

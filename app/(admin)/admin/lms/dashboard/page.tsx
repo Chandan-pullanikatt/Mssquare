@@ -66,7 +66,7 @@ export default function LMSAdminDashboard() {
   const enrollmentColumns = [
     {
       header: "Student",
-      accessor: "users.name",
+      accessor: "profiles.email",
       render: (val: string) => (
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
@@ -79,7 +79,7 @@ export default function LMSAdminDashboard() {
     { header: "Course", accessor: "courses.title" },
     { 
       header: "Date", 
-      accessor: "enrolled_at",
+      accessor: "created_at",
       render: (val: string) => new Date(val).toLocaleDateString()
     },
   ];

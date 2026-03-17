@@ -30,8 +30,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`scroll-smooth ${urbanist.variable}`}>
-      <body className={`font-sans antialiased min-h-screen flex flex-col bg-background text-foreground selection:bg-primary-blue/30`}>
+    <html lang="en" className={`scroll-smooth ${urbanist.variable}`} data-scroll-behavior="smooth">
+      <body 
+        className={`font-sans antialiased min-h-screen flex flex-col bg-background text-foreground selection:bg-primary-blue/30`}
+        suppressHydrationWarning
+      >
         <AuthProvider>
           {children}
         </AuthProvider>
