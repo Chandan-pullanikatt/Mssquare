@@ -22,49 +22,54 @@ export async function middleware(req: NextRequest) {
   const { supabase, response } = updateSession(req);
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // Unified Portal Access Control
   const portalRoutes = [
     { path: '/student', role: 'student' },
     { path: '/business', role: 'business_client' },
-    { path: '/lms-admin', role: 'lms_admin' },
-    { path: '/business-admin', role: 'business_admin' },
-    { path: '/cms-admin', role: 'cms_admin' },
+    { path: '/admin/lms', role: 'lms_admin' },
+    { path: '/admin/business', role: 'business_admin' },
+    { path: '/admin/cms', role: 'cms_admin' },
   ];
 
   const currentPortal = portalRoutes.find((p) => pathname.startsWith(p.path));
 
-  // 1. If hitting a protected portal without a session, redirect to login
-  if (currentPortal && !session) {
+  // 1. If hitting a protected portal without a user, redirect to login
+  if (currentPortal && !user) {
     url.pathname = '/auth';
     url.search = ''; 
     return NextResponse.redirect(url);
   }
 
-  // 2. If session exists, enforce role-based access
-  if (session) {
+  // 2. If user exists, enforce role-based access
+  if (user) {
     // Determine if we need to fetch the role
     const needsRole = currentPortal || pathname === '/dashboard' || pathname === '/portal';
 
     if (needsRole) {
-      // Fetch role once and reuse
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', session.user.id)
-        .maybeSingle();
-      
-      let role = (profileData as { role: string } | null)?.role;
+      // Prioritize role from app_metadata
+      let role = user.app_metadata?.role as string | undefined;
 
+      // Fallback to database check if not in metadata
       if (!role) {
-        const { data: userData } = await supabase
-          .from('users')
+        const { data: profileData } = await supabase
+          .from('profiles')
           .select('role')
-          .eq('id', session.user.id)
+          .eq('id', user.id)
           .maybeSingle();
-        role = (userData as { role: string } | null)?.role;
+        
+        role = (profileData as { role: string } | null)?.role;
+
+        if (!role) {
+          const { data: userData } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', user.id)
+            .maybeSingle();
+          role = (userData as { role: string } | null)?.role;
+        }
       }
 
       // Enforcement
@@ -80,9 +85,9 @@ export async function middleware(req: NextRequest) {
       if (pathname === '/dashboard' || pathname === '/portal') {
         if (role === 'student') url.pathname = '/student/dashboard';
         else if (role === 'business_client') url.pathname = '/business/dashboard';
-        else if (role === 'lms_admin') url.pathname = '/lms-admin/dashboard';
-        else if (role === 'business_admin') url.pathname = '/business-admin/dashboard';
-        else if (role === 'cms_admin') url.pathname = '/cms-admin';
+        else if (role === 'lms_admin') url.pathname = '/admin/lms/dashboard';
+        else if (role === 'business_admin') url.pathname = '/admin/business/dashboard';
+        else if (role === 'cms_admin') url.pathname = '/admin/cms/dashboard';
         else url.pathname = '/';
         
         return NextResponse.redirect(url);

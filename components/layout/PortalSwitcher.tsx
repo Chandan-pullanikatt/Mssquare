@@ -35,35 +35,36 @@ export function PortalSwitcher() {
   const portals = [
     { 
       name: 'Student LMS', 
-      href: '/student-dashboard', 
+      href: '/student/dashboard', 
       icon: GraduationCap,
       description: 'Your learning journey'
     },
     { 
       name: 'Business Dashboard', 
-      href: '/business-dashboard', 
+      href: '/business/dashboard', 
       icon: Briefcase,
       description: 'Manage projects & teams'
     },
     { 
-      name: 'Admin Panel', 
-      href: '/admin', 
-      icon: ShieldCheck,
-      description: 'Core system administration',
-      roles: ['admin', 'ceo']
-    },
-    { 
       name: 'LMS Admin', 
-      href: '/lms-admin', 
-      icon: Settings,
+      href: '/admin/lms/dashboard', 
+      icon: ShieldCheck,
       description: 'Course & content management',
-      roles: ['admin', 'ceo', 'content_admin']
+      roles: ['admin', 'ceo', 'lms_admin']
     },
     { 
-      name: 'Central Portal', 
-      href: '/portal', 
-      icon: Grid3X3,
-      description: 'All-access unified view'
+      name: 'Business Admin', 
+      href: '/admin/business/dashboard', 
+      icon: ShieldCheck,
+      description: 'Business operations',
+      roles: ['admin', 'ceo', 'business_admin']
+    },
+    { 
+      name: 'CMS Admin', 
+      href: '/admin/cms/dashboard', 
+      icon: Settings,
+      description: 'Strategic content control',
+      roles: ['admin', 'ceo', 'cms_admin']
     }
   ];
 

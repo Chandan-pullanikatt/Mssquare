@@ -44,11 +44,11 @@ export const authHelpers = {
       case 'business_client':
         return '/business/dashboard';
       case 'lms_admin':
-        return '/lms-admin/dashboard';
+        return '/admin/lms/dashboard';
       case 'business_admin':
-        return '/business-admin/dashboard';
+        return '/admin/business/dashboard';
       case 'cms_admin':
-        return '/cms-admin';
+        return '/admin/cms/dashboard';
       default:
         return '/';
     }

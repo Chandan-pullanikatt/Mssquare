@@ -13,11 +13,12 @@ export const leadsApi = {
     return data as Lead;
   },
 
-  async getLeads() {
+  async getLeads(limit = 20, offset = 0) {
     const { data, error } = await supabase
       .from('leads')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .select('id, name, email, company, message, created_at')
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
     
     if (error) throw error;
     return data as Lead[];

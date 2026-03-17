@@ -34,9 +34,9 @@ type PortalType = {
 const PORTALS: PortalType[] = [
   { id: 'student', name: 'Student LMS', href: '/student/dashboard', icon: GraduationCap, description: 'Your learning journey' },
   { id: 'business_client', name: 'Business Client', href: '/business/dashboard', icon: Briefcase, description: 'Track your projects' },
-  { id: 'lms_admin', name: 'LMS Admin', href: '/lms-admin/dashboard', icon: Settings, description: 'Course management' },
-  { id: 'business_admin', name: 'Business Admin', href: '/business-admin/dashboard', icon: ShieldCheck, description: 'Client request management' },
-  { id: 'cms_admin', name: 'CMS Admin', href: '/cms-admin', icon: Grid3X3, description: 'CEO content control' },
+  { id: 'lms_admin', name: 'LMS Admin', href: '/admin/lms/dashboard', icon: Settings, description: 'Course management' },
+  { id: 'business_admin', name: 'Business Admin', href: '/admin/business/dashboard', icon: ShieldCheck, description: 'Client request management' },
+  { id: 'cms_admin', name: 'CMS Admin', href: '/admin/cms/dashboard', icon: Grid3X3, description: 'CEO content control' },
 ];
 
 export default function AuthPage() {
