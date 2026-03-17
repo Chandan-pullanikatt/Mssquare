@@ -61,14 +61,6 @@ export default function LMSAdminDashboard() {
       iconBg: "bg-green-50",
       iconColor: "text-green-600",
     },
-    {
-      title: "Certificates",
-      value: "0",
-      trend: "+0",
-      icon: Award,
-      iconBg: "bg-purple-50",
-      iconColor: "text-purple-600",
-    },
   ];
 
   const enrollmentColumns = [
@@ -145,7 +137,6 @@ export default function LMSAdminDashboard() {
               { label: "Manage Courses", href: "/lms-admin/courses", icon: BookOpen },
               { label: "Student List", href: "/lms-admin/students", icon: Users },
               { label: "Enrollment Logs", href: "/lms-admin/enrollments", icon: UserCheck },
-              { label: "Course Analytics", href: "/lms-admin/analytics", icon: TrendingUp },
             ].map((item: any, i) => (
               <Link key={i} href={item.href} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 hover:bg-[#f5f3ff] group transition-all">
                 <div className="flex items-center gap-3">

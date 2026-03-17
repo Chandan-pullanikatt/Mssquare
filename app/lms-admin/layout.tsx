@@ -34,8 +34,6 @@ const adminSidebarItems = [
   { name: "Manage Courses", href: "/lms-admin/courses", icon: BookOpen },
   { name: "Student Management", href: "/lms-admin/students", icon: Users },
   { name: "Enrollments", href: "/lms-admin/enrollments", icon: UserCheck },
-  { name: "Course Analytics", href: "/lms-admin/analytics", icon: BarChart3 },
-  { name: "Certificates", href: "/lms-admin/certificates", icon: Award },
   { name: "Instructor Management", href: "/lms-admin/instructors", icon: UserCheck },
 ];
 
@@ -98,16 +96,6 @@ export default function AdminLayout({
           })}
         </div>
 
-        {/* Bottom Actions */}
-        <div className="px-4 py-6 border-t border-gray-50">
-          <Link href="/student/dashboard" className="w-full flex items-center justify-between gap-4 px-5 py-3.5 rounded-2xl transition-all duration-200 font-bold bg-gray-50 text-gray-700 hover:bg-gray-100">
-            <div className="flex items-center gap-3">
-              <Zap size={18} className="text-[#8b5cf6]" />
-              <span className="text-sm">Student Portal</span>
-            </div>
-            <ChevronRight size={16} className="text-gray-400" />
-          </Link>
-        </div>
 
       </aside>
 

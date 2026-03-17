@@ -74,5 +74,42 @@ export const adminApi = {
     
     if (error) throw error;
     return data;
+  },
+
+  async getStudents() {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select(`
+        id,
+        email,
+        created_at,
+        enrollments (
+          id,
+          courses (title)
+        )
+      `)
+      .eq('role', 'student')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getCourseStats() {
+    const { data, error } = await supabase
+      .from('courses')
+      .select(`
+        id,
+        title,
+        enrollments (count)
+      `);
+
+    if (error) throw error;
+    
+    // Transform to include a direct enrollment_count field
+    return (data as any[]).map(course => ({
+      ...course,
+      enrollment_count: course.enrollments[0]?.count || 0
+    }));
   }
 };
