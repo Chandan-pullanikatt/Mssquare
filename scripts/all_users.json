@@ -1,0 +1,37 @@
+[
+  {
+    "email": "chandan2@gmail.com",
+    "id": "51667b99-a8d3-4268-b1b6-f7df02ab3cba",
+    "role": "student"
+  },
+  {
+    "email": "chandanpullanikatt+cms@gmail.com",
+    "id": "21ec4fd2-b8cb-48ef-b596-3575e9ae8e81",
+    "role": "cms_admin"
+  },
+  {
+    "email": "chandanpullanikatt+bizadmin@gmail.com",
+    "id": "1f9e2a8f-7b67-441d-b44b-925d51771dee",
+    "role": "business_admin"
+  },
+  {
+    "email": "chandanpullanikatt+business@gmail.com",
+    "id": "46f62bfb-68f3-4a8d-967f-e3bbd7aa9a4d",
+    "role": "business_client"
+  },
+  {
+    "email": "chandanpullanikatt+admin@gmail.com",
+    "id": "36c0df53-ad5a-4530-b3a2-3a55ce14fc30",
+    "role": "lms_admin"
+  },
+  {
+    "email": "chandanpullanikatt@gmail.com",
+    "id": "46dd6099-00e4-4b3f-bace-b20bac51f6d6",
+    "role": "lms_admin"
+  },
+  {
+    "email": "test@example.com",
+    "id": "22fc7d33-d004-4425-9d09-a74666112357",
+    "role": "student"
+  }
+]

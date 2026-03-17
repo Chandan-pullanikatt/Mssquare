@@ -45,19 +45,20 @@ export async function middleware(req: NextRequest) {
 
   // 2. If session exists, enforce role-based access
   if (session) {
-    // Check if user is trying to access a portal
-    if (currentPortal) {
-      // Fetch role from profiles, then fallback to users table
-      let { data } = await supabase
+    // Determine if we need to fetch the role
+    const needsRole = currentPortal || pathname === '/dashboard' || pathname === '/portal';
+
+    if (needsRole) {
+      // Fetch role once and reuse
+      const { data: profileData } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', session.user.id)
         .maybeSingle();
       
-      let role = (data as { role: string } | null)?.role;
+      let role = (profileData as { role: string } | null)?.role;
 
       if (!role) {
-        // Fallback to 'users' table if profile not found
         const { data: userData } = await supabase
           .from('users')
           .select('role')
@@ -66,33 +67,26 @@ export async function middleware(req: NextRequest) {
         role = (userData as { role: string } | null)?.role;
       }
 
-      // Strict Role Enforcement
-      const isAllowed = role === currentPortal.role || (role === 'lms_admin' && currentPortal.role === 'student');
+      // Enforcement
+      if (currentPortal) {
+        const isAllowed = role === currentPortal.role || (role === 'lms_admin' && currentPortal.role === 'student');
+        if (!role || !isAllowed) {
+          url.pathname = '/unauthorized';
+          return NextResponse.redirect(url);
+        }
+      }
 
-      if (!role || !isAllowed) {
-        url.pathname = '/unauthorized';
+      // Redirects
+      if (pathname === '/dashboard' || pathname === '/portal') {
+        if (role === 'student') url.pathname = '/student/dashboard';
+        else if (role === 'business_client') url.pathname = '/business/dashboard';
+        else if (role === 'lms_admin') url.pathname = '/lms-admin/dashboard';
+        else if (role === 'business_admin') url.pathname = '/business-admin/dashboard';
+        else if (role === 'cms_admin') url.pathname = '/cms-admin';
+        else url.pathname = '/';
+        
         return NextResponse.redirect(url);
       }
-    }
-
-    // Handle generic /dashboard or /portal redirects based on role
-    if (pathname === '/dashboard' || pathname === '/portal') {
-      const { data } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', session.user.id)
-        .maybeSingle();
-      
-      const role = (data as { role: string } | null)?.role;
-      
-      if (role === 'student') url.pathname = '/student/dashboard';
-      else if (role === 'business_client') url.pathname = '/business/dashboard';
-      else if (role === 'lms_admin') url.pathname = '/lms-admin/dashboard';
-      else if (role === 'business_admin') url.pathname = '/business-admin/dashboard';
-      else if (role === 'cms_admin') url.pathname = '/cms-admin';
-      else url.pathname = '/';
-      
-      return NextResponse.redirect(url);
     }
   }
 

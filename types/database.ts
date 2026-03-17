@@ -226,6 +226,99 @@ export interface Database {
           created_at?: string;
         };
       };
+      consultancy_services: {
+        Row: {
+          id: string;
+          name: string;
+          icon: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          icon?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          icon?: string | null;
+          created_at?: string;
+        };
+      };
+      business_projects: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          description: string | null;
+          progress: number;
+          status: string;
+          icon_name: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          description?: string | null;
+          progress?: number;
+          status?: string;
+          icon_name?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          description?: string | null;
+          progress?: number;
+          status?: string;
+          icon_name?: string | null;
+          created_at?: string;
+        };
+      };
+      service_requests: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          service_type: string | null;
+          budget: string | null;
+          timeline: string | null;
+          description: string | null;
+          contact_name: string | null;
+          contact_method: string | null;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          service_type?: string | null;
+          budget?: string | null;
+          timeline?: string | null;
+          description?: string | null;
+          contact_name?: string | null;
+          contact_method?: string | null;
+          status?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          service_type?: string | null;
+          budget?: string | null;
+          timeline?: string | null;
+          description?: string | null;
+          contact_name?: string | null;
+          contact_method?: string | null;
+          status?: string;
+          created_at?: string;
+        };
+      };
     };
   };
 }

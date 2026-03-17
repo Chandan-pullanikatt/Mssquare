@@ -1,22 +1,96 @@
 "use client";
 
-import { useState } from "react";
-import { Send, FileText, CheckCircle2, ChevronRight, PlusCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Send, FileText, CheckCircle2, ChevronRight, PlusCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { businessApi, ConsultancyService } from "@/lib/api/business";
 
 export default function SubmitRequirementPage() {
+    const { user, loading: authLoading } = useAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [services, setServices] = useState<ConsultancyService[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        // Simulate API call
-        setTimeout(() => {
-            setIsSubmitting(false);
-            setIsSuccess(true);
-        }, 1500);
+    // Form states
+    const [formData, setFormData] = useState({
+        title: "",
+        service_type: "",
+        budget: "Under $10,000",
+        timeline: "",
+        description: "",
+        contact_name: "",
+        contact_method: "Email"
+    });
+
+    useEffect(() => {
+        async function fetchServices() {
+            try {
+                const data = await businessApi.getConsultancyServices();
+                setServices(data);
+                if (data.length > 0) {
+                    setFormData(prev => ({ ...prev, service_type: data[0].name }));
+                }
+            } catch (err) {
+                console.error("Error fetching services:", err);
+            }
+        }
+        fetchServices();
+    }, []);
+
+    useEffect(() => {
+        if (user) {
+            setFormData(prev => ({
+                ...prev,
+                contact_name: user.user_metadata?.full_name || user.email?.split('@')[0] || ""
+            }));
+        }
+    }, [user]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!user) {
+            setError("You must be logged in to submit a requirement.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        setError(null);
+
+        try {
+            await businessApi.submitServiceRequest({
+                user_id: user.id,
+                title: formData.title,
+                service_type: formData.service_type,
+                budget: formData.budget,
+                timeline: formData.timeline,
+                description: formData.description,
+                contact_name: formData.contact_name,
+                contact_method: formData.contact_method
+            });
+            setIsSuccess(true);
+        } catch (err: any) {
+            console.error("Submission error:", err);
+            setError("Failed to submit your request. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    if (authLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                <div className="w-12 h-12 border-4 border-primary-purple/20 border-t-primary-purple rounded-full animate-spin" />
+                <p className="text-gray-500 font-medium italic">Loading your session...</p>
+            </div>
+        );
+    }
 
     if (isSuccess) {
         return (
@@ -37,7 +111,10 @@ export default function SubmitRequirementPage() {
                             Back to Dashboard
                         </Link>
                         <button
-                            onClick={() => setIsSuccess(false)}
+                            onClick={() => {
+                                setIsSuccess(false);
+                                setFormData(prev => ({ ...prev, title: "", description: "", timeline: "" }));
+                            }}
                             className="block w-full py-4 rounded-2xl font-bold text-[#8b5cf6] transition-all hover:bg-gray-50"
                         >
                             Submit Another Request
@@ -65,6 +142,13 @@ export default function SubmitRequirementPage() {
                 </div>
             </div>
 
+            {error && (
+                <div className="mb-8 bg-red-50 border border-red-100 p-4 rounded-2xl flex items-center gap-3 text-red-600 font-bold text-sm">
+                    <AlertCircle size={18} />
+                    {error}
+                </div>
+            )}
+
             <form onSubmit={handleSubmit} className="bg-white border border-gray-100 rounded-[2.5rem] p-8 md:p-12 shadow-[0_4px_30px_rgba(0,0,0,0.02)] space-y-10 relative overflow-hidden">
                 {/* Banner Decoration */}
                 <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 via-[#8b5cf6] to-purple-500"></div>
@@ -82,6 +166,9 @@ export default function SubmitRequirementPage() {
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Project Title</label>
                         <input
                             required
+                            name="title"
+                            value={formData.title}
+                            onChange={handleChange}
                             type="text"
                             className="w-full bg-gray-50/50 border border-transparent focus:border-[#8b5cf6]/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-300"
                             placeholder="e.g. Q4 Growth Strategy"
@@ -90,18 +177,27 @@ export default function SubmitRequirementPage() {
 
                     <div className="space-y-3">
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Service Type</label>
-                        <select className="w-full bg-gray-50/50 border border-transparent focus:border-[#8b5cf6]/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all appearance-none cursor-pointer">
-                            <option>IT Consultancy</option>
-                            <option>Business Strategy</option>
-                            <option>Legal & Compliance</option>
-                            <option>HR & Recruitment</option>
-                            <option>Financial Audit</option>
+                        <select 
+                            name="service_type"
+                            value={formData.service_type}
+                            onChange={handleChange}
+                            className="w-full bg-gray-50/50 border border-transparent focus:border-[#8b5cf6]/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all appearance-none cursor-pointer"
+                        >
+                            {services.map(service => (
+                                <option key={service.id} value={service.name}>{service.name}</option>
+                            ))}
+                            {services.length === 0 && <option>Loading services...</option>}
                         </select>
                     </div>
 
                     <div className="space-y-3">
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Budget Range</label>
-                        <select className="w-full bg-gray-50/50 border border-transparent focus:border-[#8b5cf6]/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all appearance-none cursor-pointer">
+                        <select 
+                            name="budget"
+                            value={formData.budget}
+                            onChange={handleChange}
+                            className="w-full bg-gray-50/50 border border-transparent focus:border-[#8b5cf6]/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all appearance-none cursor-pointer"
+                        >
                             <option>Under $10,000</option>
                             <option>$10,000 - $50,000</option>
                             <option>$50,000 - $100,000</option>
@@ -113,6 +209,9 @@ export default function SubmitRequirementPage() {
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Expected Timeline</label>
                         <input
                             required
+                            name="timeline"
+                            value={formData.timeline}
+                            onChange={handleChange}
                             type="text"
                             className="w-full bg-gray-50/50 border border-transparent focus:border-[#8b5cf6]/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-300"
                             placeholder="e.g. 3-6 Months"
@@ -123,6 +222,9 @@ export default function SubmitRequirementPage() {
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Project Description</label>
                         <textarea
                             required
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
                             rows={6}
                             className="w-full bg-gray-50/50 border border-transparent focus:border-[#8b5cf6]/20 focus:bg-white rounded-[2rem] p-8 text-sm font-bold text-gray-900 outline-none transition-all resize-none placeholder:text-gray-300 leading-relaxed"
                             placeholder="Describe your goals, current challenges, and specific requirements..."
@@ -141,15 +243,22 @@ export default function SubmitRequirementPage() {
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Contact Name</label>
                         <input
                             required
+                            name="contact_name"
+                            value={formData.contact_name}
+                            onChange={handleChange}
                             type="text"
-                            defaultValue="Alex Sterling"
                             className="w-full bg-gray-50/50 border border-transparent focus:border-[#8b5cf6]/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-300"
                         />
                     </div>
 
                     <div className="space-y-3">
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Preferred Method</label>
-                        <select className="w-full bg-gray-50/50 border border-transparent focus:border-[#8b5cf6]/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all appearance-none cursor-pointer">
+                        <select 
+                            name="contact_method"
+                            value={formData.contact_method}
+                            onChange={handleChange}
+                            className="w-full bg-gray-50/50 border border-transparent focus:border-[#8b5cf6]/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all appearance-none cursor-pointer"
+                        >
                             <option>Email</option>
                             <option>Video Call</option>
                             <option>Phone Call</option>
@@ -185,7 +294,7 @@ export default function SubmitRequirementPage() {
                         <PlusCircle className="text-[#8b5cf6]" size={18} />
                     </div>
                     <div>
-                        <h4 className="font-bold text-gray-900 mb-1">Clear Scope</h4>
+                        <h4 className="font-bold text-gray-900 mb-1 italic">Clear Scope</h4>
                         <p className="text-xs text-gray-500 font-medium leading-relaxed">Providing a detailed scope helps our team assign the right consultants faster.</p>
                     </div>
                 </div>
@@ -194,7 +303,7 @@ export default function SubmitRequirementPage() {
                         <ChevronRight className="text-gray-400" size={18} />
                     </div>
                     <div>
-                        <h4 className="font-bold text-gray-900 mb-1">Next Steps</h4>
+                        <h4 className="font-bold text-gray-900 mb-1 italic">Next Steps</h4>
                         <p className="text-xs text-gray-400 font-medium leading-relaxed">After submission, you can track the status of this request in the "Requested Services" section.</p>
                     </div>
                 </div>

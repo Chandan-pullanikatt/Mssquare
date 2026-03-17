@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Briefcase,
@@ -15,9 +15,13 @@ import {
   Plus,
   Menu,
   X,
-  MoreVertical
+  User,
+  LogOut,
+  ChevronDown
 } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { authHelpers } from "@/utils/authHelpers";
 
 const sidebarItems = [
   { name: "Dashboard", href: "/business/dashboard", icon: LayoutDashboard },
@@ -33,10 +37,25 @@ export default function BusinessLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, role } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await authHelpers.signOut();
+      router.push("/auth");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Business Partner";
+  const userInitials = userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
 
   return (
-    <div className="flex min-h-screen bg-white text-gray-900 overflow-hidden font-sans border-t border-l border-gray-100">
+    <div className="flex min-h-screen bg-white text-gray-900 font-sans border-t border-l border-gray-100">
 
       {/* Mobile Menu Button */}
       <button
@@ -46,9 +65,9 @@ export default function BusinessLayout({
         {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {/* Sidebar */}
+      {/* Sidebar - Fixed Position */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 h-screen w-[260px] bg-white border-r border-gray-100 flex flex-col transition-transform duration-300 z-40 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        className={`fixed inset-y-0 left-0 w-[260px] bg-white border-r border-gray-100 flex flex-col transition-transform duration-300 z-40 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
           }`}
       >
         {/* Logo Area */}
@@ -57,8 +76,8 @@ export default function BusinessLayout({
             <LayoutDashboard size={20} className="fill-white/20" />
           </div>
           <div>
-            <div className="font-extrabold text-lg leading-tight text-gray-900 tracking-tight">MSSquare</div>
-            <div className="text-xs text-gray-400 font-medium">Business Portal</div>
+            <div className="font-extrabold text-lg leading-tight text-gray-900 tracking-tight italic">MSSquare</div>
+            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Business Portal</div>
           </div>
         </div>
 
@@ -98,26 +117,54 @@ export default function BusinessLayout({
 
         </div>
 
-        {/* User Profile */}
-        <div className="p-4 mt-auto">
-          <div className="flex items-center gap-3 p-3 bg-gray-50/80 border border-gray-100 rounded-2xl cursor-pointer hover:bg-gray-100 transition-colors">
-            <div className="w-10 h-10 rounded-full bg-[#bbf7d0] border-2 border-white shadow-sm flex items-center justify-center overflow-hidden shrink-0">
-              <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=AlexS&backgroundColor=bbf7d0`} alt="Alex Sterling" className="w-full h-full object-cover" />
+        {/* User Profile - Sidebar Bottom */}
+        <div className="p-4 border-t border-gray-50">
+          <div 
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+            className="flex items-center gap-3 p-3 bg-gray-50/80 border border-gray-100 rounded-2xl cursor-pointer hover:bg-gray-100 transition-all group relative"
+          >
+            <div className="w-10 h-10 rounded-full bg-[#bbf7d0] border-2 border-white shadow-sm flex items-center justify-center overflow-hidden shrink-0 text-[#166534] font-bold">
+              {user?.user_metadata?.avatar_url ? (
+                <img src={user.user_metadata.avatar_url} alt={userName} className="w-full h-full object-cover" />
+              ) : (
+                userInitials
+              )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-bold text-gray-900 truncate">Alex Sterling</div>
-              <div className="text-[11px] text-gray-500 font-medium truncate">Premium Client</div>
+              <div className="text-sm font-bold text-gray-900 truncate">{userName}</div>
+              <div className="text-[10px] text-gray-500 font-bold uppercase tracking-tight">{role?.replace('_', ' ') || 'Client'}</div>
             </div>
-            <MoreVertical size={16} className="text-gray-400 shrink-0" />
+            <ChevronDown size={14} className={`text-gray-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
+            
+            {/* Popover Menu */}
+            {isProfileOpen && (
+              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-100 rounded-2xl shadow-xl shadow-black/5 overflow-hidden z-50 animate-in slide-in-from-bottom-2 duration-200">
+                <Link 
+                  href="/business/profile"
+                  className="w-full flex items-center gap-3 px-5 py-3.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-50"
+                  onClick={() => setIsProfileOpen(false)}
+                >
+                  <User size={16} className="text-[#8b5cf6]" />
+                  Edit Profile
+                </Link>
+                <button 
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-5 py-3.5 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-h-screen bg-white w-full overflow-hidden">
+      {/* Main Content Area - Added Left Margin to accommodate fixed sidebar */}
+      <main className="flex-1 flex flex-col min-h-screen bg-white w-full lg:ml-[260px] relative">
 
         {/* Top Header */}
-        <header className="h-[80px] px-8 flex items-center justify-between border-b border-gray-100 z-30 sticky top-0 bg-white">
+        <header className="h-[80px] px-8 flex items-center justify-between border-b border-gray-100 z-30 sticky top-0 bg-white/80 backdrop-blur-md">
 
           {/* Search Bar */}
           <div className="flex-1 max-w-xl relative">
@@ -125,29 +172,29 @@ export default function BusinessLayout({
             <input
               type="text"
               placeholder="Search projects, documents, or team..."
-              className="w-full bg-gray-50/80 border border-gray-100 rounded-full py-2.5 pl-11 pr-4 text-sm focus:ring-2 focus:ring-[#8b5cf6]/20 focus:border-[#8b5cf6]/30 outline-none placeholder:text-gray-400 font-medium text-gray-700 transition-all"
+              className="w-full bg-gray-50 border border-gray-100 rounded-full py-2.5 pl-11 pr-4 text-sm focus:ring-2 focus:ring-[#8b5cf6]/20 focus:border-[#8b5cf6]/30 outline-none placeholder:text-gray-400 font-medium text-gray-700 transition-all"
             />
           </div>
 
           {/* Right Actions */}
           <div className="flex items-center gap-4 ml-4">
             <button className="w-10 h-10 rounded-full border border-gray-100 bg-gray-50 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors relative">
-              <Bell size={18} className="fill-gray-400" />
+              <Bell size={18} />
               <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#8b5cf6] rounded-full border border-white"></div>
             </button>
-            <button className="w-10 h-10 rounded-full border border-gray-100 bg-gray-50 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors relative">
-              <Settings size={18} className="fill-gray-400" />
-            </button>
+            <Link href="/business/profile" className="w-10 h-10 rounded-full border border-gray-100 bg-gray-50 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors">
+              <Settings size={18} />
+            </Link>
 
             <Link href="/business/submit-requirement" className="ml-2 flex items-center gap-2 bg-[#8b5cf6] hover:bg-[#7c3aed] text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-sm shadow-[#8b5cf6]/20 transition-all">
               <Plus size={16} className="stroke-[3]" />
-              New Project
+              <span className="hidden sm:inline">New Project</span>
             </Link>
           </div>
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-y-auto p-8 h-full">
+        <div className="flex-1 p-8">
           <div className="max-w-[1400px] mx-auto w-full">
             {children}
           </div>

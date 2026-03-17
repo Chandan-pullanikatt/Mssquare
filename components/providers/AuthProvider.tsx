@@ -31,23 +31,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    const getUser = async () => {
-      setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session) {
-        setUser(session.user);
-        const userRole = await authHelpers.getUserRole(session.user.id);
-        setRole(userRole);
-      } else {
-        setUser(null);
-        setRole(null);
-      }
-      setLoading(false);
-    };
-
-    getUser();
-
+    // Initializing the session state is handled by onAuthStateChange which
+    // fires immediately with the current session state.
+    // Redundant getSession calls can cause 'AbortError: Lock broken' in dev mode.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
         if (session) {
@@ -65,7 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, []);
 
   const signOut = async () => {
     await authHelpers.signOut();
