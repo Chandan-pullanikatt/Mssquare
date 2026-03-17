@@ -28,7 +28,6 @@ const sidebarItems = [
   { name: "Projects", href: "/student/projects", icon: FolderGit2 },
   { name: "Certifications", href: "/student/certifications", icon: Award },
   { name: "Payments", href: "/student/payments", icon: CreditCard },
-  { name: "Careers", href: "/careers", icon: Briefcase },
 ];
 
 export default function StudentLayout({
