@@ -28,16 +28,30 @@ export default function StudentProjectsPage() {
     const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
+        console.log("StudentProjectsPage: Effect triggered. user.id:", user?.id);
+
+        // Safety timeout to unlock the UI even if fetch hangs
+        const timeoutId = setTimeout(() => {
+            if (loading) {
+                console.warn("StudentProjectsPage: Safety timeout reached. Forcing loading to false.");
+                setLoading(false);
+            }
+        }, 8000);
+
         if (user) {
             fetchProjects();
         }
+
+        return () => clearTimeout(timeoutId);
     }, [user]);
 
     const fetchProjects = async () => {
         if (!user) return;
         try {
+            console.log("StudentProjectsPage: Starting fetchProjects...");
             setLoading(true);
             const enrollments = await enrollmentsApi.getEnrollmentsByUser(user.id);
+            console.log(`StudentProjectsPage: Fetched ${enrollments.length} enrollments.`);
             
             const allProjects = await Promise.all(enrollments.map(async (enrollment: any) => {
                 const courseProjects = await projectsApi.getProjectsByCourse(enrollment.course_id);
@@ -49,9 +63,10 @@ export default function StudentProjectsPage() {
 
             setProjects(allProjects.flat());
         } catch (error) {
-            console.error("Error fetching projects:", error);
+            console.error("StudentProjectsPage: Error fetching projects:", error);
         } finally {
             setLoading(false);
+            console.log("StudentProjectsPage: Fetch cycle complete.");
         }
     };
 

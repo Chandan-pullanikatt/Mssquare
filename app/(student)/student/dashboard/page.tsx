@@ -31,14 +31,27 @@ export default function StudentDashboard() {
   });
 
   useEffect(() => {
+    console.log("StudentDashboard: Effect triggered. user.id:", user?.id);
+
+    // Safety timeout to unlock the UI even if fetch hangs
+    const timeoutId = setTimeout(() => {
+      if (loading) {
+        console.warn("StudentDashboard: Safety timeout reached. Forcing loading to false.");
+        setLoading(false);
+      }
+    }, 8000);
+
     if (user?.id) {
       fetchData();
     }
+
+    return () => clearTimeout(timeoutId);
   }, [user?.id]);
 
   const fetchData = async () => {
     if (!user?.id) return;
     try {
+      console.log("StudentDashboard: Starting fetchData...");
       if (enrollments.length === 0) {
         setLoading(true);
       }
@@ -48,6 +61,7 @@ export default function StudentDashboard() {
         lessonProgressApi.getAllUserProgress(user.id)
       ]);
       
+      console.log(`StudentDashboard: Fetched ${enrollmentsData.length} enrollments and ${allProgress.length} progress markers.`);
       // Group progress by course_id for efficient lookup
       const progressByCourse = allProgress.reduce((acc: any, curr: any) => {
         const courseId = curr.lessons?.course_id;
@@ -81,9 +95,10 @@ export default function StudentDashboard() {
         averageGrade: "N/A"
       });
     } catch (error) {
-      console.error("Error fetching student dashboard data:", error);
+      console.error("StudentDashboard: Error fetching student dashboard data:", error);
     } finally {
       setLoading(false);
+      console.log("StudentDashboard: Fetch cycle complete.");
     }
   };
 

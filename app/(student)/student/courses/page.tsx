@@ -25,23 +25,44 @@ export default function MyCoursesPage() {
     const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
+        console.log("MyCoursesPage: Effect triggered. user.id:", user?.id);
+        
+        // Safety timeout to unlock the UI even if fetch hangs
+        const timeoutId = setTimeout(() => {
+            if (loading) {
+                console.warn("MyCoursesPage: Safety timeout reached. Forcing loading to false.");
+                setLoading(false);
+            }
+        }, 8000);
+
         if (user?.id) {
             fetchEnrollments();
         }
+
+        return () => clearTimeout(timeoutId);
     }, [user?.id]);
 
     const fetchEnrollments = async () => {
         if (!user?.id) return;
         try {
+            console.log("MyCoursesPage: Starting fetchEnrollments...");
             if (enrollments.length === 0) {
                 setLoading(true);
             }
-            const data = await enrollmentsApi.getEnrollmentsByUser(user.id);
             
-            const enriched = await Promise.all(data.map(async (enrollment: any) => {
-                const completedLessons = await lessonProgressApi.getUserProgress(user.id, enrollment.course_id);
+            // Parallel fetch: All enrollments + All user lesson progress
+            const [data, allProgress] = await Promise.all([
+                enrollmentsApi.getEnrollmentsByUser(user.id),
+                lessonProgressApi.getAllUserProgress(user.id)
+            ]);
+            
+            console.log(`MyCoursesPage: Fetched ${data.length} enrollments and ${allProgress.length} progress markers.`);
+            
+            const enriched = data.map((enrollment: any) => {
+                // Filter progress for THIS course from the pre-fetched list
+                const courseProgress = allProgress.filter((p: any) => p.lessons?.course_id === enrollment.course_id);
                 const totalLessons = enrollment.courses?.lessons?.length || 1;
-                const progress = Math.min(Math.round((completedLessons.length / totalLessons) * 100), 100);
+                const progress = Math.min(Math.round((courseProgress.length / totalLessons) * 100), 100);
                 
                 return {
                     ...enrollment,
@@ -50,13 +71,15 @@ export default function MyCoursesPage() {
                             enrollment.courses?.category === 'AI' ? '#8b5cf6' : 
                             enrollment.courses?.category === 'Design' ? '#f59e0b' : '#10b981'
                 };
-            }));
+            });
 
+            console.log("MyCoursesPage: Data enrichment complete.");
             setEnrollments(enriched);
         } catch (error) {
-            console.error("Error fetching enrollments:", error);
+            console.error("MyCoursesPage: Error fetching enrollments:", error);
         } finally {
             setLoading(false);
+            console.log("MyCoursesPage: Fetch cycle complete.");
         }
     };
 

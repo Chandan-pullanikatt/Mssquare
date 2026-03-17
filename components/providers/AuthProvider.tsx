@@ -34,27 +34,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     let mounted = true;
 
     async function initializeAuth() {
+      console.log("AuthProvider: Initializing Auth...");
+      
+      // Safety timeout for initializeAuth
+      const timeoutId = setTimeout(() => {
+        if (loading && mounted) {
+          console.warn("AuthProvider: initializeAuth safety timeout reached.");
+          setLoading(false);
+        }
+      }, 8000);
+
       try {
-        // 1. Initial hydration: Use getSession() to get the current session immediately.
-        // This is more reliable for SSR/Page Reloads than waiting for onAuthStateChange.
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) throw sessionError;
 
         if (mounted) {
           if (session) {
+            console.log("AuthProvider: Session found for user:", session.user.id);
             setUser(session.user);
             const userRole = await authHelpers.getUserRole(session.user.id);
-            if (mounted) setRole(userRole);
+            if (mounted) {
+              setRole(userRole);
+              console.log("AuthProvider: Role fetched:", userRole);
+            }
           } else {
+            console.log("AuthProvider: No active session.");
             setUser(null);
             setRole(null);
           }
         }
       } catch (err) {
-        console.error("Auth initialization error:", err);
+        console.error("AuthProvider: Auth initialization error:", err);
       } finally {
-        if (mounted) setLoading(false);
+        clearTimeout(timeoutId);
+        if (mounted) {
+          setLoading(false);
+          console.log("AuthProvider: Initialization complete.");
+        }
       }
     }
 

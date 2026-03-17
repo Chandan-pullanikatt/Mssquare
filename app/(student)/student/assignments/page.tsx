@@ -26,16 +26,30 @@ export default function StudentAssignmentsPage() {
     const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
+        console.log("StudentAssignmentsPage: Effect triggered. user.id:", user?.id);
+
+        // Safety timeout to unlock the UI even if fetch hangs
+        const timeoutId = setTimeout(() => {
+            if (loading) {
+                console.warn("StudentAssignmentsPage: Safety timeout reached. Forcing loading to false.");
+                setLoading(false);
+            }
+        }, 8000);
+
         if (user) {
             fetchAssignments();
         }
+
+        return () => clearTimeout(timeoutId);
     }, [user]);
 
     const fetchAssignments = async () => {
         if (!user) return;
         try {
+            console.log("StudentAssignmentsPage: Starting fetchAssignments...");
             setLoading(true);
             const enrollments = await enrollmentsApi.getEnrollmentsByUser(user.id);
+            console.log(`StudentAssignmentsPage: Fetched ${enrollments.length} enrollments.`);
             
             const allAssignments = await Promise.all(enrollments.map(async (enrollment: any) => {
                 const courseAssignments = await assignmentsApi.getAssignmentsByCourse(enrollment.course_id);
@@ -47,9 +61,10 @@ export default function StudentAssignmentsPage() {
 
             setAssignments(allAssignments.flat());
         } catch (error) {
-            console.error("Error fetching assignments:", error);
+            console.error("StudentAssignmentsPage: Error fetching assignments:", error);
         } finally {
             setLoading(false);
+            console.log("StudentAssignmentsPage: Fetch cycle complete.");
         }
     };
 
