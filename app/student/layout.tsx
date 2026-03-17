@@ -15,7 +15,8 @@ import {
   Search,
   Zap,
   Briefcase,
-  Bell
+  Bell,
+  FileText
 } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
@@ -26,6 +27,7 @@ const sidebarItems = [
   { name: "AI Chat", href: "/student/ai-coach", icon: Zap },
   { name: "My Courses", href: "/student/courses", icon: BookOpen },
   { name: "Projects", href: "/student/projects", icon: FolderGit2 },
+  { name: "Assignments", href: "/student/assignments", icon: FileText },
   { name: "Certifications", href: "/student/certifications", icon: Award },
   { name: "Payments", href: "/student/payments", icon: CreditCard },
 ];

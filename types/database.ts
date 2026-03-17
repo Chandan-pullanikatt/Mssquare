@@ -57,6 +57,34 @@ export interface Enrollment {
   user_id: string;
   course_id: string;
   enrolled_at: string;
+  progress: number; // Added for progress tracking
+}
+
+export interface Project {
+  id: string;
+  course_id: string;
+  title: string;
+  description: string;
+  tags: string[];
+  created_at: string;
+}
+
+export interface Assignment {
+  id: string;
+  course_id: string;
+  title: string;
+  description: string;
+  due_date: string | null;
+  created_at: string;
+}
+
+export interface CertificationMetadata {
+  id: string;
+  course_id: string;
+  title: string;
+  description: string;
+  template_url: string | null;
+  created_at: string;
 }
 
 export interface Blog {
@@ -161,8 +189,23 @@ export interface Database {
       };
       enrollments: {
         Row: Enrollment;
-        Insert: Omit<Enrollment, 'id' | 'enrolled_at'> & { id?: string; enrolled_at?: string };
+        Insert: Omit<Enrollment, 'id' | 'enrolled_at' | 'progress'> & { id?: string; enrolled_at?: string; progress?: number };
         Update: Partial<Omit<Enrollment, 'id' | 'enrolled_at'>>;
+      };
+      projects: {
+        Row: Project;
+        Insert: Omit<Project, 'id' | 'created_at'> & { id?: string; created_at?: string };
+        Update: Partial<Omit<Project, 'id' | 'created_at'>>;
+      };
+      assignments: {
+        Row: Assignment;
+        Insert: Omit<Assignment, 'id' | 'created_at'> & { id?: string; created_at?: string };
+        Update: Partial<Omit<Assignment, 'id' | 'created_at'>>;
+      };
+      certification_metadata: {
+        Row: CertificationMetadata;
+        Insert: Omit<CertificationMetadata, 'id' | 'created_at'> & { id?: string; created_at?: string };
+        Update: Partial<Omit<CertificationMetadata, 'id' | 'created_at'>>;
       };
       blogs: {
         Row: Blog;

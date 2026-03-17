@@ -9,7 +9,9 @@ import {
   BookMarked,
   Layers,
   Clock,
-  ExternalLink
+  ExternalLink,
+  Settings as SettingsIcon,
+  FileCode
 } from "lucide-react";
 import Link from "next/link";
 import { adminApi } from "@/lib/api/admin";
@@ -110,6 +112,13 @@ export default function CoursesPage() {
             title="View Course"
           >
             <ExternalLink size={18} />
+          </Link>
+          <Link 
+            href={`/lms-admin/courses/${row.id}/manage`}
+            className="p-2 rounded-xl bg-gray-50 text-gray-400 hover:text-purple-500 hover:bg-purple-50 transition-all"
+            title="Manage Content"
+          >
+            <FileCode size={18} />
           </Link>
           <button 
             onClick={() => handleDelete(id)}
