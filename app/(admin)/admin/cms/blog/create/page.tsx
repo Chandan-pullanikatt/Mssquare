@@ -12,8 +12,13 @@ export default function CreateBlogPage() {
   const [blogData, setBlogData] = useState({
     title: "",
     slug: "",
+    excerpt: "",
     content: "",
     image: "",
+    category: "Technology",
+    author: "MSSquare Team",
+    read_time: 5,
+    date: new Date().toISOString().split('T')[0],
     published: false,
     seo_title: "",
     seo_description: "",
@@ -47,10 +52,14 @@ export default function CreateBlogPage() {
       await blogsApi.createBlog({
         title: blogData.title,
         slug: blogData.slug,
+        excerpt: blogData.excerpt,
         content: blogData.content,
         image: blogData.image || null,
+        category: blogData.category,
+        author: blogData.author,
+        date: blogData.date,
+        read_time: blogData.read_time,
         published: blogData.published
-        // Add SEO fields if they exist in DB
       });
       router.push("/admin/cms/blog");
     } catch (err) {
@@ -114,6 +123,17 @@ export default function CreateBlogPage() {
               </div>
 
               <div className="space-y-4 pt-6">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Excerpt</label>
+                <textarea 
+                  value={blogData.excerpt}
+                  onChange={(e) => setBlogData({...blogData, excerpt: e.target.value})}
+                  rows={3}
+                  placeholder="A brief summary for the blog card..."
+                  className="w-full bg-gray-50 border-none rounded-2xl py-3.5 px-5 text-sm font-medium text-gray-700 outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all resize-none"
+                />
+              </div>
+
+              <div className="space-y-4">
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Content</label>
                 <textarea 
                   value={blogData.content}
@@ -184,6 +204,60 @@ export default function CreateBlogPage() {
                 placeholder="Image URL (temporary)"
                 className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-[10px] font-bold text-gray-500 outline-none"
               />
+            </div>
+          </section>
+
+          {/* Blog Metadata */}
+          <section className="bg-white rounded-[2.5rem] border border-gray-100 p-8 shadow-sm">
+            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <FileText size={20} className="text-purple-500" />
+              Metadata
+            </h3>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Category</label>
+                <select 
+                  value={blogData.category}
+                  onChange={(e) => setBlogData({...blogData, category: e.target.value})}
+                  className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-xs font-bold text-gray-600 outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all appearance-none"
+                >
+                  <option value="Technology">Technology</option>
+                  <option value="Design">Design</option>
+                  <option value="Development">Development</option>
+                  <option value="Business">Business</option>
+                  <option value="Community">Community</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Author Name</label>
+                <input 
+                  type="text" 
+                  value={blogData.author}
+                  onChange={(e) => setBlogData({...blogData, author: e.target.value})}
+                  placeholder="MSSquare Team"
+                  className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-xs font-bold text-gray-600 outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Read Time (min)</label>
+                  <input 
+                    type="number" 
+                    value={blogData.read_time}
+                    onChange={(e) => setBlogData({...blogData, read_time: parseInt(e.target.value) || 0})}
+                    className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-xs font-bold text-gray-600 outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Date</label>
+                  <input 
+                    type="date" 
+                    value={blogData.date}
+                    onChange={(e) => setBlogData({...blogData, date: e.target.value})}
+                    className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-xs font-bold text-gray-600 outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all"
+                  />
+                </div>
+              </div>
             </div>
           </section>
 

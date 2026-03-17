@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { 
   GraduationCap, 
@@ -51,16 +51,17 @@ export default function AuthPage() {
   const pathname = usePathname();
   const { user, role, loading: authLoading } = useAuth();
 
+  const submitting = useRef(false);
+
   // The user explicitly requested to always see the login page, so we removed the auto-redirect effect.
 
   // Auto-redirect if already logged in – only if they are not in the middle of an explicit selection
   useEffect(() => {
     // Only auto-redirect if session exists and we are NOT loading and not currently submitting
-    if (!authLoading && user && role && !isLoading) {
+    if (!authLoading && user && role && !isLoading && !submitting.current) {
       // Check if current role matches what's selected to avoid fighting the user
       if (role === selectedPortal.id) {
-        const path = authHelpers.getRedirectPath(role);
-        path.then(p => {
+        authHelpers.getRedirectPath(role).then(p => {
           if (pathname !== p) window.location.href = p;
         });
       }
@@ -69,6 +70,9 @@ export default function AuthPage() {
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting.current) return;
+    
+    submitting.current = true;
     setIsLoading(true);
     setError(null);
     
@@ -86,9 +90,10 @@ export default function AuthPage() {
           
           if (!isAdminAccessingStudent) {
             setError(`Access denied. Your account is registered as ${userRole?.replace('_', ' ')} but you chose ${selectedPortal.name}.`);
-            setIsLoading(false);
             // Sign out so they don't get auto-redirected by middleware/context on reload
             await authHelpers.signOut();
+            setIsLoading(false);
+            submitting.current = false;
             return;
           }
         }
@@ -97,21 +102,28 @@ export default function AuthPage() {
         window.location.href = selectedPortal.href;
       } else {
         setIsLoading(false);
+        submitting.current = false;
       }
     } catch (err: any) {
       setError(err.message || "Invalid email or password");
       setIsLoading(false);
+      submitting.current = false;
     }
   };
 
   const handleGoogleLogin = async () => {
+    if (submitting.current) return;
+    submitting.current = true;
     setIsLoading(true);
+    
     try {
       localStorage.setItem("portal", selectedPortal.id);
       await authHelpers.signInWithGoogle();
+      // Google redirect will happen, but if it fails we need to reset
     } catch (err: any) {
       setError(err.message || "Google login failed");
       setIsLoading(false);
+      submitting.current = false;
     }
   };
 

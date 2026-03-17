@@ -4,7 +4,39 @@ import Link from "next/link";
 import { LayoutGrid, ArrowLeft } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 
+import { useState, useEffect } from "react";
+import { websiteApi } from "@/lib/api/website";
+
 export default function RefundPolicyPage() {
+    const [content, setContent] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchContent = async () => {
+            try {
+                const data = await websiteApi.getSection('refund_policy');
+                if (data) {
+                    setContent(data.content_json);
+                }
+            } catch (error) {
+                console.error('Error fetching refund policy:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchContent();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#8b5cf6]"></div>
+            </div>
+        );
+    }
+
+    if (!content) return null;
+
     return (
         <div className="min-h-screen bg-white font-sans flex flex-col items-center">
 
@@ -36,10 +68,10 @@ export default function RefundPolicyPage() {
                 <div className="mb-16">
                     <div className="text-[11px] font-bold text-[#7c3aed] uppercase tracking-widest mb-3">Legal Documentation</div>
                     <h1 className="text-4xl md:text-5xl font-extrabold font-heading text-slate-900 tracking-tight mb-4">
-                        Refund Policy
+                        {content.title}
                     </h1>
                     <p className="text-slate-600 font-medium text-lg">
-                        Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                        Last updated: {content.last_updated || new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                     </p>
                 </div>
 
@@ -53,45 +85,22 @@ export default function RefundPolicyPage() {
           prose-li:text-slate-700 prose-li:marker:text-[#8b5cf6]
           prose-strong:text-slate-900 prose-strong:font-bold"
                 >
-                    <p>
-                        At MSSquare, we strive to provide the highest quality education and mentorship. We understand that circumstances can change, and we have established this Refund Policy to be as fair as possible to both our students and our operational commitments.
-                    </p>
+                    <p>{content.intro}</p>
 
-                    <h2>1. Self-Paced Certification Programs</h2>
-                    <p>
-                        Our self-paced certification programs are eligible for a refund only if a refund request is raised within <strong>1 week</strong> of the purchase date.
-                    </p>
-                    <blockquote>
-                        Please note that the registration charges, which are <strong>20% of the course fee or Rs. 1000/- (whichever is higher)</strong>, are non-refundable at any point in time.
-                    </blockquote>
-
-                    <h2>2. Mentorship Programs</h2>
-                    <p>
-                        Mentorship program certification programs are eligible for a refund only if a refund request is raised within <strong>1 week</strong> of the enrollment date.
-                    </p>
-                    <blockquote>
-                        Please note that the registration charges, which are <strong>20% of the course fee or Rs. 1000/- (whichever is higher)</strong>, are non-refundable at any point in time.
-                    </blockquote>
-
-                    <h2>3. Placement Programs</h2>
-                    <p>
-                        Placement program certification programs are eligible for a refund only if a refund request is raised within <strong>1 week</strong> of the enrollment date.
-                    </p>
-                    <blockquote>
-                        Please note that the registration charges, which are <strong>20% of the course fee or Rs. 1000/- (whichever is higher)</strong>, are non-refundable at any point in time.
-                    </blockquote>
-
-                    <h2>4. Refund Processing</h2>
-                    <p>
-                        Once your refund request is approved, the refund amount will take some time to credit to your original payment method or bank account. We appreciate your patience during this process.
-                    </p>
-
-                    <h2>5. Contact for Refunds</h2>
-                    <p>
-                        To initiate a refund request or for any questions regarding our policy, please contact our support team at <strong>operations@mssquaretechnologies.com</strong>.
-                    </p>
+                    {content.sections?.map((section: any, index: number) => (
+                        <div key={index}>
+                            <h2>{section.heading}</h2>
+                            <p>{section.content}</p>
+                            {section.note && (
+                                <blockquote>
+                                    {section.note}
+                                </blockquote>
+                            )}
+                        </div>
+                    ))}
                 </div>
             </main>
+
 
             {/* Footer */}
             <div className="w-full">

@@ -187,7 +187,7 @@ export default function AdminLayout({
                           setIsProfileOpen(false);
                           const { authHelpers } = await import('@/utils/authHelpers');
                           await authHelpers.signOut();
-                          window.location.href = '/';
+                          window.location.href = '/auth';
                         }}
                       >
                         <LogOut size={18} />

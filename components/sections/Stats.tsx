@@ -11,9 +11,9 @@ export function Stats() {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const data = await websiteApi.getSection("landing");
-        if (data?.content_json?.stats) {
-          setStats(data.content_json.stats);
+        const data = await websiteApi.getSection("landing_stats");
+        if (data?.content_json) {
+          setStats(data.content_json);
         } else {
           setStats([
             { id: 1, name: "Developers Trained", value: "500+" },

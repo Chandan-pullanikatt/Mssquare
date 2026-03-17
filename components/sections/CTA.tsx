@@ -4,8 +4,34 @@ import { ArrowRight } from "lucide-react";
 import { useReveal } from "@/hooks/useReveal";
 import { COLORS } from "@/lib/design-tokens";
 
+import { useEffect, useState } from "react";
+import { websiteApi } from "@/lib/api/website";
+
 export function CTA() {
   const revealRef = useReveal();
+  const [content, setContent] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const data = await websiteApi.getSection("landing_cta");
+        if (data?.content_json) {
+          setContent(data.content_json);
+        }
+      } catch (err) {
+        console.error("Failed to fetch cta content", err);
+      }
+    };
+    fetchContent();
+  }, []);
+
+  const data = content || {
+    badge: "Start Today",
+    title_line1: "Ready to build something",
+    title_line2: "that matters?",
+    description: "Drop your email and we'll match you to the right MSsquare program — training, internship, or consultancy.",
+    footer: "Free consultation included. Limited slots available."
+  };
 
   return (
     <>
@@ -20,19 +46,19 @@ export function CTA() {
       <div className="relative z-10 max-w-[680px] mx-auto">
         <div className="rev inline-flex items-center gap-2 text-[0.8rem] font-bold tracking-[0.14em] uppercase text-primary-purple mb-[1.5rem] justify-center">
           <span className="w-5 h-[2px] bg-primary-purple"></span>
-          Start Today
+          {data.badge}
           <span className="w-5 h-[2px] bg-primary-purple"></span>
         </div>
 
         <h2 className="rev text-[clamp(2.5rem,5vw,4.5rem)] font-extrabold tracking-[-0.04em] leading-[1.05] mb-[1.5rem] font-heading" style={{ color: '#0F172A' }}>
-          Ready to build something<br />
+          {data.title_line1}<br />
           <span className="bg-gradient-to-br from-primary-purple to-[#9333EA] [-webkit-background-clip:text] [-webkit-text-fill-color:transparent] bg-clip-text font-black">
-            that matters?
+            {data.title_line2}
           </span>
         </h2>
 
         <p className="rev text-[1.1rem] leading-[1.75] font-medium mb-12" style={{ color: '#334155' }}>
-          Drop your email and we'll match you to the right MSsquare program — training, internship, or consultancy.
+          {data.description}
         </p>
 
         <form className="rev flex flex-col sm:flex-row gap-4 max-w-[500px] mx-auto mb-8" onSubmit={(e) => e.preventDefault()}>

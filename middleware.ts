@@ -22,8 +22,9 @@ export async function middleware(req: NextRequest) {
   const { supabase, response } = updateSession(req);
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user;
 
   // Unified Portal Access Control
   const portalRoutes = [

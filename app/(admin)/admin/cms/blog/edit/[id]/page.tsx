@@ -14,8 +14,13 @@ export default function EditBlogPage({ params }: { params: Promise<{ id: string 
   const [blogData, setBlogData] = useState({
     title: "",
     slug: "",
+    excerpt: "",
     content: "",
     image: "",
+    category: "Technology",
+    author: "MSSquare Team",
+    date: new Date().toISOString().split('T')[0],
+    read_time: 5,
     published: false,
     seo_title: "",
     seo_description: "",
@@ -29,8 +34,13 @@ export default function EditBlogPage({ params }: { params: Promise<{ id: string 
         setBlogData({
           title: blog.title || "",
           slug: blog.slug || "",
+          excerpt: blog.excerpt || "",
           content: blog.content || "",
           image: blog.image || "",
+          category: blog.category || "Technology",
+          author: blog.author || "MSSquare Team",
+          date: blog.date || new Date().toISOString().split('T')[0],
+          read_time: blog.read_time || 5,
           published: blog.published || false,
           seo_title: blog.title || "",
           seo_description: "",
@@ -72,12 +82,17 @@ export default function EditBlogPage({ params }: { params: Promise<{ id: string 
       await blogsApi.updateBlog(id, {
         title: blogData.title,
         slug: blogData.slug,
+        excerpt: blogData.excerpt,
         content: blogData.content,
         image: blogData.image || null,
+        category: blogData.category,
+        author: blogData.author,
+        date: blogData.date,
+        read_time: blogData.read_time,
         published: blogData.published
       });
       alert("Blog post updated successfully!");
-      router.push("/admin/blog");
+      router.push("/admin/cms/blog");
     } catch (err) {
       console.error(err);
       alert("Failed to update blog post.");
@@ -93,7 +108,7 @@ export default function EditBlogPage({ params }: { params: Promise<{ id: string 
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-100 pb-8">
         <div className="flex items-center gap-4">
-          <Link href="/admin/blog" className="p-3 rounded-2xl bg-white border border-gray-100 text-gray-400 hover:text-gray-900 transition-all">
+          <Link href="/admin/cms/blog" className="p-3 rounded-2xl bg-white border border-gray-100 text-gray-400 hover:text-gray-900 transition-all">
             <ArrowLeft size={20} />
           </Link>
           <div>
@@ -141,6 +156,17 @@ export default function EditBlogPage({ params }: { params: Promise<{ id: string 
               </div>
 
               <div className="space-y-4 pt-6">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Excerpt</label>
+                <textarea 
+                  value={blogData.excerpt}
+                  onChange={(e) => setBlogData({...blogData, excerpt: e.target.value})}
+                  rows={3}
+                  placeholder="A brief summary for the blog card..."
+                  className="w-full bg-gray-50 border-none rounded-2xl py-3.5 px-5 text-sm font-medium text-gray-700 outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all resize-none"
+                />
+              </div>
+
+              <div className="space-y-4">
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Content</label>
                 <textarea 
                   value={blogData.content}
@@ -208,6 +234,60 @@ export default function EditBlogPage({ params }: { params: Promise<{ id: string 
                 placeholder="Image URL"
                 className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-[10px] font-bold text-gray-500 outline-none"
               />
+            </div>
+          </section>
+
+          {/* Blog Metadata */}
+          <section className="bg-white rounded-[2.5rem] border border-gray-100 p-8 shadow-sm">
+            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <FileText size={20} className="text-purple-500" />
+              Metadata
+            </h3>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Category</label>
+                <select 
+                  value={blogData.category}
+                  onChange={(e) => setBlogData({...blogData, category: e.target.value})}
+                  className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-xs font-bold text-gray-600 outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all appearance-none"
+                >
+                  <option value="Technology">Technology</option>
+                  <option value="Design">Design</option>
+                  <option value="Development">Development</option>
+                  <option value="Business">Business</option>
+                  <option value="Community">Community</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Author Name</label>
+                <input 
+                  type="text" 
+                  value={blogData.author}
+                  onChange={(e) => setBlogData({...blogData, author: e.target.value})}
+                  placeholder="MSSquare Team"
+                  className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-xs font-bold text-gray-600 outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Read Time (min)</label>
+                  <input 
+                    type="number" 
+                    value={blogData.read_time}
+                    onChange={(e) => setBlogData({...blogData, read_time: parseInt(e.target.value) || 0})}
+                    className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-xs font-bold text-gray-600 outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Date</label>
+                  <input 
+                    type="date" 
+                    value={blogData.date}
+                    onChange={(e) => setBlogData({...blogData, date: e.target.value})}
+                    className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-xs font-bold text-gray-600 outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all"
+                  />
+                </div>
+              </div>
             </div>
           </section>
 

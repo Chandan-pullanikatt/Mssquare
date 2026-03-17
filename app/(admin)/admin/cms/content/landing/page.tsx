@@ -44,22 +44,25 @@ export default function LandingPageEditor() {
 
   useEffect(() => {
     const fetchContent = async () => {
+      setLoading(true);
       try {
-        const data = await websiteApi.getSection("landing");
-        if (data?.content_json) {
-          // Merge with default content to ensure all keys exist
-          const mergedContent = {
-            ...content,
-            ...data.content_json,
-            hero: { ...content.hero, ...data.content_json.hero },
-            seo: { ...content.seo, ...data.content_json.seo },
-            stats: data.content_json.stats || content.stats,
-            features: data.content_json.features || content.features,
-            testimonials: data.content_json.testimonials || content.testimonials,
-            partners: data.content_json.partners || content.partners,
-          };
-          setContent(mergedContent);
-        }
+        const [heroData, statsData, solutionsData, testimonialsData, productsData] = await Promise.all([
+          websiteApi.getSection("landing_hero"),
+          websiteApi.getSection("landing_stats"),
+          websiteApi.getSection("landing_solutions"),
+          websiteApi.getSection("landing_testimonials"),
+          websiteApi.getSection("landing_products")
+        ]);
+
+        const newContent = {
+          ...content,
+          hero: heroData?.content_json || content.hero,
+          stats: statsData?.content_json?.stats || content.stats,
+          features: solutionsData?.content_json?.items || content.features,
+          testimonials: testimonialsData?.content_json?.items || content.testimonials,
+          products: productsData?.content_json || null,
+        };
+        setContent(newContent);
       } catch (err) {
         console.error("Failed to fetch landing content", err);
       } finally {
@@ -72,8 +75,22 @@ export default function LandingPageEditor() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await websiteApi.updateSection("landing", content);
-      alert("Landing page updated successfully!");
+      await Promise.all([
+        websiteApi.updateSection("landing_hero", content.hero),
+        websiteApi.updateSection("landing_stats", { stats: content.stats }),
+        websiteApi.updateSection("landing_solutions", { 
+            badge: "Our Services", 
+            title: "Scalable solutions for modern businesses.", 
+            description: "We help startups and companies design, build, and launch digital products.",
+            items: content.features 
+        }),
+        websiteApi.updateSection("landing_testimonials", { 
+            badge: "Testimonials",
+            title: "What our students say",
+            items: content.testimonials 
+        })
+      ]);
+      alert("Landing page sections updated successfully!");
     } catch (err) {
       console.error("Failed to update landing content", err);
       alert("Failed to save changes.");

@@ -91,8 +91,13 @@ export interface Blog {
   id: string;
   title: string;
   slug: string;
+  excerpt: string | null;
   content: string | null;
   image: string | null;
+  category: string | null;
+  author: string | null;
+  date: string | null;
+  read_time: number | null;
   published: boolean;
   created_at: string;
 }

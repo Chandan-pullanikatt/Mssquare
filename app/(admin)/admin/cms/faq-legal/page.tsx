@@ -33,13 +33,22 @@ export default function FAQLegalManagement() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [faqData, legalData] = await Promise.all([
-          websiteApi.getSection("faq"),
-          websiteApi.getSection("legal")
+        const [faqData, termsData, privacyData, refundData] = await Promise.all([
+          websiteApi.getSection("landing_faq"),
+          websiteApi.getSection("terms_and_conditions"),
+          websiteApi.getSection("privacy_policy"),
+          websiteApi.getSection("refund_policy")
         ]);
 
-        if (faqData?.content_json) setFaqContent(faqData.content_json);
-        if (legalData?.content_json) setLegalContent(legalData.content_json);
+        if (faqData?.content_json) {
+            setFaqContent(faqData.content_json.items || []);
+        }
+        
+        setLegalContent({
+          terms: termsData?.content_json || null,
+          privacy: privacyData?.content_json || null,
+          refund: refundData?.content_json || null
+        });
       } catch (err) {
         console.error(err);
       } finally {
@@ -53,9 +62,19 @@ export default function FAQLegalManagement() {
     setSaving(true);
     try {
       if (activeTab === "faq") {
-        await websiteApi.updateSection("faq", faqContent);
+        await websiteApi.updateSection("landing_faq", {
+            badge: "FAQ",
+            title: "Common Questions",
+            items: faqContent
+        });
       } else {
-        await websiteApi.updateSection("legal", legalContent);
+        const sectionMap = {
+            terms: "terms_and_conditions",
+            privacy: "privacy_policy",
+            refund: "refund_policy"
+        };
+        const sectionName = sectionMap[selectedLegalPage];
+        await websiteApi.updateSection(sectionName, legalContent[selectedLegalPage]);
       }
       alert("Changes saved successfully!");
     } catch (err) {
@@ -237,10 +256,18 @@ export default function FAQLegalManagement() {
             <div className="bg-white border border-gray-100 rounded-[2.5rem] p-10 shadow-sm">
               <h2 className="text-xl font-bold text-gray-900 mb-8 capitalize">Edit {selectedLegalPage} Policy</h2>
               <textarea 
-                value={legalContent[selectedLegalPage]}
-                onChange={(e) => setLegalContent({...legalContent, [selectedLegalPage]: e.target.value})}
+                value={typeof legalContent[selectedLegalPage] === 'object' ? JSON.stringify(legalContent[selectedLegalPage], null, 2) : legalContent[selectedLegalPage]}
+                onChange={(e) => {
+                    let value = e.target.value;
+                    try {
+                        value = JSON.parse(e.target.value);
+                    } catch (err) {
+                        // Keep as string if not valid JSON
+                    }
+                    setLegalContent({...legalContent, [selectedLegalPage]: value});
+                }}
                 rows={25}
-                className="w-full bg-gray-50 border-none rounded-[2rem] p-8 text-sm font-medium text-gray-700 outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all resize-none leading-relaxed"
+                className="w-full bg-gray-50 border-none rounded-[2rem] p-8 text-sm font-mono text-gray-700 outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all resize-none leading-relaxed"
                 placeholder={`Write your legal ${selectedLegalPage} here...`}
               />
             </div>

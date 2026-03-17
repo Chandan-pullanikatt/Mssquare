@@ -4,7 +4,39 @@ import Link from "next/link";
 import { LayoutGrid, ArrowLeft } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 
+import { useState, useEffect } from "react";
+import { websiteApi } from "@/lib/api/website";
+
 export default function PrivacyPolicyPage() {
+    const [content, setContent] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchContent = async () => {
+            try {
+                const data = await websiteApi.getSection('privacy_policy');
+                if (data) {
+                    setContent(data.content_json);
+                }
+            } catch (error) {
+                console.error('Error fetching privacy policy:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchContent();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#8b5cf6]"></div>
+            </div>
+        );
+    }
+
+    if (!content) return null;
+
     return (
         <div className="min-h-screen bg-white font-sans flex flex-col items-center">
 
@@ -36,10 +68,10 @@ export default function PrivacyPolicyPage() {
                 <div className="mb-16">
                     <div className="text-[11px] font-bold text-[#7c3aed] uppercase tracking-widest mb-3">Legal Documentation</div>
                     <h1 className="text-4xl md:text-5xl font-extrabold font-heading text-slate-900 tracking-tight mb-4">
-                        Privacy Policy
+                        {content.title}
                     </h1>
                     <p className="text-slate-600 font-medium text-lg">
-                        Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                        Last updated: {content.last_updated || new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                     </p>
                 </div>
 
@@ -53,66 +85,33 @@ export default function PrivacyPolicyPage() {
           prose-li:text-slate-700 prose-li:marker:text-[#8b5cf6]
           prose-strong:text-slate-900 prose-strong:font-bold"
                 >
-                    <p>
-                        At MSSquare, accessible from mssquaretechnologies.com, one of our main priorities is the privacy of our visitors and platform users. This Privacy Policy document contains types of information that is collected and recorded by MSSquare and how we use it.
-                    </p>
-                    <p>
-                        If you have additional questions or require more information about our Privacy Policy, do not hesitate to contact us.
-                    </p>
-
-                    <h2>1. Information We Collect</h2>
-                    <p>
-                        We collect information from you when you register on our site, place an order, subscribe to our newsletter, respond to a survey, fill out a form, or participate in our courses and consultancy services. The personal information that you are asked to provide, and the reasons why you are asked to provide it, will be made clear to you at the point we ask you to provide your personal information.
-                    </p>
-                    <ul>
-                        <li><strong>Account Data:</strong> Name, email address, phone number, and password.</li>
-                        <li><strong>Billing Data:</strong> Transaction details, credit card numbers, and billing addresses utilized for our EdTech and Business platforms.</li>
-                        <li><strong>Interaction Data:</strong> Chat logs, forum posts, submitted projects, and general course activity.</li>
-                    </ul>
-
-                    <h2>2. How We Use Your Information</h2>
-                    <p>
-                        We use the information we collect in various ways, including to:
-                    </p>
-                    <ul>
-                        <li>Provide, operate, and maintain our educational and consulting platforms.</li>
-                        <li>Improve, personalize, and expand our services by analyzing usage statistics.</li>
-                        <li>Process transactions and send related information, including confirmations and invoices.</li>
-                        <li>Communicate with you directly, for customer service, updates, and promotional content.</li>
-                        <li>Find and prevent fraud to ensure a secure environment for all users.</li>
-                    </ul>
-
-                    <h2>3. Data Security</h2>
-                    <p>
-                        MSSquare implements a variety of state-of-the-art security measures to maintain the safety of your personal information when you enter, submit, or access your personal information. We utilize regular Malware Scanning, SSL encryption for sensitive data flows, and restrict data access solely to authorized personnel.
-                    </p>
-
-                    <h2>4. Cookies and Web Beacons</h2>
-                    <p>
-                        Like any other website, MSSquare uses "cookies". These cookies are used to store information including visitors' preferences, and the pages on the website that the visitor accessed or visited. The information is used to optimize the users' experience by customizing our web page content based on visitors' browser type and/or other information.
-                    </p>
-
-                    <h2>5. Third-Party Privacy Policies</h2>
-                    <p>
-                        MSSquare's Privacy Policy does not apply to other advertisers or websites. Thus, we are advising you to consult the respective Privacy Policies of these third-party ad servers for more detailed information. It may include their practices and instructions about how to opt-out of certain options.
-                    </p>
-
-                    <h2>6. GDPR Data Protection Rights</h2>
-                    <p>
-                        We would like to make sure you are fully aware of all of your data protection rights. Every user is entitled to the following:
-                    </p>
-                    <ul>
-                        <li><strong>The right to access:</strong> You have the right to request copies of your personal data.</li>
-                        <li><strong>The right to rectification:</strong> You have the right to request that we correct any information you believe is inaccurate.</li>
-                        <li><strong>The right to erasure:</strong> You have the right to request that we erase your personal data, under certain conditions.</li>
-                    </ul>
-
-                    <h2>7. Contact Us</h2>
-                    <p>
-                        If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at <strong>operations@mssquaretechnologies.com</strong>.
-                    </p>
+                    {content.sections?.map((section: any, index: number) => (
+                        <div key={index}>
+                            <h2>{section.heading}</h2>
+                            <p>{section.content}</p>
+                            {section.list && (
+                                <ul>
+                                    {section.list.map((item: string, i: number) => {
+                                        const [bold, ...rest] = item.split(':');
+                                        return (
+                                            <li key={i}>
+                                                {rest.length > 0 ? (
+                                                    <>
+                                                        <strong>{bold}:</strong> {rest.join(':')}
+                                                    </>
+                                                ) : (
+                                                    item
+                                                )}
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            )}
+                        </div>
+                    ))}
                 </div>
             </main>
+
 
             {/* Footer */}
             <div className="w-full">

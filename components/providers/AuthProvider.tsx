@@ -31,15 +31,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Initializing the session state is handled by onAuthStateChange which
-    // fires immediately with the current session state.
-    // Redundant getSession calls can cause 'AbortError: Lock broken' in dev mode.
+    let mounted = true;
+
+    async function initializeAuth() {
+      try {
+        // 1. Initial hydration: Use getSession() to get the current session immediately.
+        // This is more reliable for SSR/Page Reloads than waiting for onAuthStateChange.
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) throw sessionError;
+
+        if (mounted) {
+          if (session) {
+            setUser(session.user);
+            const userRole = await authHelpers.getUserRole(session.user.id);
+            if (mounted) setRole(userRole);
+          } else {
+            setUser(null);
+            setRole(null);
+          }
+        }
+      } catch (err) {
+        console.error("Auth initialization error:", err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    initializeAuth();
+
+    // 2. Set up the listener exactly once.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
+        if (!mounted) return;
+
         if (session) {
           setUser(session.user);
           const userRole = await authHelpers.getUserRole(session.user.id);
-          setRole(userRole);
+          if (mounted) setRole(userRole);
         } else {
           setUser(null);
           setRole(null);
@@ -49,6 +78,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);

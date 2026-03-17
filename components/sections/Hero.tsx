@@ -14,9 +14,9 @@ export function Hero() {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const data = await websiteApi.getSection("landing");
-        if (data?.content_json?.hero) {
-          setContent(data.content_json.hero);
+        const data = await websiteApi.getSection("landing_hero");
+        if (data?.content_json) {
+          setContent(data.content_json);
         }
       } catch (err) {
         console.error("Failed to fetch hero content", err);

@@ -2,12 +2,15 @@
 
 import { Container } from "@/components/ui/Container";
 import { useSearchParams } from "next/navigation";
-import { useState, useMemo, Suspense } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import BlogCard from "@/components/blog/BlogCard";
 import BlogSearch from "@/components/blog/BlogSearch";
 import BlogFilter from "@/components/blog/BlogFilter";
-import { BLOG_POSTS } from "@/content/blogs/blogs";
+import { BLOG_POSTS, BlogPost } from "@/content/blogs/blogs";
 import { motion } from "framer-motion";
+
+import { blogsApi } from "@/lib/api/blogs";
+import { Blog } from "@/types/database";
 
 function BlogPageContent() {
   const searchParams = useSearchParams();
@@ -17,10 +20,26 @@ function BlogPageContent() {
     initialCategory
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const data = await blogsApi.getBlogs();
+        setBlogs(data);
+      } catch (err) {
+        console.error("Failed to fetch blogs", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBlogs();
+  }, []);
 
   // Filter and search logic
   const filteredPosts = useMemo(() => {
-    let posts = BLOG_POSTS;
+    let posts = blogs;
 
     // Apply category filter
     if (selectedCategory) {
@@ -29,16 +48,33 @@ function BlogPageContent() {
 
     // Apply search filter
     if (searchQuery.trim()) {
+      const lowerQuery = searchQuery.toLowerCase();
       posts = posts.filter(
         (post) =>
-          post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          post.author.toLowerCase().includes(searchQuery.toLowerCase())
+          post.title.toLowerCase().includes(lowerQuery) ||
+          post.excerpt?.toLowerCase().includes(lowerQuery) ||
+          post.author?.toLowerCase().includes(lowerQuery)
       );
     }
 
     return posts;
-  }, [selectedCategory, searchQuery]);
+  }, [blogs, selectedCategory, searchQuery]);
+
+  // Map Blog to BlogPost for BlogCard
+  const mappedPosts = useMemo(() => {
+    return filteredPosts.map(blog => ({
+      id: blog.id,
+      slug: blog.slug,
+      title: blog.title,
+      excerpt: blog.excerpt || "",
+      content: blog.content || "",
+      image: blog.image || "",
+      category: blog.category || "Uncategorized",
+      author: blog.author || "MSsquare Team",
+      date: blog.date || blog.created_at,
+      readTime: blog.read_time || 5
+    } as BlogPost));
+  }, [filteredPosts]);
 
   // Reset to page 1 when filters change
   const handleCategoryChange = (category: string | null) => {
@@ -122,7 +158,7 @@ function BlogPageContent() {
             transition={{ delay: 0.2 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {filteredPosts.map((post, index) => (
+            {mappedPosts.map((post, index) => (
               <motion.div
                 key={post.id}
                 initial={{ opacity: 0, y: 20 }}
