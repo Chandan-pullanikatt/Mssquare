@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { 
   GraduationCap, 
@@ -14,14 +14,11 @@ import {
   Settings,
   Grid3X3,
   Mail,
-  Lock,
-  CheckCircle2
+  Lock
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { COLORS } from "@/lib/design-tokens";
-
 import { authHelpers } from "@/utils/authHelpers";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 
 type PortalType = {
@@ -40,7 +37,7 @@ const PORTALS: PortalType[] = [
   { id: 'cms_admin', name: 'CMS Admin', href: '/admin/cms/dashboard', icon: Grid3X3, description: 'CEO content control' },
 ];
 
-export default function AuthPage() {
+function AuthForm() {
   const [selectedPortal, setSelectedPortal] = useState<PortalType>(PORTALS[0]);
   const [showPortalDropdown, setShowPortalDropdown] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -50,11 +47,18 @@ export default function AuthPage() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user, role, loading: authLoading } = useAuth();
 
   const submitting = useRef(false);
 
-  // The user explicitly requested to always see the login page, so we removed the auto-redirect effect.
+  // Sync error from URL
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    if (errorParam) {
+      setError(errorParam);
+    }
+  }, [searchParams]);
 
   // Auto-redirect if already logged in – only if they are not in the middle of an explicit selection
   useEffect(() => {
@@ -86,19 +90,6 @@ export default function AuthPage() {
         const userRole = await authHelpers.getUserRole(data.user.id);
         
         if (userRole !== selectedPortal.id) {
-          // Allow LMS Admin to access Student portal for testing/oversight
-          const isAdminAccessingStudent = userRole === 'lms_admin' && selectedPortal.id === 'student';
-          
-          /* 
-          if (!isAdminAccessingStudent) {
-            setError(`Access denied. Your account is registered as ${userRole?.replace('_', ' ')} but you chose ${selectedPortal.name}.`);
-            // Sign out so they don't get auto-redirected by middleware/context on reload
-            await authHelpers.signOut();
-            setIsLoading(false);
-            submitting.current = false;
-            return;
-          }
-          */
           console.warn(`Role mismatch detected: DB says ${userRole}, user chose ${selectedPortal.id}. Proceeding anyway for stability.`);
         }
 
@@ -320,11 +311,6 @@ export default function AuthPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 py-0.5">
-                <input type="checkbox" id="remember" className="w-3.5 h-3.5 rounded border-light-border text-primary-purple focus:ring-primary-purple/20 cursor-pointer" />
-                <label htmlFor="remember" className="text-[0.7rem] font-bold text-[#334155] cursor-pointer">Remember me</label>
-              </div>
-
               <button 
                 type="submit"
                 disabled={isLoading}
@@ -365,7 +351,6 @@ export default function AuthPage() {
             </div>
           </div>
 
-
           {/* Footer links */}
           <div className="flex items-center justify-center gap-4 lg:gap-6 text-[0.6rem] font-bold text-gray-400 uppercase tracking-[0.15em] shrink-0 pb-4">
             <Link href="/" className="hover:text-gray-600 transition-colors">Privacy Policy</Link>
@@ -374,10 +359,16 @@ export default function AuthPage() {
             <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
             <Link href="/" className="hover:text-gray-600 transition-colors">Help Center</Link>
           </div>
-
         </div>
-
       </div>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={<div className="h-screen w-full flex items-center justify-center bg-white"><div className="w-10 h-10 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin"></div></div>}>
+      <AuthForm />
+    </Suspense>
   );
 }
