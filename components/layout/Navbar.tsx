@@ -53,11 +53,11 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-8">
           {[
+            { name: "Home", href: "/" },
             { name: "Services", href: "/web-services" },
-            { name: "Products", href: "#portfolio" },
             { name: "Courses", href: "/courses" },
-            { name: "Testimonials", href: "#testimonials" }
-          ].map((item) => (
+            { name: "Careers", href: "/careers" }
+          ].filter(item => !(item.name === "Home" && isLandingPage)).map((item) => (
             <Link 
               key={item.href}
               href={item.href} 
@@ -120,10 +120,10 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
         }`}>
           <nav className="flex flex-col gap-6">
             {[
+              { name: "Home", href: "/" },
               { name: "Services", href: "#solutions" },
-              { name: "Products", href: "#portfolio" },
-              { name: "Testimonials", href: "#testimonials" }
-            ].map((item) => (
+              { name: "Careers", href: "/careers" }
+            ].filter(item => !(item.name === "Home" && isLandingPage)).map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

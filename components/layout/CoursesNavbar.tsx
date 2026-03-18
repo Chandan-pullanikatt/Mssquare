@@ -22,10 +22,10 @@ export function CoursesNavbar() {
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-10">
           {[
+            { name: "Home", href: "/" },
             { name: "Programs", href: "/student/explore" },
             { name: "Mentorship", href: "/student/explore" },
-            { name: "Placements", href: "/student/explore" },
-            { name: "Dashboard", href: "/dashboard" }
+            { name: "Placements", href: "/student/explore" }
           ].map((item) => (
             <Link
               key={item.name}
@@ -67,10 +67,10 @@ export function CoursesNavbar() {
         <div className="fixed inset-0 top-[70px] bg-white z-40 md:hidden p-6 animate-in slide-in-from-top duration-300">
           <nav className="flex flex-col gap-6">
             {[
+              { name: "Home", href: "/" },
               { name: "Programs", href: "/student/explore" },
               { name: "Mentorship", href: "/student/explore" },
               { name: "Placements", href: "/student/explore" },
-              { name: "Dashboard", href: "/dashboard" },
               { name: "Account Login", href: "/auth" }
             ].map((item) => (
               <Link
