@@ -19,6 +19,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
   const pathname = usePathname();
 
   const isLandingPage = pathname === "/";
+  const isPublicPage = ["/", "/careers", "/become-instructor"].includes(pathname);
 
   // For light variant, always use scrolled styling
   const shouldUseLightStyling = variant === "light" || isScrolled;
@@ -71,7 +72,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
         </nav>
 
         <div className="hidden md:flex items-center gap-6">
-          {user && !isLandingPage ? (
+          {user && !isPublicPage ? (
             <div className="flex items-center gap-4">
               <PortalSwitcher />
               <button 
@@ -163,7 +164,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
               Placements
             </Link>
             <div className={`flex flex-col gap-4 pt-4 border-t ${isScrolled ? "border-light-border" : "border-border"}`}>
-              {user && !isLandingPage ? (
+              {user && !isPublicPage ? (
                 <div className="flex flex-col gap-4">
                   <PortalSwitcher />
                   <button

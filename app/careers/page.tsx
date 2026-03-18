@@ -1,5 +1,4 @@
 "use client";
-
 import {
     Rocket,
     Lightbulb,
@@ -14,11 +13,14 @@ import {
     ChevronDown,
     Globe,
     Briefcase,
-    Monitor
+    Monitor,
+    GraduationCap,
+    Scale
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useRef } from "react";
 import { COLORS, SHADOWS } from "@/lib/design-tokens";
+import { Footer } from "@/components/layout/Footer";
 
 const culture = [
     {
@@ -102,9 +104,9 @@ export default function CareersPage() {
                 </div>
 
                 <div className="hidden md:flex items-center gap-10">
-                    {["Culture", "Benefits", "Jobs", "About"].map((item) => (
-                        <Link key={item} href="#" className="text-sm font-bold text-light-foreground/60 hover:text-primary-purple transition-colors">{item}</Link>
-                    ))}
+                    <Link href="/" className="text-sm font-bold text-light-foreground/60 hover:text-primary-purple transition-colors">Home</Link>
+                    <Link href="/become-instructor" className="text-sm font-bold text-light-foreground/60 hover:text-primary-purple transition-colors">Become An Instructor</Link>
+                    <Link href="#why-join-us" className="text-sm font-bold text-light-foreground/60 hover:text-primary-purple transition-colors">Why Join Us</Link>
                 </div>
 
                 <Link href="/portal" className="bg-primary-purple text-white px-8 py-2.5 rounded-full font-bold text-sm shadow-xl shadow-primary-purple/20 hover:scale-105 transition-transform active:scale-95">
@@ -126,7 +128,7 @@ export default function CareersPage() {
                             <span className="text-primary-purple">MSSquare</span> Team
                         </h1>
 
-                        <p className="text-lg font-medium text-gray-500 max-w-lg leading-relaxed">
+                        <p className="text-lg font-medium text-gray-600 max-w-lg leading-relaxed">
                             Shape the future of innovation with a global team dedicated to excellence, creative freedom, and sustainable growth. We're building tools for the next generation.
                         </p>
 
@@ -144,13 +146,12 @@ export default function CareersPage() {
                     </div>
 
                     <div className="flex-1 relative animate-in fade-in slide-in-from-right-8 duration-1000">
-                        <div className="w-full aspect-[4/3] bg-cyan-100 rounded-[3rem] overflow-hidden shadow-2xl relative group">
+                        <div className="w-full aspect-[4/3] rounded-[3rem] overflow-hidden shadow-2xl relative group bg-white">
                             <img
-                                src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop"
-                                alt="Modern Workspace"
-                                className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-1000"
+                                src="/assets/careers.png"
+                                alt="Careers at MSSquare"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-tr from-primary-purple/10 to-transparent"></div>
                         </div>
                         {/* Decorative Elements */}
                         <div className="absolute -top-6 -right-6 w-32 h-32 bg-purple-100 rounded-full blur-3xl opacity-60"></div>
@@ -159,24 +160,53 @@ export default function CareersPage() {
                 </div>
             </section>
 
-            {/* Why Work With Us Section */}
-            <section className="py-24 px-8 bg-white overflow-hidden">
+            {/* Why Join Us Section */}
+            <section id="why-join-us" className="py-24 px-8 bg-white overflow-hidden">
                 <div className="max-w-7xl mx-auto text-center space-y-16">
                     <div className="max-w-3xl mx-auto">
-                        <h2 className="text-4xl font-extrabold text-gray-900 font-heading mb-6 italic">Why Work With Us</h2>
-                        <p className="text-gray-500 font-medium leading-relaxed">
-                            Our culture is built on transparency, autonomy, and the relentless pursuit of better solutions for our users.
+                        <h2 className="text-5xl font-extrabold text-[#1e293b] font-heading mb-6">Why Join Us</h2>
+                        <p className="text-gray-400 font-medium leading-relaxed">
+                            Empowering our people to lead the digital revolution.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {culture.map((item, i) => (
-                            <div key={i} className="group p-10 bg-light-surface border border-light-border rounded-[2.5rem] text-left hover:bg-light-background hover:border-primary-purple/20 hover:shadow-2xl hover:shadow-primary-purple/10 transition-all duration-500">
-                                <div className={`w-14 h-14 ${item.bg} ${item.color} rounded-2xl flex items-center justify-center mb-10 group-hover:scale-110 group-hover:rotate-6 transition-transform shadow-sm`}>
-                                    <item.icon size={28} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {[
+                            {
+                                title: "Innovation-led",
+                                description: "We push the boundaries of what's possible in tech and learning.",
+                                icon: Lightbulb,
+                                color: "text-[#7C3AED]",
+                                bg: "bg-[#F5F3FF]"
+                            },
+                            {
+                                title: "Continuous Learning",
+                                description: "Regular workshops, mentors, and professional growth budgets for all.",
+                                icon: GraduationCap,
+                                color: "text-[#7C3AED]",
+                                bg: "bg-[#F5F3FF]"
+                            },
+                            {
+                                title: "Work-Life Balance",
+                                description: "Flexible hours and remote-first culture to keep you refreshed.",
+                                icon: Scale,
+                                color: "text-[#7C3AED]",
+                                bg: "bg-[#F5F3FF]"
+                            },
+                            {
+                                title: "Impactful Projects",
+                                description: "Build solutions that directly touch and improve millions of lives.",
+                                icon: Globe,
+                                color: "text-[#7C3AED]",
+                                bg: "bg-[#F5F3FF]"
+                            }
+                        ].map((item, i) => (
+                            <div key={i} className="group p-8 bg-white border border-gray-100 rounded-3xl text-left hover:shadow-xl transition-all duration-300">
+                                <div className={`w-12 h-12 ${item.bg} ${item.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                                    <item.icon size={24} />
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-4">{item.title}</h3>
-                                <p className="text-gray-500 font-medium leading-relaxed text-sm">
+                                <h3 className="text-xl font-bold text-[#1e293b] mb-3">{item.title}</h3>
+                                <p className="text-gray-400 text-sm leading-relaxed">
                                     {item.description}
                                 </p>
                             </div>
@@ -250,40 +280,40 @@ export default function CareersPage() {
 
                     <div className="text-center mb-16 space-y-4">
                         <h2 className="text-4xl font-extrabold text-gray-900 font-heading italic">Start Your Journey</h2>
-                        <p className="text-gray-500 font-medium">Fill out the form below and our recruitment team will reach out within 48 hours.</p>
+                        <p className="text-gray-600 font-medium">Fill out the form below and our recruitment team will reach out within 48 hours.</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
+                                <label className="text-xs font-bold text-gray-700 uppercase tracking-widest ml-1">Full Name</label>
                                 <input
                                     required
                                     type="text"
-                                    className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-300"
+                                    className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-400"
                                     placeholder="John Doe"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
+                                <label className="text-xs font-bold text-gray-700 uppercase tracking-widest ml-1">Email Address</label>
                                 <input
                                     required
                                     type="email"
-                                    className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-300"
+                                    className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-400"
                                     placeholder="john@example.com"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
+                                <label className="text-xs font-bold text-gray-700 uppercase tracking-widest ml-1">Phone Number</label>
                                 <input
                                     required
                                     type="tel"
-                                    className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-300"
+                                    className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-400"
                                     placeholder="+1 (555) 000-0000"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Applying for Position</label>
+                                <label className="text-xs font-bold text-gray-700 uppercase tracking-widest ml-1">Applying for Position</label>
                                 <div className="relative">
                                     <select className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all appearance-none cursor-pointer">
                                         <option>Select a role</option>
@@ -297,16 +327,16 @@ export default function CareersPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">LinkedIn Profile</label>
+                            <label className="text-xs font-bold text-gray-700 uppercase tracking-widest ml-1">LinkedIn Profile</label>
                             <input
                                 type="url"
-                                className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-300"
+                                className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-400"
                                 placeholder="https://linkedin.com/in/username"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Resume / CV</label>
+                            <label className="text-xs font-bold text-gray-700 uppercase tracking-widest ml-1">Resume / CV</label>
                             <div className="border-2 border-dashed border-purple-100 bg-primary-purple/5 rounded-3xl p-12 text-center group hover:border-primary-purple/30 hover:bg-primary-purple/10 transition-all cursor-pointer">
                                 <Upload size={32} className="mx-auto text-primary-purple mb-4 group-hover:-translate-y-1 transition-transform" />
                                 <p className="text-sm font-bold text-gray-900">Click to upload or drag and drop</p>
@@ -316,10 +346,10 @@ export default function CareersPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Cover Letter</label>
+                            <label className="text-xs font-bold text-gray-700 uppercase tracking-widest ml-1">Cover Letter</label>
                             <textarea
                                 rows={5}
-                                className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-[2rem] p-8 text-sm font-bold text-gray-900 outline-none transition-all resize-none placeholder:text-gray-300 leading-relaxed"
+                                className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-[2rem] p-8 text-sm font-bold text-gray-900 outline-none transition-all resize-none placeholder:text-gray-400 leading-relaxed"
                                 placeholder="Tell us why you're a great fit..."
                             />
                         </div>
@@ -347,33 +377,7 @@ export default function CareersPage() {
                 </div>
             </section>
 
-            {/* Footer */}
-            <footer className="py-20 px-8 bg-light-surface">
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
-                    <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 bg-primary-purple rounded-full flex items-center justify-center text-white">
-                            <Rocket size={20} />
-                        </div>
-                        <span className="text-xl font-bold text-gray-900">MSSquare</span>
-                    </div>
-
-                    <div className="text-sm font-bold text-gray-400 uppercase tracking-widest text-center">
-                        © 2024 MSSquare Inc. All rights reserved.
-                    </div>
-
-                    <div className="flex items-center gap-8">
-                        <Link href="#" className="text-gray-400 hover:text-primary-purple transition-colors">
-                            <Globe size={20} />
-                        </Link>
-                        <Link href="#" className="text-gray-400 hover:text-primary-purple transition-colors">
-                            <Users size={20} />
-                        </Link>
-                        <Link href="#" className="text-gray-400 hover:text-primary-purple transition-colors">
-                            <Send size={20} />
-                        </Link>
-                    </div>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }
