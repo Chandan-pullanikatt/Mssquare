@@ -237,8 +237,7 @@ export const adminApi = {
     // For this implementation, we assume we are just adding a profile for an existing user or
     // the system has a trigger to handle auth user creation.
     // Or we can use a placeholder for now as per the user's "add instructor" request.
-    const { data, error } = await supabase
-      .from('profiles')
+    const { data, error } = await (supabase.from('profiles') as any)
       .insert([
         { 
           email, 
@@ -254,8 +253,7 @@ export const adminApi = {
   },
 
   async assignCourseToInstructor(courseId: string, instructorId: string) {
-    const { data, error } = await supabase
-      .from('courses')
+    const { data, error } = await (supabase.from('courses') as any)
       .update({ instructor_id: instructorId })
       .eq('id', courseId)
       .select()
