@@ -1,23 +1,19 @@
 import { createBrowserClient } from '@supabase/ssr'
 import { Database } from '@/types/database';
 
-let client: ReturnType<typeof createBrowserClient<Database>> | undefined;
-
-export const supabase = (() => {
-  if (client) return client;
-  
-  client = createBrowserClient<Database>(
+export function createClient() {
+  return createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookieOptions: {
         path: '/',
-        sameSite: 'lax',
         secure: true,
+        sameSite: 'lax',
       }
     }
-  );
-  
-  return client;
-})();
+  )
+}
 
+// Global singleton for the browser
+export const supabase = createClient();
