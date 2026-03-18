@@ -50,11 +50,12 @@ export async function middleware(req: NextRequest) {
     const needsRole = currentPortal || pathname === '/dashboard' || pathname === '/portal';
 
     if (needsRole) {
-      // Prioritize role from app_metadata
+      // Prioritize role from app_metadata (FASTEST)
       let role = user.app_metadata?.role as string | undefined;
 
-      // Fallback to database check if not in metadata
+      // Fallback to database check ONLY if not in metadata (SLOWER)
       if (!role) {
+        console.warn(`Middleware: Role missing in metadata for user ${user.id}, fetching from DB...`);
         const { data: profileData } = await supabase
           .from('profiles')
           .select('role')
@@ -77,12 +78,13 @@ export async function middleware(req: NextRequest) {
       if (currentPortal) {
         const isAllowed = role === currentPortal.role || (role === 'lms_admin' && currentPortal.role === 'student');
         if (!role || !isAllowed) {
+          console.warn(`Middleware: Unauthorized access attempt to ${pathname} for role ${role}`);
           url.pathname = '/unauthorized';
           return NextResponse.redirect(url);
         }
       }
 
-      // Redirects
+      // Redirects for unified dashboard entry points
       if (pathname === '/dashboard' || pathname === '/portal') {
         if (role === 'student') url.pathname = '/student/dashboard';
         else if (role === 'business_client') url.pathname = '/business/dashboard';
@@ -95,6 +97,7 @@ export async function middleware(req: NextRequest) {
       }
     }
   }
+
 
   return response;
 }
@@ -109,6 +112,7 @@ export const config = {
      * - favicon.ico (favicon file)
      * - assets (public assets)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|assets).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|assets|fonts|images|favicon).*)',
+
   ],
 };

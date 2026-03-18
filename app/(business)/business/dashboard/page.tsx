@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Folder,
   TrendingUp,
@@ -39,9 +39,12 @@ export default function BusinessDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const hasFetched = useRef<string | null>(null);
+
   useEffect(() => {
     async function fetchData() {
       if (!user) return;
+      if (hasFetched.current === user.id) return;
       
       try {
         setLoading(true);
@@ -49,8 +52,9 @@ export default function BusinessDashboard() {
           businessApi.getProjects(user.id),
           businessApi.getServiceRequests(user.id)
         ]);
-        setProjects(projectsData);
-        setRequests(requestsData);
+        setProjects(projectsData || []);
+        setRequests(requestsData || []);
+        hasFetched.current = user.id;
       } catch (err: any) {
         console.error("Error fetching business data:", err);
         setError("Failed to load dashboard data. Please try again later.");
@@ -62,19 +66,25 @@ export default function BusinessDashboard() {
     if (!authLoading && user) {
       fetchData();
     }
-  }, [user, authLoading]);
+  }, [user?.id, authLoading]);
 
   if (authLoading || (loading && projects.length === 0)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <div className="w-12 h-12 border-4 border-primary-purple/20 border-t-primary-purple rounded-full animate-spin" />
-        <p className="text-gray-500 font-medium italic">Loading your business insights...</p>
+        <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Synchronizing Business Insights...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-10 pb-10">
+    <div className="space-y-10 pb-10 relative">
+      {/* Subtle loading bar for background re-fetches */}
+      {loading && projects.length > 0 && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gray-100 overflow-hidden z-50 rounded-full">
+          <div className="h-full bg-primary-purple animate-progress-fast w-1/3"></div>
+        </div>
+      )}
 
       {/* Header */}
       <div>

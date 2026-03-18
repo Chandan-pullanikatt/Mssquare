@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
+
 import { supabase } from '@/lib/supabase/client';
 import { useRouter, usePathname } from 'next/navigation';
 import { Database } from '@/types/database';
@@ -29,6 +30,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const lastTokenRef = useRef<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -36,13 +38,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     async function initializeAuth() {
       console.log("AuthProvider: Initializing Auth...");
       
-      // Safety timeout for initializeAuth
       const timeoutId = setTimeout(() => {
         if (loading && mounted) {
           console.warn("AuthProvider: initializeAuth safety timeout reached.");
           setLoading(false);
         }
-      }, 8000);
+      }, 10000);
 
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -50,18 +51,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (sessionError) throw sessionError;
 
         if (mounted) {
-          if (session) {
-            console.log("AuthProvider: Session found for user:", session.user.id);
-            setUser(session.user);
-            const userRole = await authHelpers.getUserRole(session.user.id);
-            if (mounted) {
-              setRole(userRole);
-              console.log("AuthProvider: Role fetched:", userRole);
+          const newToken = session?.access_token || null;
+          
+          // Only update if token actually changed
+          if (newToken !== lastTokenRef.current) {
+            lastTokenRef.current = newToken;
+
+            if (session) {
+              setUser(session.user);
+              let userRole = session.user.app_metadata?.role as UserRole | null | undefined;
+              if (!userRole) {
+                userRole = await authHelpers.getUserRole(session.user.id);
+              }
+              if (mounted) setRole((userRole || null) as UserRole | null);
+            } else {
+              setUser(null);
+              setRole(null);
             }
-          } else {
-            console.log("AuthProvider: No active session.");
-            setUser(null);
-            setRole(null);
           }
         }
       } catch (err) {
@@ -70,22 +76,60 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         clearTimeout(timeoutId);
         if (mounted) {
           setLoading(false);
-          console.log("AuthProvider: Initialization complete.");
         }
       }
     }
 
     initializeAuth();
 
-    // 2. Set up the listener exactly once.
+    // Listener for tab focus recovery - now guarded by token comparison
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && !loading) {
+        const { data: { session } } = await supabase.auth.getSession();
+        const newToken = session?.access_token || null;
+
+        if (mounted && newToken !== lastTokenRef.current) {
+          console.log("AuthProvider: Session change detected on tab focus, updating state...");
+          lastTokenRef.current = newToken;
+          
+          if (session) {
+            setUser(session.user);
+            let userRole = session.user.app_metadata?.role as UserRole | null | undefined;
+            if (!userRole) {
+              userRole = await authHelpers.getUserRole(session.user.id);
+            }
+            if (mounted) setRole((userRole || null) as UserRole | null);
+          } else {
+            setUser(null);
+            setRole(null);
+          }
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
         if (!mounted) return;
 
+        const newToken = session?.access_token || null;
+        
+        // Skip update if token is the same (Cause 1 Fix)
+        if (newToken === lastTokenRef.current && event !== 'SIGNED_OUT') {
+           setLoading(false);
+           return;
+        }
+
+        lastTokenRef.current = newToken;
+        console.log(`AuthProvider: onAuthStateChange event: ${event}`);
+
         if (session) {
           setUser(session.user);
-          const userRole = await authHelpers.getUserRole(session.user.id);
-          if (mounted) setRole(userRole);
+          let userRole = session.user.app_metadata?.role as UserRole | null | undefined;
+          if (!userRole) {
+            userRole = await authHelpers.getUserRole(session.user.id);
+          }
+          if (mounted) setRole((userRole || null) as UserRole | null);
         } else {
           setUser(null);
           setRole(null);
@@ -94,10 +138,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
+
     return () => {
       mounted = false;
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       subscription.unsubscribe();
     };
+
   }, []);
 
   const signOut = async () => {

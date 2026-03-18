@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Users,
   GraduationCap,
@@ -26,24 +26,21 @@ export default function AdminDashboard() {
   const [statsData, setStatsData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const hasFetched = useRef(false);
   useEffect(() => {
+    if (hasFetched.current) return;
+    
     let mounted = true;
     const fetchStats = async () => {
-      // Safety timeout
-      const timeoutId = setTimeout(() => {
-        if (loading && mounted) {
-          console.warn("CMS Dashboard: fetchStats safety timeout reached.");
-          setLoading(false);
-        }
-      }, 5000);
-
       try {
         const data = await adminApi.getDashboardStats();
-        if (mounted) setStatsData(data);
+        if (mounted) {
+          setStatsData(data);
+          hasFetched.current = true;
+        }
       } catch (err) {
         console.error("Failed to fetch dashboard stats", err);
       } finally {
-        clearTimeout(timeoutId);
         if (mounted) setLoading(false);
       }
     };
@@ -138,10 +135,39 @@ export default function AdminDashboard() {
     },
   ];
 
-  if (loading) return <div className="p-8 text-center">Loading dashboard...</div>;
+  if (loading && !statsData) return (
+    <div className="p-8 text-center flex flex-col items-center justify-center min-h-[400px]">
+      <div className="w-12 h-12 border-4 border-[#8b5cf6]/20 border-t-[#8b5cf6] rounded-full animate-spin mb-4"></div>
+      <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">Synchronizing Platform Data...</p>
+    </div>
+  );
+
+
+  if (!statsData && !loading) return (
+    <div className="p-8 text-center flex flex-col items-center justify-center min-h-[400px]">
+      <p className="text-gray-900 font-bold text-lg mb-2">Connection Issues</p>
+      <p className="text-gray-500 text-sm mb-6">Unable to sync dashboard stats. This may be due to high traffic.</p>
+      <button 
+        onClick={() => {
+          hasFetched.current = false;
+          setLoading(true);
+          window.location.reload();
+        }}
+        className="px-6 py-2.5 bg-[#8b5cf6] text-white font-bold rounded-xl text-sm shadow-lg shadow-[#8b5cf6]/20 transition-all hover:-translate-y-0.5"
+      >
+        Retry Synchronization
+      </button>
+    </div>
+  );
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 relative">
+      {/* Subtle loading bar for background re-fetches */}
+      {loading && statsData && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gray-100 overflow-hidden z-50">
+          <div className="h-full bg-[#8b5cf6] animate-progress-fast w-1/3"></div>
+        </div>
+      )}
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

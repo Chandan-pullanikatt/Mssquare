@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Folder,
   TrendingUp,
@@ -31,16 +31,21 @@ export default function BusinessAdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const hasFetched = useRef<string | null>(null);
+
   useEffect(() => {
     async function fetchAdminData() {
+      if (user?.id && hasFetched.current === user.id) return;
+
       try {
         setLoading(true);
         const [projectsData, requestsData] = await Promise.all([
           businessApi.getAdminProjects(),
           businessApi.getAdminServiceRequests()
         ]);
-        setProjects(projectsData);
-        setRequests(requestsData);
+        setProjects(projectsData || []);
+        setRequests(requestsData || []);
+        if (user?.id) hasFetched.current = user.id;
       } catch (err: any) {
         console.error("Error fetching admin data:", err);
         setError("Failed to load admin dashboard. Please try again.");
@@ -52,7 +57,7 @@ export default function BusinessAdminDashboard() {
     if (!authLoading && (role === 'business_admin' || role === 'cms_admin')) {
       fetchAdminData();
     }
-  }, [role, authLoading]);
+  }, [role, authLoading, user?.id]);
 
   const handleUpdateStatus = async (id: string, newStatus: string) => {
     try {
@@ -70,7 +75,7 @@ export default function BusinessAdminDashboard() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <div className="w-12 h-12 border-4 border-[#8b5cf6]/20 border-t-[#8b5cf6] rounded-full animate-spin" />
-        <p className="text-gray-500 font-medium italic">Loading administrative overview...</p>
+        <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">Synchronizing Administrative Data...</p>
       </div>
     );
   }
@@ -79,7 +84,13 @@ export default function BusinessAdminDashboard() {
   const activeProjectsCount = projects.filter(p => p.status !== 'Delivered').length;
 
   return (
-    <div className="space-y-10 pb-10">
+    <div className="space-y-10 pb-10 relative">
+      {/* Subtle loading bar for background re-fetches */}
+      {loading && projects.length > 0 && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gray-100 overflow-hidden z-50 rounded-full">
+          <div className="h-full bg-[#8b5cf6] animate-progress-fast w-1/3"></div>
+        </div>
+      )}
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

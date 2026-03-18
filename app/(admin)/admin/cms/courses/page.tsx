@@ -102,11 +102,23 @@ export default function CourseManagement() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-           <div className="w-12 h-12 border-4 border-[#8b5cf6]/20 border-t-[#8b5cf6] rounded-full animate-spin"></div>
+        <div className="flex flex-col items-center justify-center py-24 bg-gray-50/50 rounded-[2rem] border-2 border-dashed border-gray-100">
+           <div className="w-12 h-12 border-4 border-[#8b5cf6]/20 border-t-[#8b5cf6] rounded-full animate-spin mb-4"></div>
+           <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Syncing Product Catalog...</p>
+        </div>
+      ) : courses.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-24 bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-100 text-center">
+          <BookOpen size={48} className="text-gray-200 mb-4" />
+          <h3 className="text-lg font-bold text-gray-900 mb-1">No courses found</h3>
+          <p className="text-gray-500 text-sm mb-6">Your course library appears to be empty.</p>
+          <div className="flex gap-3">
+             <button onClick={() => fetchCourses()} className="px-6 py-2 bg-white border border-gray-200 text-gray-600 font-bold rounded-xl text-sm">Retry</button>
+             <button onClick={handleSeed} className="px-6 py-2 bg-[#8b5cf6] text-white font-bold rounded-xl text-sm">Seed Data</button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
           {courses.map((course) => (
             <div key={course.id} className="bg-white border border-gray-100 rounded-[2rem] overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.02)] group hover:shadow-xl hover:border-[#8b5cf6]/20 transition-all flex flex-col">
               <div className="h-48 relative overflow-hidden">

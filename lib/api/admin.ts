@@ -3,47 +3,92 @@ import { supabase } from '../supabase/client';
 
 export const adminApi = {
   async getDashboardStats() {
-    try {
-      const { data, error } = await supabase.rpc('get_cms_dashboard_stats');
-      
-      if (error) {
-        throw error;
+    const fetchWithRetry = async (retries = 1): Promise<any> => {
+      try {
+        await supabase.auth.getSession();
+        const { data, error } = await supabase.rpc('get_cms_dashboard_stats');
+        
+        // If RPC is missing (PGRST202), trigger fallback
+        if (error && (error.code === 'PGRST202' || error.message?.includes('function') || error.message?.includes('not found'))) {
+          console.warn("CMS Dashboard: RPC not found in production, using fallback manual fetch.");
+          return this.getDashboardStatsManual();
+        }
+        
+        if (error) throw error;
+        if (!data) throw new Error("No data from RPC");
+
+        const statsData = data as any;
+        return {
+          ...statsData,
+          recentActivity: (statsData.recentActivity || []).map((a: any) => ({
+            ...a,
+            courses: { title: a.course_title },
+            users: { name: a.student_email ? a.student_email.split('@')[0] : 'Student' } 
+          })),
+          recentSignups: (statsData.recentSignups || []).map((s: any) => ({
+            ...s,
+            name: s.email ? s.email.split('@')[0] : 'New User'
+          }))
+        };
+      } catch (err: any) {
+        if (retries > 0) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          return fetchWithRetry(retries - 1);
+        }
+        throw err;
       }
+    };
 
-      const statsData = data as any;
-
-      // The RPC returns a JSON object that matches our expected structure
-      const enrichedActivity = (statsData.recentActivity || []).map((a: any) => ({
-        ...a,
-        courses: { title: a.course_title },
-        users: { name: a.student_email ? a.student_email.split('@')[0] : 'Student' } 
-      }));
-
-      const signups = (statsData.recentSignups || []).map((s: any) => ({
-        ...s,
-        name: s.email ? s.email.split('@')[0] : 'New User'
-      }));
-
-      return {
-        ...statsData,
-        recentActivity: enrichedActivity,
-        recentSignups: signups
-      };
+    try {
+      return await fetchWithRetry();
     } catch (err) {
       console.error("Dashboard stats fetch failed:", err);
-
-      return {
-        totalUsers: 0,
-        totalStudents: 0,
-        totalCourses: 0,
-        totalBlogs: 0,
-        totalEnrollments: 0,
-        totalLeads: 0,
-        recentActivity: [],
-        recentSignups: []
-      };
+      // Last resort fallback if RPC failed for any non-missing-function reason
+      try { return await this.getDashboardStatsManual(); } catch { return null; }
     }
   },
+
+  async getDashboardStatsManual() {
+    const [
+      { count: totalUsers },
+      { count: totalStudents },
+      { count: totalCourses },
+      { count: totalBlogs },
+      { count: totalEnrollments },
+      { count: totalLeads },
+      { data: recentActivity },
+      { data: recentSignups }
+    ] = await Promise.all([
+      supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
+      supabase.from('courses').select('*', { count: 'exact', head: true }),
+      supabase.from('blogs').select('*', { count: 'exact', head: true }),
+      supabase.from('student_enrollments').select('*', { count: 'exact', head: true }),
+      supabase.from('leads').select('*', { count: 'exact', head: true }),
+      supabase.from('student_enrollments').select(`id, created_at, course_id, student_id`).order('created_at', { ascending: false }).limit(5),
+      supabase.from('profiles').select('id, email, created_at, role').order('created_at', { ascending: false }).limit(5)
+    ]);
+
+    // Simple enrichment
+    const enrichedActivity = (recentActivity as any[] || []).map(a => ({
+      ...a,
+      courses: { title: 'Loading...' }, // Component will handle empty/unknown
+      users: { name: 'Student' }
+    }));
+
+    return {
+      totalUsers: totalUsers || 0,
+      totalStudents: totalStudents || 0,
+      totalCourses: totalCourses || 0,
+      totalBlogs: totalBlogs || 0,
+      totalEnrollments: totalEnrollments || 0,
+      totalLeads: totalLeads || 0,
+      recentActivity: enrichedActivity,
+      recentSignups: recentSignups || []
+    };
+  },
+
+
 
 
   async getCourses() {

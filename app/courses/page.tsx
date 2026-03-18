@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import { 
   Search, 
@@ -69,7 +69,7 @@ const coursesData = programTypes.flatMap(pt => subjects.map(s => ({
   category: s.category
 })));
 
-import { useEffect } from "react";
+
 import { coursesApi } from "@/lib/api/courses";
 import { Course } from "@/types/database";
 
@@ -83,11 +83,15 @@ export default function CoursesPage() {
   const [liveCourses, setLiveCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const hasFetched = useRef(false);
   useEffect(() => {
+    if (hasFetched.current) return;
+    
     async function fetchCourses() {
       try {
         const data = await coursesApi.getCourses();
         setLiveCourses(data);
+        hasFetched.current = true;
       } catch (err) {
         console.error("Error fetching courses:", err);
       } finally {

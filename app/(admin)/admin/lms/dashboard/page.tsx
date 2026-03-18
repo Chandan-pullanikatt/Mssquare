@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Users,
   GraduationCap,
@@ -22,18 +22,26 @@ export default function LMSAdminDashboard() {
   const [statsData, setStatsData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const hasFetched = useRef(false);
   useEffect(() => {
+    if (hasFetched.current) return;
+    
+    let mounted = true;
     const fetchStats = async () => {
       try {
         const data = await adminApi.getDashboardStats();
-        setStatsData(data);
+        if (mounted) {
+          setStatsData(data);
+          hasFetched.current = true;
+        }
       } catch (err) {
         console.error("Failed to fetch LMS stats", err);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
     fetchStats();
+    return () => { mounted = false; };
   }, []);
 
   const stats = [
@@ -84,10 +92,21 @@ export default function LMSAdminDashboard() {
     },
   ];
 
-  if (loading) return <div className="p-8 text-center font-bold text-gray-500">Loading LMS Admin...</div>;
+  if (loading && !statsData) return (
+    <div className="p-8 text-center flex flex-col items-center justify-center min-h-[400px]">
+      <div className="w-12 h-12 border-4 border-[#8b5cf6]/20 border-t-[#8b5cf6] rounded-full animate-spin mb-4"></div>
+      <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">Synchronizing LMS Data...</p>
+    </div>
+  );
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 relative">
+      {/* Subtle loading bar for background re-fetches */}
+      {loading && statsData && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gray-100 overflow-hidden z-50">
+          <div className="h-full bg-[#8b5cf6] animate-progress-fast w-1/3"></div>
+        </div>
+      )}
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

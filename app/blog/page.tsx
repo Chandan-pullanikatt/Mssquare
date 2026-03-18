@@ -2,7 +2,7 @@
 
 import { Container } from "@/components/ui/Container";
 import { useSearchParams } from "next/navigation";
-import { useState, useMemo, useEffect, Suspense } from "react";
+import { useState, useMemo, useEffect, Suspense, useRef } from "react";
 import BlogCard from "@/components/blog/BlogCard";
 import BlogSearch from "@/components/blog/BlogSearch";
 import BlogFilter from "@/components/blog/BlogFilter";
@@ -23,11 +23,15 @@ function BlogPageContent() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const hasFetched = useRef(false);
   useEffect(() => {
+    if (hasFetched.current) return;
+
     const fetchBlogs = async () => {
       try {
         const data = await blogsApi.getBlogs();
         setBlogs(data);
+        hasFetched.current = true;
       } catch (err) {
         console.error("Failed to fetch blogs", err);
       } finally {

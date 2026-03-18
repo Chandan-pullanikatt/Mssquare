@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Plus, Mail, Shield, UserX, CheckCircle, Search, User as UserIcon, ShieldCheck, LifeBuoy, MoreVertical } from "lucide-react";
 import DataTable from "@/components/cms-admin/DataTable";
 import { usersApi } from "@/lib/api/users";
@@ -11,26 +11,23 @@ export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const hasFetched = useRef<Record<string, boolean>>({});
+  
   const fetchUsers = async () => {
+    if (hasFetched.current[activeTab]) return;
+    
     setLoading(true);
     let mounted = true;
     
-    // Safety timeout
-    const timeoutId = setTimeout(() => {
-      if (loading && mounted) {
-        console.warn("UserManagement: fetchUsers safety timeout reached.");
-        setLoading(false);
-      }
-    }, 5000);
-
     try {
-      // For now, list users by role since we don't have listAllUsers
       const data = await usersApi.listUsersByRole(activeTab === "students" ? "student" : "cms_admin");
-      if (mounted) setUsers(data);
+      if (mounted) {
+        setUsers(data);
+        hasFetched.current[activeTab] = true;
+      }
     } catch (err) {
       console.error(err);
     } finally {
-      clearTimeout(timeoutId);
       if (mounted) setLoading(false);
     }
   };
@@ -44,6 +41,7 @@ export default function UserManagement() {
     try {
       await usersApi.updateUser(userId, { role });
       alert(`User role updated to ${role}`);
+      hasFetched.current = {}; // Reset cache to force reload
       fetchUsers();
     } catch (err) {
       console.error(err);
@@ -57,6 +55,7 @@ export default function UserManagement() {
       try {
         await usersApi.updateUser(userId, { status: newStatus as any });
         alert(`User status updated to ${newStatus}`);
+        hasFetched.current = {}; // Reset cache to force reload
         fetchUsers();
       } catch (err) {
         console.error(err);
@@ -180,26 +179,50 @@ export default function UserManagement() {
       </div>
 
       {/* Table Area */}
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-           <div className="w-12 h-12 border-4 border-[#8b5cf6]/20 border-t-[#8b5cf6] rounded-full animate-spin"></div>
+      {loading && users.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-24 bg-gray-50/50 rounded-[2rem] border-2 border-dashed border-gray-100 relative overflow-hidden">
+           <div className="w-12 h-12 border-4 border-[#8b5cf6]/20 border-t-[#8b5cf6] rounded-full animate-spin mb-4"></div>
+           <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Fetching User Directory...</p>
+        </div>
+      ) : users.length === 0 && !loading ? (
+        <div className="flex flex-col items-center justify-center py-24 bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-100 text-center">
+          <UserIcon size={48} className="text-gray-200 mb-4" />
+          <h3 className="text-lg font-bold text-gray-900 mb-1">No users found</h3>
+          <p className="text-gray-500 text-sm mb-6">We couldn't find any {activeTab} at the moment.</p>
+          <button 
+            onClick={() => {
+              hasFetched.current = {};
+              fetchUsers();
+            }}
+            className="px-6 py-2 bg-white border border-gray-200 text-gray-600 font-bold rounded-xl text-sm hover:bg-gray-50 transition-all"
+          >
+            Retry Fetch
+          </button>
         </div>
       ) : (
-        <DataTable
-          columns={columns}
-          data={users}
-          searchPlaceholder={`Search ${activeTab}...`}
-          actions={
-            <div className="flex items-center gap-2">
-              <button className="p-2.5 rounded-xl bg-gray-50 text-gray-500 hover:text-[#8b5cf6] transition-all">
-                <Mail size={18} />
-              </button>
-              <button className="p-2.5 rounded-xl bg-gray-50 text-gray-500 hover:text-rose-500 transition-all">
-                <UserX size={18} />
-              </button>
+        <div className="relative">
+          {loading && users.length > 0 && (
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gray-100 overflow-hidden z-50 rounded-full">
+              <div className="h-full bg-[#8b5cf6] animate-progress-fast w-1/3"></div>
             </div>
-          }
-        />
+          )}
+          <DataTable
+            columns={columns}
+            data={users}
+            searchPlaceholder={`Search ${activeTab}...`}
+
+            actions={
+              <div className="flex items-center gap-2">
+                <button className="p-2.5 rounded-xl bg-gray-50 text-gray-500 hover:text-[#8b5cf6] transition-all">
+                  <Mail size={18} />
+                </button>
+                <button className="p-2.5 rounded-xl bg-gray-50 text-gray-500 hover:text-rose-500 transition-all">
+                  <UserX size={18} />
+                </button>
+              </div>
+            }
+          />
+        </div>
       )}
     </div>
   );

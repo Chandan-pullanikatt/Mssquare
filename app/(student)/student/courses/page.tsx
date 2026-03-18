@@ -13,7 +13,7 @@ import {
     Sparkles
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { enrollmentsApi } from "@/lib/api/enrollments";
 import { lessonProgressApi } from "@/lib/api/lessonProgress";
@@ -24,29 +24,22 @@ export default function MyCoursesPage() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
 
-    useEffect(() => {
-        console.log("MyCoursesPage: Effect triggered. user.id:", user?.id);
-        
-        // Safety timeout to unlock the UI even if fetch hangs
-        const timeoutId = setTimeout(() => {
-            if (loading) {
-                console.warn("MyCoursesPage: Safety timeout reached. Forcing loading to false.");
-                setLoading(false);
-            }
-        }, 8000);
+    const hasFetched = useRef<string | null>(null);
 
+    useEffect(() => {
+        if (user?.id && hasFetched.current === user.id) return;
+        
         if (user?.id) {
+            console.log("MyCoursesPage: Initializing enrollments fetch...");
             fetchEnrollments();
         }
-
-        return () => clearTimeout(timeoutId);
     }, [user?.id]);
 
     const fetchEnrollments = async () => {
         if (!user?.id) return;
         try {
             console.log("MyCoursesPage: Starting fetchEnrollments...");
-            if (enrollments.length === 0) {
+            if (!enrollments.length) {
                 setLoading(true);
             }
             
@@ -75,6 +68,7 @@ export default function MyCoursesPage() {
 
             console.log("MyCoursesPage: Data enrichment complete.");
             setEnrollments(enriched);
+            hasFetched.current = user.id;
         } catch (error) {
             console.error("MyCoursesPage: Error fetching enrollments:", error);
         } finally {
@@ -87,16 +81,23 @@ export default function MyCoursesPage() {
         e.courses?.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    if (authLoading || loading) {
+    if (authLoading || (loading && enrollments.length === 0)) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <Loader2 className="w-10 h-10 text-[#8b5cf6] animate-spin" />
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                <div className="w-12 h-12 border-4 border-[#8b5cf6]/20 border-t-[#8b5cf6] rounded-full animate-spin" />
+                <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Synchronizing Your Academy Journey...</p>
             </div>
         );
     }
 
     return (
-        <div className="w-full max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="w-full max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 relative">
+        {/* Subtle loading bar for background re-fetches */}
+        {loading && enrollments.length > 0 && (
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gray-100 overflow-hidden z-50 rounded-full">
+                <div className="h-full bg-[#8b5cf6] animate-progress-fast w-1/3"></div>
+            </div>
+        )}
 
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

@@ -13,7 +13,7 @@ import {
   GraduationCap
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { enrollmentsApi } from "@/lib/api/enrollments";
 import { lessonProgressApi } from "@/lib/api/lessonProgress";
@@ -30,29 +30,22 @@ export default function StudentDashboard() {
     averageGrade: "0%"
   });
 
-  useEffect(() => {
-    console.log("StudentDashboard: Effect triggered. user.id:", user?.id);
+  const hasFetched = useRef<string | null>(null);
 
-    // Safety timeout to unlock the UI even if fetch hangs
-    const timeoutId = setTimeout(() => {
-      if (loading) {
-        console.warn("StudentDashboard: Safety timeout reached. Forcing loading to false.");
-        setLoading(false);
-      }
-    }, 8000);
+  useEffect(() => {
+    if (user?.id && hasFetched.current === user.id) return;
 
     if (user?.id) {
+      console.log("StudentDashboard: Initializing data fetch for user:", user.id);
       fetchData();
     }
-
-    return () => clearTimeout(timeoutId);
   }, [user?.id]);
 
   const fetchData = async () => {
     if (!user?.id) return;
     try {
       console.log("StudentDashboard: Starting fetchData...");
-      if (enrollments.length === 0) {
+      if (!enrollments.length) {
         setLoading(true);
       }
       // Fetch enrollments and all lesson progress in parallel for better performance
@@ -94,6 +87,7 @@ export default function StudentDashboard() {
         certificatesEarned: 0, // Will be fetched from certificatesApi later
         averageGrade: "N/A"
       });
+      hasFetched.current = user.id;
     } catch (error) {
       console.error("StudentDashboard: Error fetching student dashboard data:", error);
     } finally {
@@ -102,16 +96,23 @@ export default function StudentDashboard() {
     }
   };
 
-  if (authLoading || loading) {
+  if (authLoading || (loading && enrollments.length === 0)) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8b5cf6]"></div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="w-12 h-12 border-4 border-[#8b5cf6]/20 border-t-[#8b5cf6] rounded-full animate-spin mb-4"></div>
+        <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Synchronizing Academy Experience...</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-10 pb-10 px-2 lg:px-0">
+    <div className="w-full max-w-6xl mx-auto space-y-10 pb-10 px-2 lg:px-0 relative">
+      {/* Subtle loading bar for background re-fetches */}
+      {loading && enrollments.length > 0 && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gray-100 overflow-hidden z-50 rounded-full">
+          <div className="h-full bg-[#8b5cf6] animate-progress-fast w-1/3"></div>
+        </div>
+      )}
 
       {/* Header Area */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
