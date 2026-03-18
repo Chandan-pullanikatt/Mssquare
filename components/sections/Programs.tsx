@@ -89,7 +89,7 @@ export function Programs() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-        {data.items.map((program: any, i: number) => (
+        {(data.items || []).map((program: any, i: number) => (
           <div
             key={i}
             className={`rev rev-d${i + 1} flex flex-col group cursor-pointer bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500`}

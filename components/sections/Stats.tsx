@@ -13,7 +13,10 @@ export function Stats() {
       try {
         const data = await websiteApi.getSection("landing_stats");
         if (data?.content_json) {
-          setStats(data.content_json);
+          const statsArray = Array.isArray(data.content_json) 
+            ? data.content_json 
+            : (data.content_json.stats || []);
+          setStats(statsArray);
         } else {
           setStats([
             { id: 1, name: "Developers Trained", value: "500+" },

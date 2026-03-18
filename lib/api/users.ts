@@ -6,7 +6,7 @@ export const usersApi = {
   async getUser(id: string) {
     const { data, error } = await supabase
       .from('users')
-      .select('id, name, email, role, status, created_at')
+      .select('id, name, role, status, created_at')
       .eq('id', id)
       .single();
     
@@ -38,7 +38,7 @@ export const usersApi = {
   async listUsersByRole(role: UserRole, limit = 20, offset = 0) {
     const { data, error } = await supabase
       .from('users')
-      .select('id, name, email, role, status, created_at')
+      .select('id, name, role, status, created_at')
       .eq('role', role)
       .range(offset, offset + limit - 1);
     

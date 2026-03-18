@@ -52,7 +52,7 @@ export function Solutions() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-        {data.items.map((solution: any, i: number) => (
+        {(data.items || []).map((solution: any, i: number) => (
           <div key={i} className={`rev rev-d${i + 1} group bg-white border border-gray-100 rounded-3xl p-10 relative overflow-hidden transition-all duration-300 hover:bg-white hover:shadow-2xl hover:shadow-[#7C3AED]/5 hover:border-[#7C3AED]/10 hover:-translate-y-1`}>
 
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-8 bg-white shadow-sm border border-gray-100 transition-transform group-hover:scale-105`}>
