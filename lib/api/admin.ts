@@ -3,73 +3,48 @@ import { supabase } from '../supabase/client';
 
 export const adminApi = {
   async getDashboardStats() {
-    const [
-      { count: totalUsers },
-      { count: totalStudents },
-      { count: totalCourses },
-      { count: totalBlogs },
-      { count: totalEnrollments },
-      { count: totalLeads },
-      { data: recentActivity },
-      { data: recentSignups }
-    ] = await Promise.all([
-      supabase.from('profiles').select('*', { count: 'exact', head: true }),
-      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
-      supabase.from('courses').select('*', { count: 'exact', head: true }),
-      supabase.from('blogs').select('*', { count: 'exact', head: true }),
-      supabase.from('student_enrollments').select('*', { count: 'exact', head: true }),
-      supabase.from('leads').select('*', { count: 'exact', head: true }),
-      supabase.from('student_enrollments')
-        .select(`
-          id,
-          created_at,
-          course_id,
-          student_id
-        `)
-        .order('created_at', { ascending: false })
-        .limit(5),
-      supabase.from('profiles')
-        .select('id, email, created_at, role')
-        .order('created_at', { ascending: false })
-        .limit(5)
-    ]);
+    try {
+      const { data, error } = await supabase.rpc('get_cms_dashboard_stats');
+      
+      if (error) {
+        throw error;
+      }
 
-    // Fetch related course names and student emails for recent activity manually for robustness
-    let enrichedActivity: any[] = [];
-    const activityList = recentActivity as any[] || [];
-    if (activityList.length > 0) {
-      const courseIds = [...new Set(activityList.map((a: any) => a.course_id))];
-      const studentIds = [...new Set(activityList.map((a: any) => a.student_id))];
-      
-      const [
-        { data: courses },
-        { data: students }
-      ] = await Promise.all([
-        supabase.from('courses').select('id, title').in('id', courseIds),
-        supabase.from('profiles').select('id, email').in('id', studentIds)
-      ]);
-      
-      const courseMap = (courses as any[] || []).reduce((acc: any, c: any) => ({ ...acc, [c.id]: c.title }), {});
-      const studentMap = (students as any[] || []).reduce((acc: any, s: any) => ({ ...acc, [s.id]: s.email }), {});
-      
-      enrichedActivity = activityList.map((a: any) => ({
+      const statsData = data as any;
+
+      // The RPC returns a JSON object that matches our expected structure
+      const enrichedActivity = (statsData.recentActivity || []).map((a: any) => ({
         ...a,
-        courses: { title: courseMap[a.course_id] || 'Unknown Course' },
-        profiles: { email: studentMap[a.student_id] || 'Student' }
+        courses: { title: a.course_title },
+        users: { name: a.student_email ? a.student_email.split('@')[0] : 'Student' } 
       }));
-    }
 
-    return {
-      totalUsers: totalUsers || 0,
-      totalStudents: totalStudents || 0,
-      totalCourses: totalCourses || 0,
-      totalBlogs: totalBlogs || 0,
-      totalEnrollments: totalEnrollments || 0,
-      totalLeads: totalLeads || 0,
-      recentActivity: enrichedActivity,
-      recentSignups: recentSignups || []
-    };
+      const signups = (statsData.recentSignups || []).map((s: any) => ({
+        ...s,
+        name: s.email ? s.email.split('@')[0] : 'New User'
+      }));
+
+      return {
+        ...statsData,
+        recentActivity: enrichedActivity,
+        recentSignups: signups
+      };
+    } catch (err) {
+      console.error("Dashboard stats fetch failed:", err);
+
+      return {
+        totalUsers: 0,
+        totalStudents: 0,
+        totalCourses: 0,
+        totalBlogs: 0,
+        totalEnrollments: 0,
+        totalLeads: 0,
+        recentActivity: [],
+        recentSignups: []
+      };
+    }
   },
+
 
   async getCourses() {
     const { data, error } = await supabase

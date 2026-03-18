@@ -12,15 +12,26 @@ export default function CourseManagement() {
   const [loading, setLoading] = useState(true);
 
   const fetchCourses = async () => {
+    let mounted = true;
+    // Safety timeout
+    const timeoutId = setTimeout(() => {
+      if (loading && mounted) {
+        console.warn("CourseManagement: fetchCourses safety timeout reached.");
+        setLoading(false);
+      }
+    }, 5000);
+
     try {
       const data = await coursesApi.getCourses();
-      setCourses(data);
+      if (mounted) setCourses(data);
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      clearTimeout(timeoutId);
+      if (mounted) setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchCourses();

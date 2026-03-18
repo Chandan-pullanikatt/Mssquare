@@ -27,23 +27,35 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
     const fetchStats = async () => {
+      // Safety timeout
+      const timeoutId = setTimeout(() => {
+        if (loading && mounted) {
+          console.warn("CMS Dashboard: fetchStats safety timeout reached.");
+          setLoading(false);
+        }
+      }, 5000);
+
       try {
         const data = await adminApi.getDashboardStats();
-        setStatsData(data);
+        if (mounted) setStatsData(data);
       } catch (err) {
         console.error("Failed to fetch dashboard stats", err);
       } finally {
-        setLoading(false);
+        clearTimeout(timeoutId);
+        if (mounted) setLoading(false);
       }
     };
     fetchStats();
+    return () => { mounted = false; };
   }, []);
+
 
   const stats = [
     {
       title: "Total Students",
-      value: statsData?.totalStudents || "0",
+      value: statsData ? (statsData?.totalStudents || "0") : "...",
       trend: "+0%",
       icon: GraduationCap,
       iconBg: "bg-blue-50",
@@ -51,7 +63,7 @@ export default function AdminDashboard() {
     },
     {
       title: "Total Courses",
-      value: statsData?.totalCourses || "0",
+      value: statsData ? (statsData?.totalCourses || "0") : "...",
       trend: "+0",
       icon: BookOpen,
       iconBg: "bg-orange-50",
@@ -59,7 +71,7 @@ export default function AdminDashboard() {
     },
     {
       title: "Blog Posts",
-      value: statsData?.totalBlogs || "0",
+      value: statsData ? (statsData?.totalBlogs || "0") : "...",
       trend: "+0",
       icon: FileText,
       iconBg: "bg-purple-50",
@@ -67,13 +79,14 @@ export default function AdminDashboard() {
     },
     {
       title: "Active Leads",
-      value: statsData?.totalLeads || "0",
+      value: statsData ? (statsData?.totalLeads || "0") : "...",
       trend: "+0",
       icon: TrendingUp,
       iconBg: "bg-rose-50",
       iconColor: "text-rose-600",
     },
   ];
+
 
   const enrollmentColumns = [
     {

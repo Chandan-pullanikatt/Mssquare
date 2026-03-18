@@ -13,16 +13,28 @@ export default function UserManagement() {
 
   const fetchUsers = async () => {
     setLoading(true);
+    let mounted = true;
+    
+    // Safety timeout
+    const timeoutId = setTimeout(() => {
+      if (loading && mounted) {
+        console.warn("UserManagement: fetchUsers safety timeout reached.");
+        setLoading(false);
+      }
+    }, 5000);
+
     try {
       // For now, list users by role since we don't have listAllUsers
       const data = await usersApi.listUsersByRole(activeTab === "students" ? "student" : "cms_admin");
-      setUsers(data);
+      if (mounted) setUsers(data);
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      clearTimeout(timeoutId);
+      if (mounted) setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchUsers();
