@@ -33,6 +33,11 @@ export async function middleware(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookieOptions: {
+        path: '/',
+        sameSite: 'lax',
+        secure: true,
+      },
       cookies: {
         getAll() {
           return req.cookies.getAll();
