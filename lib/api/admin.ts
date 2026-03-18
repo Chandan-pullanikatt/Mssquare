@@ -206,5 +206,62 @@ export const adminApi = {
       ...course,
       enrollment_count: enrollmentCounts[course.id] || 0
     }));
+  },
+
+  async getInstructors() {
+    const { data: instructors, error: instructorError } = await supabase
+      .from('profiles')
+      .select('id, email, created_at')
+      .eq('role', 'instructor')
+      .order('created_at', { ascending: false });
+
+    if (instructorError) throw instructorError;
+
+    // Fetch courses for these instructors
+    const instructorIds = (instructors as any[]).map(i => i.id);
+    const { data: courses } = await supabase
+      .from('courses')
+      .select('id, title, instructor_id')
+      .in('instructor_id', instructorIds);
+
+    const enrichedInstructors = (instructors as any[]).map(instructor => ({
+      ...instructor,
+      courses: (courses as any[] || []).filter(c => c.instructor_id === instructor.id)
+    }));
+
+    return enrichedInstructors;
+  },
+
+  async addInstructor(email: string) {
+    // Note: This only creates the profile. In a real app, you'd also create the auth user.
+    // For this implementation, we assume we are just adding a profile for an existing user or
+    // the system has a trigger to handle auth user creation.
+    // Or we can use a placeholder for now as per the user's "add instructor" request.
+    const { data, error } = await supabase
+      .from('profiles')
+      .insert([
+        { 
+          email, 
+          role: 'instructor' as any,
+          user_id: crypto.randomUUID() // Placeholder user_id if we don't have auth user yet
+        }
+      ])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async assignCourseToInstructor(courseId: string, instructorId: string) {
+    const { data, error } = await supabase
+      .from('courses')
+      .update({ instructor_id: instructorId })
+      .eq('id', courseId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 };
