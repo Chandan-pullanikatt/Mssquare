@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { Rocket } from "lucide-react";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { UserMenu } from "./UserMenu";
 
 export function WebServicesNavbar() {
+  const { user } = useAuth();
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
       <div className="px-[5%] h-[70px] flex items-center justify-between w-full max-w-7xl mx-auto">
@@ -34,13 +37,20 @@ export function WebServicesNavbar() {
           ))}
         </nav>
 
-        {/* CTA Button */}
-        <Link
-          href="/auth"
-          className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold px-6 py-2.5 rounded-full text-sm transition-all duration-200 shadow-lg shadow-[#7C3AED]/30"
-        >
-          Start Your Project
-        </Link>
+        {/* CTA / User Section */}
+        <div className="flex items-center gap-4">
+          {user ? (
+            <UserMenu variant="light" />
+          ) : (
+            <Link
+              href="/auth"
+              className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold px-6 py-2.5 rounded-full text-sm transition-all duration-200 shadow-lg shadow-[#7C3AED]/30"
+            >
+              Start Your Project
+            </Link>
+          )}
+        </div>
+
       </div>
     </header>
   );

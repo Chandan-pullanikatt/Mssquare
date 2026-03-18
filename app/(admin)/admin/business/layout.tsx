@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { UserMenu } from "@/components/layout/UserMenu";
 import { authHelpers } from "@/utils/authHelpers";
 
 const businessAdminSidebarItems = [
@@ -102,35 +103,7 @@ export default function BusinessAdminLayout({
           })}
         </div>
 
-        {/* User Profile - Sidebar Bottom */}
-        <div className="p-4 border-t border-gray-50 bg-gray-50/50">
-          <div 
-            onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-2xl cursor-pointer hover:shadow-sm transition-all group relative"
-          >
-            <div className="w-9 h-9 rounded-full bg-[#8b5cf6]/10 border-2 border-white shadow-sm flex items-center justify-center overflow-hidden shrink-0 text-[#8b5cf6] font-bold text-xs">
-              {userInitials}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-bold text-gray-900 truncate">{userName}</div>
-              <div className="text-[9px] text-[#8b5cf6] font-black uppercase tracking-tighter">Admin Account</div>
-            </div>
-            <ChevronDown size={14} className={`text-gray-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
-            
-            {/* Popover Menu */}
-            {isProfileOpen && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-100 rounded-2xl shadow-xl shadow-black/5 overflow-hidden z-50 animate-in slide-in-from-bottom-2 duration-200">
-                <button 
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-5 py-3.5 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  <LogOut size={16} />
-                  Sign Out
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+
       </aside>
 
       <main className="flex-1 flex flex-col min-h-screen bg-[#fafafc] w-full overflow-hidden lg:pl-[260px] relative">
@@ -149,13 +122,11 @@ export default function BusinessAdminLayout({
                 <Bell size={20} />
                 <span className="absolute top-2 right-2 w-2 h-2 bg-[#8b5cf6] rounded-full border-2 border-white"></span>
              </button>
-             <Link 
-                href="/admin/business/settings"
-                className="w-10 h-10 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 hover:text-[#8b5cf6] transition-all"
-             >
-                <Settings size={20} />
-             </Link>
+             <div className="border-l border-gray-100 pl-4">
+               <UserMenu variant="light" />
+             </div>
           </div>
+
         </header>
 
         <div className="flex-1 p-8">

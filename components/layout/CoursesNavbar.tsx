@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { Rocket, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { UserMenu } from "./UserMenu";
 
 export function CoursesNavbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAuth();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
@@ -39,18 +42,25 @@ export function CoursesNavbar() {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-3 relative z-50">
-          <Link
-            href="/auth"
-            className="hidden sm:block text-xs font-black text-gray-500 hover:text-[#7C3AED] transition-colors uppercase tracking-widest"
-          >
-            Log In
-          </Link>
-          <Link
-            href="/auth"
-            className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-black px-5 md:px-7 py-2.5 md:py-3 rounded-full text-[10px] md:text-xs uppercase tracking-widest transition-all duration-300 shadow-lg shadow-[#7C3AED]/20 hover:-translate-y-0.5"
-          >
-            Join Now
-          </Link>
+          {user ? (
+            <UserMenu variant="light" />
+          ) : (
+            <>
+              <Link
+                href="/auth"
+                className="hidden sm:block text-xs font-black text-gray-500 hover:text-[#7C3AED] transition-colors uppercase tracking-widest"
+              >
+                Log In
+              </Link>
+              <Link
+                href="/auth"
+                className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-black px-5 md:px-7 py-2.5 md:py-3 rounded-full text-[10px] md:text-xs uppercase tracking-widest transition-all duration-300 shadow-lg shadow-[#7C3AED]/20 hover:-translate-y-0.5"
+              >
+                Join Now
+              </Link>
+            </>
+          )}
+
           
           {/* Mobile Toggle */}
           <button 

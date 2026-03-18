@@ -27,6 +27,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { UserMenu } from "@/components/layout/UserMenu";
 
 const adminSidebarItems = [
   { name: "Dashboard", href: "/admin/cms/dashboard", icon: LayoutDashboard },
@@ -161,58 +163,11 @@ export default function AdminLayout({
               )}
             </div>
 
-            {/* Profile Dropdown */}
-            <div className="relative">
-              <button
-                className={`flex items-center gap-3 border-l border-gray-100 pl-6 group transition-all ${isProfileOpen ? 'opacity-70' : ''}`}
-                onClick={() => {
-                  setIsProfileOpen(!isProfileOpen);
-                  setIsNotificationsOpen(false);
-                }}
-              >
-                <div className="text-right hidden sm:block">
-                  <div className="text-sm font-bold text-gray-900 group-hover:text-[#8b5cf6] transition-colors">Admin User</div>
-                  <div className="text-xs text-[#8b5cf6] font-bold uppercase tracking-tighter">Super Admin</div>
-                </div>
-                <div className={`w-10 h-10 rounded-full bg-[#8b5cf6] border-2 transition-all overflow-hidden flex items-center justify-center text-white ${isProfileOpen ? 'border-[#8b5cf6] shadow-lg shadow-[#8b5cf6]/20 scale-110' : 'border-white shadow-sm'}`}>
-                  <Users size={20} />
-                </div>
-              </button>
-
-              {isProfileOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)} />
-                  <div className="absolute right-0 mt-3 w-64 bg-white border border-gray-100 rounded-3xl shadow-xl shadow-black/5 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                    <div className="p-5 border-b border-gray-50 bg-gray-50/50">
-                      <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Signed in as admin</div>
-                      <div className="text-sm font-bold text-gray-900 truncate">admin@mssquare.com</div>
-                    </div>
-                    <div className="p-2">
-                      <Link
-                        href="/admin/cms/settings"
-                        onClick={() => setIsProfileOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-600 hover:bg-gray-50 hover:text-[#8b5cf6] transition-all font-bold text-sm"
-                      >
-                        <Settings size={18} />
-                        Settings
-                      </Link>
-                      <button
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-rose-500 hover:bg-rose-50 transition-all font-bold text-sm"
-                        onClick={async () => {
-                          setIsProfileOpen(false);
-                          const { authHelpers } = await import('@/utils/authHelpers');
-                          await authHelpers.signOut();
-                          window.location.href = '/auth';
-                        }}
-                      >
-                        <LogOut size={18} />
-                        Logout
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
+            {/* User Profile Menu */}
+            <div className="border-l border-gray-100 pl-6 ml-4">
+              <UserMenu variant="light" />
             </div>
+
           </div>
         </header>
 

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X, LogOut } from "lucide-react";
 import { COLORS, SHADOWS } from "@/lib/design-tokens";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { UserMenu } from "./UserMenu";
 import { PortalSwitcher } from "./PortalSwitcher";
 
 interface NavbarProps {
@@ -74,16 +75,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
         <div className="hidden md:flex items-center gap-6">
           {user && !isPublicPage ? (
             <div className="flex items-center gap-4">
-              <PortalSwitcher />
-              <button 
-                onClick={signOut}
-                className={`flex items-center gap-2 text-[0.8rem] font-bold tracking-wide transition-colors ${
-                  shouldUseLightStyling ? "text-rose-500 hover:text-rose-600" : "text-rose-400 hover:text-rose-300"
-                }`}
-              >
-                <LogOut size={16} />
-                Logout
-              </button>
+              <UserMenu variant={shouldUseLightStyling ? "light" : "dark"} />
             </div>
           ) : (
             <>
@@ -104,6 +96,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
             </>
           )}
         </div>
+
 
         {/* Mobile Menu Toggle */}
         <button
