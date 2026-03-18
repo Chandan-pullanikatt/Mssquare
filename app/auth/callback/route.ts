@@ -11,10 +11,13 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(new URL(next, request.url));
     }
+    console.error('Auth Callback: Code exchange failed:', error.message);
   }
 
-  // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth?error=Code exchange failed`);
+  // Redirect to /auth with an error message
+  const errorUrl = new URL('/auth', request.url);
+  errorUrl.searchParams.set('error', 'Authentication failed. Please try again.');
+  return NextResponse.redirect(errorUrl);
 }

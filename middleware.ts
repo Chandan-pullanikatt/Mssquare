@@ -11,7 +11,10 @@ export async function middleware(req: NextRequest) {
   const error = searchParams.get('error');
   const errorDescription = searchParams.get('error_description');
 
-  if ((code || error) && pathname !== '/auth/callback') {
+  // 1. Handle OAuth Callback parameters
+  // Only redirect to /auth/callback if we have a code/error and we are NOT already on /auth or /auth/callback
+  const isAuthPath = pathname === '/auth' || pathname === '/auth/callback';
+  if ((code || error) && !isAuthPath) {
     const callbackUrl = new URL('/auth/callback', req.url);
     if (code) callbackUrl.searchParams.set('code', code);
     if (error) callbackUrl.searchParams.set('error', error);
