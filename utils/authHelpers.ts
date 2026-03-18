@@ -17,25 +17,37 @@ export const authHelpers = {
   },
 
   async getUserRole(userId: string): Promise<UserRole | null> {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', userId)
-      .maybeSingle();
-    
-    if (!data || error) {
-      console.log(`authHelpers: Role not found in profiles (error: ${error?.message}), checking users table...`);
-      // Try falling back to 'users' table if it exists
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', userId)
-        .maybeSingle();
-      
-      if (userError || !userData) return null;
-      return (userData as any)?.role as UserRole;
+    try {
+      // Use Promise.race to prevent indefinite hangs
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout fetching role')), 5000)
+      );
+
+      const fetchPromise = (async () => {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', userId)
+          .maybeSingle();
+        
+        if (!data || error) {
+          // Try falling back to 'users' table if it exists
+          const { data: userData } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', userId)
+            .maybeSingle();
+          
+          return (userData as any)?.role as UserRole || null;
+        }
+        return (data as any)?.role as UserRole;
+      })();
+
+      return await Promise.race([fetchPromise, timeoutPromise]) as UserRole | null;
+    } catch (err) {
+      console.warn("authHelpers: getUserRole timed out or failed:", err);
+      return null;
     }
-    return (data as any)?.role as UserRole;
   },
 
   async getRedirectPath(role: UserRole): Promise<string> {

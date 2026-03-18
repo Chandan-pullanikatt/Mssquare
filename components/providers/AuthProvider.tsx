@@ -148,8 +148,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signOut = async () => {
-    await authHelpers.signOut();
-    router.push('/auth');
+    setLoading(true);
+    try {
+      console.log("AuthProvider: Signing out...");
+      // Wrap standard signOut in a fast timeout
+      const signOutPromise = authHelpers.signOut();
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('SignOut timeout')), 3000));
+      
+      await Promise.race([signOutPromise, timeoutPromise]).catch(err => {
+        console.warn("AuthProvider: SignOut server call timed out or failed, proceeding with local cleanup.", err);
+      });
+    } catch (err) {
+      console.error("AuthProvider: SignOut error:", err);
+    } finally {
+      // ALWAYS clear local state and redirect
+      setUser(null);
+      setRole(null);
+      lastTokenRef.current = null;
+      setLoading(false);
+      
+      // Use window.location for a hard reset to clear all caches
+      window.location.href = '/auth';
+    }
   };
 
   return (

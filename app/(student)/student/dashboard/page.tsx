@@ -42,19 +42,31 @@ export default function StudentDashboard() {
   }, [user?.id]);
 
   const fetchData = async () => {
-    if (!user?.id) return;
+    if (!user?.id || (hasFetched.current === user.id && !loading)) return;
+    
     try {
       console.log("StudentDashboard: Starting fetchData...");
       if (!enrollments.length) {
         setLoading(true);
       }
-      // Fetch enrollments and all lesson progress in parallel for better performance
-      const [enrollmentsData, allProgress] = await Promise.all([
+      
+      // Prevent double-fetching
+      hasFetched.current = user.id;
+
+      // Wrap fetches in a safety timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Dashboard fetch timeout')), 10000)
+      );
+
+      const fetchPromise = Promise.all([
         enrollmentsApi.getEnrollmentsByUser(user.id),
         lessonProgressApi.getAllUserProgress(user.id)
       ]);
+
+      const [enrollmentsData, allProgress] = await Promise.race([fetchPromise, timeoutPromise]) as [any[], any[]];
       
       console.log(`StudentDashboard: Fetched ${enrollmentsData.length} enrollments and ${allProgress.length} progress markers.`);
+      
       // Group progress by course_id for efficient lookup
       const progressByCourse = allProgress.reduce((acc: any, curr: any) => {
         const courseId = curr.lessons?.course_id;
@@ -83,13 +95,13 @@ export default function StudentDashboard() {
       // Update stats based on fetched data
       setStats({
         coursesCompleted: enrichedEnrollments.filter((e: any) => e.completed).length,
-        hoursStudied: 0, // Placeholder
-        certificatesEarned: 0, // Will be fetched from certificatesApi later
+        hoursStudied: 0,
+        certificatesEarned: 0,
         averageGrade: "N/A"
       });
-      hasFetched.current = user.id;
     } catch (error) {
       console.error("StudentDashboard: Error fetching student dashboard data:", error);
+      // On error, we still want to unlock the UI
     } finally {
       setLoading(false);
       console.log("StudentDashboard: Fetch cycle complete.");
