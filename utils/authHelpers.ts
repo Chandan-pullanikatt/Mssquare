@@ -102,11 +102,16 @@ export const authHelpers = {
     return authData;
   },
 
-  async signInWithGoogle() {
+  async signInWithGoogle(nextPath?: string) {
+    const redirectUrl = new URL(`${window.location.origin}/auth/callback`);
+    if (nextPath) {
+      redirectUrl.searchParams.set('next', nextPath);
+    }
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: redirectUrl.toString(),
         queryParams: {
           prompt: 'select_account',
           access_type: 'offline'

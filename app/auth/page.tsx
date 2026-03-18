@@ -113,8 +113,9 @@ function AuthForm() {
     
     try {
       localStorage.setItem("portal", selectedPortal.id);
-      await authHelpers.signInWithGoogle();
-      // Google redirect will happen, but if it fails we need to reset
+      // Pass the selected portal's href as the return path
+      await authHelpers.signInWithGoogle(selectedPortal.href);
+      // Google redirect will happen
     } catch (err: any) {
       setError(err.message || "Google login failed");
       setIsLoading(false);
