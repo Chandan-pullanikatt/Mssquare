@@ -97,6 +97,23 @@ export function UserMenu({ variant = "dark" }: UserMenuProps) {
             </div>
 
             <div className="p-2">
+              <button
+                onClick={async () => {
+                  setIsOpen(false);
+                  const { authHelpers } = await import("@/utils/authHelpers");
+                  const path = await authHelpers.getRedirectPath(role as any);
+                  window.location.href = path;
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-bold text-sm ${
+                  isLight 
+                    ? "text-gray-900 bg-primary-purple/5 hover:bg-primary-purple hover:text-white" 
+                    : "text-white bg-white/5 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <LayoutDashboard size={18} />
+                Go to Dashboard
+              </button>
+              
               <Link
                 href="/portal"
                 onClick={() => setIsOpen(false)}
@@ -106,7 +123,7 @@ export function UserMenu({ variant = "dark" }: UserMenuProps) {
                     : "text-white/70 hover:bg-white/5 hover:text-white"
                 }`}
               >
-                <LayoutDashboard size={18} />
+                <Settings size={18} />
                 Portal Switcher
               </Link>
               

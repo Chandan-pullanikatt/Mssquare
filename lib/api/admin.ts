@@ -233,16 +233,14 @@ export const adminApi = {
   },
 
   async addInstructor(email: string) {
-    // Note: This only creates the profile. In a real app, you'd also create the auth user.
-    // For this implementation, we assume we are just adding a profile for an existing user or
-    // the system has a trigger to handle auth user creation.
-    // Or we can use a placeholder for now as per the user's "add instructor" request.
+    const id = crypto.randomUUID();
     const { data, error } = await (supabase.from('profiles') as any)
       .insert([
         { 
+          id,
           email, 
           role: 'instructor' as any,
-          user_id: crypto.randomUUID() // Placeholder user_id if we don't have auth user yet
+          user_id: id // Using same ID for both for now to avoid FK issues if they use id as user_id
         }
       ])
       .select()

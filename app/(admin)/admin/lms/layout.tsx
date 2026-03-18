@@ -34,7 +34,6 @@ const adminSidebarItems = [
   { name: "LMS Overview", href: "/admin/lms/dashboard", icon: LayoutDashboard },
   { name: "Manage Courses", href: "/admin/lms/courses", icon: BookOpen },
   { name: "Student Management", href: "/admin/lms/students", icon: Users },
-  { name: "Enrollments", href: "/admin/lms/enrollments", icon: UserCheck },
   { name: "Instructor Management", href: "/admin/lms/instructors", icon: UserCheck },
 ];
 

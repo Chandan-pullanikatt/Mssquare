@@ -23,7 +23,8 @@ export const authHelpers = {
       .eq('id', userId)
       .maybeSingle();
     
-    if (error) {
+    if (!data || error) {
+      console.log(`authHelpers: Role not found in profiles (error: ${error?.message}), checking users table...`);
       // Try falling back to 'users' table if it exists
       const { data: userData, error: userError } = await supabase
         .from('users')
@@ -31,7 +32,7 @@ export const authHelpers = {
         .eq('id', userId)
         .maybeSingle();
       
-      if (userError) return null;
+      if (userError || !userData) return null;
       return (userData as any)?.role as UserRole;
     }
     return (data as any)?.role as UserRole;
@@ -49,6 +50,8 @@ export const authHelpers = {
         return '/admin/business/dashboard';
       case 'cms_admin':
         return '/admin/cms/dashboard';
+      case 'instructor':
+        return '/admin/lms/dashboard'; // Defaulting to LMS dashboard for now
       default:
         return '/';
     }

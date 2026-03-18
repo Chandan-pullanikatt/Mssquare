@@ -73,7 +73,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
         </nav>
 
         <div className="hidden md:flex items-center gap-6">
-          {user && !isPublicPage ? (
+          {user ? (
             <div className="flex items-center gap-4">
               <UserMenu variant={shouldUseLightStyling ? "light" : "dark"} />
             </div>
