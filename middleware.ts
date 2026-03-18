@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { Database } from '@/types/database';
 
@@ -6,29 +6,14 @@ export async function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
   const { pathname, searchParams } = url;
 
-  // 1. Handle OAuth Callback parameters on ANY route BEFORE anything else
-  const code = searchParams.get('code');
-  const error = searchParams.get('error');
-  const errorDescription = searchParams.get('error_description');
-
-  // 1. Handle OAuth Callback parameters
-  // Only redirect to /auth/callback if we have a code/error and we are NOT already on /auth or /auth/callback
-  const isAuthPath = pathname === '/auth' || pathname === '/auth/callback';
-  if ((code || error) && !isAuthPath) {
-    const callbackUrl = new URL('/auth/callback', req.url);
-    if (code) callbackUrl.searchParams.set('code', code);
-    if (error) callbackUrl.searchParams.set('error', error);
-    if (errorDescription) callbackUrl.searchParams.set('error_description', errorDescription);
-    return NextResponse.redirect(callbackUrl);
-  }
-
-  // 2. Initialize Supabase SSR Client and handle session/cookies
+  // 1. Initial response object
   let supabaseResponse = NextResponse.next({
     request: {
       headers: req.headers,
     },
   });
 
+  // 2. Initialize Supabase
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -43,13 +28,9 @@ export async function middleware(req: NextRequest) {
           return req.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            req.cookies.set(name, value)
-          );
+          cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
           supabaseResponse = NextResponse.next({
-            request: {
-              headers: req.headers,
-            },
+            request: req,
           });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
@@ -59,10 +40,18 @@ export async function middleware(req: NextRequest) {
     }
   );
 
-  // IMPORTANT: We must call getUser() or getSession() to trigger cookie updates if needed
-  const { data: { user } } = await supabase.auth.getUser();
+  // 3. Early out for OAuth params on non-auth paths (Redirect to centralized callback)
+  const code = searchParams.get('code');
+  const error = searchParams.get('error');
+  const isAuthPath = pathname === '/auth' || pathname === '/auth/callback';
+  
+  if ((code || error) && !isAuthPath) {
+    const callbackUrl = new URL('/auth/callback', req.url);
+    searchParams.forEach((v, k) => callbackUrl.searchParams.set(k, v));
+    return NextResponse.redirect(callbackUrl);
+  }
 
-  // Unified Portal Access Control
+  // 4. Portal Route Detection
   const portalRoutes = [
     { path: '/student', role: 'student' },
     { path: '/business', role: 'business_client' },
@@ -70,64 +59,47 @@ export async function middleware(req: NextRequest) {
     { path: '/admin/business', role: 'business_admin' },
     { path: '/admin/cms', role: 'cms_admin' },
   ];
-
   const currentPortal = portalRoutes.find((p) => pathname.startsWith(p.path));
+  const isProtected = currentPortal || pathname === '/dashboard' || pathname === '/portal';
 
-  // 3. Unauthorized access check
-  if (currentPortal && !user) {
+  // 5. If not protected, just return (Saves time)
+  if (!isProtected) return supabaseResponse;
+
+  // 6. Auth check (LEAN: No database queries in middleware)
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
     url.pathname = '/auth';
     url.search = ''; 
     return NextResponse.redirect(url);
   }
 
-  // 4. Role-based enforcement
-  if (user) {
-    const needsRoleCheck = currentPortal || pathname === '/dashboard' || pathname === '/portal';
+  // 7. Role-based enforcement (Using ONLY JWT app_metadata for speed)
+  const role = user.app_metadata?.role as string | undefined;
 
-    if (needsRoleCheck) {
-      let role = user.app_metadata?.role as string | undefined;
-
-      // Fallback to database check ONLY if not in metadata (SLOWER)
-      if (!role) {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .maybeSingle();
-        
-        role = (profileData as { role: string } | null)?.role;
-
-        if (!role) {
-          const { data: userData } = await supabase
-            .from('users')
-            .select('role')
-            .eq('id', user.id)
-            .maybeSingle();
-          role = (userData as { role: string } | null)?.role;
-        }
-      }
-
-      // Check portal permission
-      if (currentPortal) {
-        const isAllowed = role === currentPortal.role || (role === 'lms_admin' && currentPortal.role === 'student');
-        if (!role || !isAllowed) {
-          url.pathname = '/unauthorized';
-          return NextResponse.redirect(url);
-        }
-      }
-
-      // Handle unified entry points
-      if (pathname === '/dashboard' || pathname === '/portal') {
-        if (role === 'student') url.pathname = '/student/dashboard';
-        else if (role === 'business_client') url.pathname = '/business/dashboard';
-        else if (role === 'lms_admin') url.pathname = '/admin/lms/dashboard';
-        else if (role === 'business_admin') url.pathname = '/admin/business/dashboard';
-        else if (role === 'cms_admin') url.pathname = '/admin/cms/dashboard';
-        else url.pathname = '/';
-        
-        return NextResponse.redirect(url);
-      }
+  if (currentPortal) {
+    // LMS Admin can access student portal
+    const isAllowed = role === currentPortal.role || (role === 'lms_admin' && currentPortal.role === 'student');
+    
+    // If role is missing from JWT, we DON'T block yet (to avoid DB query)
+    // We let the client-side AuthProvider handle the missing role.
+    if (role && !isAllowed) {
+      url.pathname = '/unauthorized';
+      return NextResponse.redirect(url);
     }
+  }
+
+  // 8. Handle unified entry points
+  if (pathname === '/dashboard' || pathname === '/portal') {
+    if (role === 'student') url.pathname = '/student/dashboard';
+    else if (role === 'business_client') url.pathname = '/business/dashboard';
+    else if (role === 'lms_admin') url.pathname = '/admin/lms/dashboard';
+    else if (role === 'business_admin') url.pathname = '/admin/business/dashboard';
+    else if (role === 'cms_admin') url.pathname = '/admin/cms/dashboard';
+    else if (role) url.pathname = '/'; // Unknown role
+    else return supabaseResponse; // Role missing, let client handle it
+    
+    return NextResponse.redirect(url);
   }
 
   return supabaseResponse;
