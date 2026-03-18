@@ -39,10 +39,14 @@ export const adminApi = {
       }
     };
 
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("Timeout")), 10000)
+    );
+
     try {
-      return await fetchWithRetry();
+      return await Promise.race([fetchWithRetry(), timeoutPromise]);
     } catch (err) {
-      console.error("Dashboard stats fetch failed:", err);
+      console.error("Dashboard stats fetch failed or timed out:", err);
       // Last resort fallback if RPC failed for any non-missing-function reason
       try { return await this.getDashboardStatsManual(); } catch { return null; }
     }

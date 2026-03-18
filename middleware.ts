@@ -1,6 +1,6 @@
-import { updateSession } from './lib/supabase/middleware';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
+import { Database } from '@/types/database';
 
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
@@ -19,12 +19,40 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(callbackUrl);
   }
 
-  const { supabase, response } = updateSession(req);
+  // 2. Initialize Supabase SSR Client and handle session/cookies
+  let supabaseResponse = NextResponse.next({
+    request: {
+      headers: req.headers,
+    },
+  });
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const user = session?.user;
+  const supabase = createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            req.cookies.set(name, value)
+          );
+          supabaseResponse = NextResponse.next({
+            request: {
+              headers: req.headers,
+            },
+          });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+
+  // IMPORTANT: We must call getUser() or getSession() to trigger cookie updates if needed
+  const { data: { user } } = await supabase.auth.getUser();
 
   // Unified Portal Access Control
   const portalRoutes = [
@@ -37,25 +65,22 @@ export async function middleware(req: NextRequest) {
 
   const currentPortal = portalRoutes.find((p) => pathname.startsWith(p.path));
 
-  // 1. If hitting a protected portal without a user, redirect to login
+  // 3. Unauthorized access check
   if (currentPortal && !user) {
     url.pathname = '/auth';
     url.search = ''; 
     return NextResponse.redirect(url);
   }
 
-  // 2. If user exists, enforce role-based access
+  // 4. Role-based enforcement
   if (user) {
-    // Determine if we need to fetch the role
-    const needsRole = currentPortal || pathname === '/dashboard' || pathname === '/portal';
+    const needsRoleCheck = currentPortal || pathname === '/dashboard' || pathname === '/portal';
 
-    if (needsRole) {
-      // Prioritize role from app_metadata (FASTEST)
+    if (needsRoleCheck) {
       let role = user.app_metadata?.role as string | undefined;
 
       // Fallback to database check ONLY if not in metadata (SLOWER)
       if (!role) {
-        console.warn(`Middleware: Role missing in metadata for user ${user.id}, fetching from DB...`);
         const { data: profileData } = await supabase
           .from('profiles')
           .select('role')
@@ -74,17 +99,16 @@ export async function middleware(req: NextRequest) {
         }
       }
 
-      // Enforcement
+      // Check portal permission
       if (currentPortal) {
         const isAllowed = role === currentPortal.role || (role === 'lms_admin' && currentPortal.role === 'student');
         if (!role || !isAllowed) {
-          console.warn(`Middleware: Unauthorized access attempt to ${pathname} for role ${role}`);
           url.pathname = '/unauthorized';
           return NextResponse.redirect(url);
         }
       }
 
-      // Redirects for unified dashboard entry points
+      // Handle unified entry points
       if (pathname === '/dashboard' || pathname === '/portal') {
         if (role === 'student') url.pathname = '/student/dashboard';
         else if (role === 'business_client') url.pathname = '/business/dashboard';
@@ -98,21 +122,11 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-
-  return response;
+  return supabaseResponse;
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - assets (public assets)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico|assets|fonts|images|favicon).*)',
-
   ],
 };

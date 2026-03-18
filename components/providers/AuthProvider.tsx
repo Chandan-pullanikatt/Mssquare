@@ -40,10 +40,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       const timeoutId = setTimeout(() => {
         if (loading && mounted) {
-          console.warn("AuthProvider: initializeAuth safety timeout reached.");
+          console.warn("AuthProvider: initializeAuth safety timeout reached. Unlocking UI.");
           setLoading(false);
         }
-      }, 10000);
+      }, 15000);
 
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
