@@ -23,7 +23,8 @@ import {
   Image as ImageIcon,
   MessageSquare,
   ShieldCheck,
-  SearchCode
+  SearchCode,
+  Calendar
 } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
@@ -35,6 +36,7 @@ const adminSidebarItems = [
   { name: "Manage Courses", href: "/admin/lms/courses", icon: BookOpen },
   { name: "Student Management", href: "/admin/lms/students", icon: Users },
   { name: "Instructor Management", href: "/admin/lms/instructors", icon: UserCheck },
+  { name: "Group Sessions", href: "/admin/lms/group-sessions", icon: Calendar },
   { name: "Manage Notifications", href: "/admin/lms/notifications", icon: Bell },
 ];
 

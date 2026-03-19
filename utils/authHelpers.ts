@@ -50,6 +50,15 @@ export const authHelpers = {
     }
   },
 
+  async isInstructor(userId: string): Promise<boolean> {
+    const { data } = await supabase
+      .from('instructors')
+      .select('id')
+      .eq('id', userId)
+      .maybeSingle();
+    return !!data;
+  },
+
   async getRedirectPath(role: UserRole): Promise<string> {
     switch (role) {
       case 'student':
@@ -63,7 +72,7 @@ export const authHelpers = {
       case 'cms_admin':
         return '/admin/cms/dashboard';
       case 'instructor':
-        return '/admin/lms/dashboard'; // Defaulting to LMS dashboard for now
+        return '/instructor/dashboard';
       default:
         return '/';
     }

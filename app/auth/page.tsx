@@ -35,6 +35,7 @@ const PORTALS: PortalType[] = [
   { id: 'lms_admin', name: 'LMS Admin', href: '/admin/lms/dashboard', icon: Settings, description: 'Course management' },
   { id: 'business_admin', name: 'Business Admin', href: '/admin/business/dashboard', icon: ShieldCheck, description: 'Client request management' },
   { id: 'cms_admin', name: 'CMS Admin', href: '/admin/cms/dashboard', icon: Grid3X3, description: 'CEO content control' },
+  { id: 'instructor', name: 'Instructor Portal', href: '/instructor/dashboard', icon: GraduationCap, description: 'Manage your assigned courses' },
 ];
 
 function AuthForm() {
@@ -88,9 +89,14 @@ function AuthForm() {
       if (data.user) {
         // Fetch real role from DB to compare with selection
         const userRole = await authHelpers.getUserRole(data.user.id);
+        const isInstructor = await authHelpers.isInstructor(data.user.id);
         
-        if (userRole !== selectedPortal.id) {
-          console.warn(`Role mismatch detected: DB says ${userRole}, user chose ${selectedPortal.id}. Proceeding anyway for stability.`);
+        const effectiveRole = (selectedPortal.id === 'instructor' && isInstructor) 
+          ? 'instructor' 
+          : userRole;
+
+        if (effectiveRole !== selectedPortal.id) {
+          console.warn(`Role mismatch detected: DB profile says ${userRole}, isInstructor: ${isInstructor}, user chose ${selectedPortal.id}. Proceeding anyway for stability.`);
         }
 
         // Use window.location.href for a forceful full-page reload to the dashboard

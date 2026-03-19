@@ -27,6 +27,7 @@ export default function InstructorManagementPage() {
   const [selectedInstructor, setSelectedInstructor] = useState<any>(null);
   const [email, setEmail] = useState("");
   const [selectedCourseId, setSelectedCourseId] = useState("");
+  const [remarks, setRemarks] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -53,15 +54,38 @@ export default function InstructorManagementPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await adminApi.addInstructor(email);
+      await adminApi.addInstructor(email, remarks);
       setEmail("");
+      setRemarks("");
       setShowAddModal(false);
       fetchData();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to add instructor", err);
-      alert("Failed to add instructor");
+      alert(err.message || "Failed to add instructor");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleToggleStatus = async (instructor: any) => {
+    const newStatus = instructor.status === 'suspended' ? 'active' : 'suspended';
+    try {
+      await adminApi.updateInstructor(instructor.id, { status: newStatus });
+      fetchData();
+    } catch (err) {
+      console.error("Failed to toggle status", err);
+      alert("Failed to update status");
+    }
+  };
+
+  const handleDeleteInstructor = async (id: string) => {
+    if (!confirm("Are you sure you want to remove this instructor? They will be removed from the instructor list but their account will remain.")) return;
+    try {
+      await adminApi.deleteInstructor(id);
+      fetchData();
+    } catch (err) {
+      console.error("Failed to delete instructor", err);
+      alert("Failed to delete instructor");
     }
   };
 
@@ -122,18 +146,51 @@ export default function InstructorManagementPage() {
       )
     },
     {
+      header: "Status",
+      accessor: "status",
+      render: (status: string, row: any) => (
+        <button 
+          onClick={() => handleToggleStatus(row)}
+          className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+            status === 'active' 
+              ? 'bg-green-50 text-green-600 hover:bg-green-100' 
+              : 'bg-red-50 text-red-600 hover:bg-red-100'
+          }`}
+        >
+          {status || 'active'}
+        </button>
+      )
+    },
+    {
+      header: "Remarks",
+      accessor: "remarks",
+      render: (remarks: string) => (
+        <span className="text-gray-500 text-[11px] font-medium italic line-clamp-1 max-w-[150px]">
+          {remarks || "-"}
+        </span>
+      )
+    },
+    {
       header: "Actions",
       accessor: "id",
       render: (id: string, row: any) => (
-        <button 
-          onClick={() => {
-            setSelectedInstructor(row);
-            setShowAssignModal(true);
-          }}
-          className="text-[10px] font-black uppercase tracking-widest text-[#8b5cf6] hover:text-purple-700 bg-purple-50 px-3 py-1.5 rounded-xl transition-all"
-        >
-          Assign Course
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => {
+              setSelectedInstructor(row);
+              setShowAssignModal(true);
+            }}
+            className="text-[10px] font-black uppercase tracking-widest text-[#8b5cf6] hover:text-purple-700 bg-purple-50 px-3 py-1.5 rounded-xl transition-all"
+          >
+            Assign
+          </button>
+          <button 
+            onClick={() => handleDeleteInstructor(id)}
+            className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-700 bg-red-50 px-3 py-1.5 rounded-xl transition-all"
+          >
+            Delete
+          </button>
+        </div>
       )
     }
   ];
@@ -233,6 +290,15 @@ export default function InstructorManagementPage() {
                     className="w-full bg-gray-50 border-2 border-transparent rounded-2xl py-4 pl-12 pr-6 text-sm font-bold text-gray-900 focus:bg-white focus:border-[#8b5cf6]/20 outline-none transition-all"
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Remarks (Optional)</label>
+                <textarea 
+                  placeholder="Notes about this instructor..."
+                  value={remarks}
+                  onChange={(e) => setRemarks(e.target.value)}
+                  className="w-full bg-gray-50 border-2 border-transparent rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 focus:bg-white focus:border-[#8b5cf6]/20 outline-none transition-all resize-none h-24"
+                />
               </div>
               <button 
                 type="submit" 

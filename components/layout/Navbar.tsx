@@ -7,7 +7,6 @@ import { Menu, X, LogOut } from "lucide-react";
 import { COLORS, SHADOWS } from "@/lib/design-tokens";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { UserMenu } from "./UserMenu";
-import { PortalSwitcher } from "./PortalSwitcher";
 
 interface NavbarProps {
   variant?: "dark" | "light";
@@ -159,7 +158,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
             <div className={`flex flex-col gap-4 pt-4 border-t ${isScrolled ? "border-light-border" : "border-border"}`}>
               {user && !isPublicPage ? (
                 <div className="flex flex-col gap-4">
-                  <PortalSwitcher />
+
                   <button
                     onClick={() => {
                       signOut();

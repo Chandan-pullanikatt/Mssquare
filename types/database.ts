@@ -367,6 +367,75 @@ export interface Database {
           created_at?: string;
         };
       };
+      instructors: {
+        Row: {
+          id: string;
+          email: string;
+          status: string;
+          remarks: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id: string;
+          email: string;
+          status?: string;
+          remarks?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          status?: string;
+          remarks?: string | null;
+          created_at?: string;
+        };
+      };
+      group_sessions: {
+        Row: {
+          id: string;
+          course_id: string;
+          title: string;
+          description: string | null;
+          scheduled_at: string;
+          duration_minutes: number;
+          meeting_link: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          course_id: string;
+          title: string;
+          description?: string | null;
+          scheduled_at: string;
+          duration_minutes?: number;
+          meeting_link?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          course_id?: string;
+          title?: string;
+          description?: string | null;
+          scheduled_at?: string;
+          duration_minutes?: number;
+          meeting_link?: string | null;
+          created_at?: string;
+        };
+      };
+      group_session_instructors: {
+        Row: {
+          session_id: string;
+          instructor_id: string;
+        };
+        Insert: {
+          session_id: string;
+          instructor_id: string;
+        };
+        Update: {
+          session_id?: string;
+          instructor_id?: string;
+        };
+      };
     };
   };
 }

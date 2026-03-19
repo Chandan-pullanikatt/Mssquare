@@ -214,9 +214,8 @@ export const adminApi = {
 
   async getInstructors() {
     const { data: instructors, error: instructorError } = await supabase
-      .from('profiles')
-      .select('id, email, created_at')
-      .eq('role', 'instructor')
+      .from('instructors')
+      .select('id, email, created_at, status, remarks')
       .order('created_at', { ascending: false });
 
     if (instructorError) throw instructorError;
@@ -236,22 +235,25 @@ export const adminApi = {
     return enrichedInstructors;
   },
 
-  async addInstructor(email: string) {
-    const id = crypto.randomUUID();
-    const { data, error } = await (supabase.from('profiles') as any)
-      .insert([
-        { 
-          id,
-          email, 
-          role: 'instructor' as any,
-          user_id: id // Using same ID for both for now to avoid FK issues if they use id as user_id
-        }
-      ])
-      .select()
-      .single();
+  async addInstructor(email: string, remarks?: string) {
+    const { inviteInstructor } = await import('@/app/actions/invite');
+    return await inviteInstructor(email, remarks);
+  },
 
+  async updateInstructor(id: string, updates: any) {
+    const { error } = await (supabase.from('instructors') as any)
+      .update(updates)
+      .eq('id', id);
     if (error) throw error;
-    return data;
+    return true;
+  },
+
+  async deleteInstructor(id: string) {
+    const { error } = await (supabase.from('instructors') as any)
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    return true;
   },
 
   async assignCourseToInstructor(courseId: string, instructorId: string) {
@@ -263,5 +265,52 @@ export const adminApi = {
 
     if (error) throw error;
     return data;
+  },
+
+  async getGroupSessions() {
+    const { data, error } = await supabase
+      .from('group_sessions')
+      .select(`
+        *,
+        course:courses(title),
+        instructors:group_session_instructors(
+          instructor_id
+        )
+      `)
+      .order('scheduled_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  async createGroupSession(sessionData: any, instructorIds: string[]) {
+    // 1. Create the session
+    const { data: session, error: sessionError } = await (supabase.from('group_sessions') as any)
+      .insert(sessionData)
+      .select()
+      .single();
+
+    if (sessionError) throw sessionError;
+
+    // 2. Link instructors
+    if (instructorIds.length > 0) {
+      const links = instructorIds.map(id => ({
+        session_id: session.id,
+        instructor_id: id
+      }));
+      const { error: linkError } = await (supabase.from('group_session_instructors') as any)
+        .insert(links);
+      if (linkError) throw linkError;
+    }
+
+    return session;
+  },
+
+  async deleteGroupSession(id: string) {
+    const { error } = await (supabase.from('group_sessions') as any)
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    return true;
   }
 };

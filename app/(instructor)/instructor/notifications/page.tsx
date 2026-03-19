@@ -1,0 +1,26 @@
+'use client';
+
+import { Bell } from "lucide-react";
+import Link from "next/link";
+
+export default function InstructorNotifications() {
+  return (
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div>
+        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Notifications</h1>
+        <p className="text-gray-500 font-medium tracking-tight">Stay updated with course activity and student messages.</p>
+      </div>
+
+      <div className="py-40 bg-white rounded-[2.5rem] border border-dashed border-gray-200 text-center">
+        <div className="w-16 h-16 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
+          <Bell className="text-gray-300" size={32} />
+        </div>
+        <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">No new notifications</p>
+        <p className="text-sm text-gray-500 mt-2">Check back here for updates on your courses.</p>
+        <Link href="/instructor/dashboard" className="inline-block mt-6 text-[#8b5cf6] font-bold hover:underline">
+          Back to Dashboard
+        </Link>
+      </div>
+    </div>
+  );
+}
