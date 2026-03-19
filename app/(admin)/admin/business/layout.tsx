@@ -29,7 +29,6 @@ const businessAdminSidebarItems = [
   { name: "Client Requests", href: "/admin/business/requests", icon: Briefcase },
   { name: "Project Management", href: "/admin/business/projects", icon: FileText },
   { name: "Client List", href: "/admin/business/clients", icon: Users },
-  { name: "Performance", href: "/admin/business/analytics", icon: BarChart3 },
   { name: "Settings", href: "/admin/business/settings", icon: Settings },
 ];
 

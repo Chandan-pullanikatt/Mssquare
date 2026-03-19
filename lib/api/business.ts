@@ -23,13 +23,25 @@ export const businessApi = {
   },
 
   async getAdminProjects() {
-    const { data, error } = await supabase
+    const { data: projects, error } = await supabase
       .from('business_projects')
-      .select('*, profiles(email)')
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+    if (!projects || projects.length === 0) return [];
+
+    // Fetch profiles separately to avoid relationship issues
+    const userIds = [...new Set(projects.map((p: any) => p.user_id))];
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, email')
+      .in('id', userIds);
+
+    return projects.map((p: any) => ({
+      ...p,
+      profiles: profiles?.find((pr: any) => pr.id === p.user_id) || null
+    }));
   },
 
   // Service Requests
@@ -49,26 +61,36 @@ export const businessApi = {
   },
 
   async getAdminServiceRequests() {
-    const { data, error } = await supabase
+    const { data: requests, error } = await supabase
       .from('service_requests')
-      .select('*, profiles(email)')
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+    if (!requests || requests.length === 0) return [];
+
+    // Fetch profiles separately
+    const userIds = [...new Set(requests.map((r: any) => r.user_id))];
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, email')
+      .in('id', userIds);
+
+    return requests.map((r: any) => ({
+      ...r,
+      profiles: profiles?.find((pr: any) => pr.id === r.user_id) || null
+    }));
   },
 
   async submitServiceRequest(request: Omit<Database['public']['Tables']['service_requests']['Insert'], 'id' | 'created_at' | 'status'>) {
-    const { data, error } = await (supabase.from('service_requests') as any)
+    const { error } = await (supabase.from('service_requests') as any)
       .insert({
         ...request,
         status: 'Pending Review'
-      })
-      .select()
-      .single();
+      });
 
     if (error) throw error;
-    return data as ServiceRequest;
+    return { ...request, status: 'Pending Review' } as ServiceRequest;
   },
 
   // Consultancy Services
@@ -105,5 +127,56 @@ export const businessApi = {
 
     if (error) throw error;
     return data as BusinessProject;
+  },
+
+  async approveRequest(requestId: string, userId: string, title: string, description: string) {
+    // 1. Update request status
+    const { error: requestError } = await (supabase.from('service_requests') as any)
+      .update({ status: 'Approved' })
+      .eq('id', requestId);
+    
+    if (requestError) throw requestError;
+
+    // 2. Create project
+    const { data: projectData, error: projectError } = await (supabase.from('business_projects') as any)
+      .insert({
+        user_id: userId,
+        title,
+        description,
+        status: 'Active',
+        progress: 0,
+        icon_name: 'TrendingUp'
+      })
+      .select()
+      .single();
+
+    if (projectError) throw projectError;
+    return projectData as BusinessProject;
+  },
+
+  async getAdminClients() {
+    // Fetch profiles first
+    const { data: profiles, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('role', 'business_client');
+
+    if (profileError) throw profileError;
+    if (!profiles || profiles.length === 0) return [];
+
+    // Fetch counts manually to avoid join issues
+    const { data: requests } = await supabase
+      .from('service_requests')
+      .select('user_id');
+    
+    const { data: projects } = await supabase
+      .from('business_projects')
+      .select('user_id');
+
+    return profiles.map((profile: any) => ({
+      ...profile,
+      service_requests: [{ count: requests?.filter((r: any) => r.user_id === profile.id).length || 0 }],
+      business_projects: [{ count: projects?.filter((p: any) => p.user_id === profile.id).length || 0 }]
+    }));
   }
 };

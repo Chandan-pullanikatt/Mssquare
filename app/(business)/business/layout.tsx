@@ -25,10 +25,8 @@ import { authHelpers } from "@/utils/authHelpers";
 
 const sidebarItems = [
   { name: "Dashboard", href: "/business/dashboard", icon: LayoutDashboard },
-  { name: "Requested Services", href: "/business/services", icon: Briefcase },
+  { name: "My Projects", href: "/business/projects", icon: LineChart },
   { name: "Submit Requirement", href: "/business/submit-requirement", icon: PlusCircle },
-  { name: "Project Tracking", href: "/business/tracking", icon: LineChart },
-  { name: "Documents", href: "/business/documents", icon: FileText },
 ];
 
 export default function BusinessLayout({

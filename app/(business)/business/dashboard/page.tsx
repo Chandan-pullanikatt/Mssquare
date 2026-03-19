@@ -72,7 +72,7 @@ export default function BusinessDashboard() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <div className="w-12 h-12 border-4 border-primary-purple/20 border-t-primary-purple rounded-full animate-spin" />
-        <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Synchronizing Business Insights...</p>
+        <p className="text-gray-700 font-bold uppercase tracking-widest text-[10px]">Synchronizing Business Insights...</p>
       </div>
     );
   }
@@ -91,7 +91,7 @@ export default function BusinessDashboard() {
         <h1 className="text-3xl font-extrabold font-heading text-gray-900 mb-2 italic">
           {user ? `Welcome back, ${user.user_metadata?.full_name || 'Business Partner'}` : 'Welcome to your Business Portal'}
         </h1>
-        <p className="text-gray-500 font-medium text-[15px]">
+        <p className="text-gray-700 font-medium text-[15px]">
           Monitor your consultancy performance and project milestones at a glance.
         </p>
       </div>
@@ -110,7 +110,7 @@ export default function BusinessDashboard() {
             <Folder className="text-[#8b5cf6]" size={20} />
             <h2 className="text-xl font-bold font-heading text-gray-900 italic">Active Projects</h2>
           </div>
-          <Link href="/business/tracking" className="text-[#8b5cf6] text-sm font-bold hover:underline">
+          <Link href="/business/projects" className="text-[#8b5cf6] text-sm font-bold hover:underline">
             View All
           </Link>
         </div>
@@ -186,7 +186,7 @@ export default function BusinessDashboard() {
           <section className="bg-white border border-gray-100 rounded-3xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] overflow-hidden">
             <div className="p-6 md:p-8 flex items-center justify-between border-b border-gray-50">
               <h2 className="text-xl font-bold font-heading text-gray-900 italic">Recent Service Requests</h2>
-              <Link href="/business/services" className="text-[#8b5cf6] text-[11px] font-bold tracking-widest uppercase hover:underline">
+              <Link href="/business/projects" className="text-[#8b5cf6] text-[11px] font-bold tracking-widest uppercase hover:underline">
                 Manage All
               </Link>
             </div>

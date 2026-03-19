@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
     Plus,
     Search,
@@ -13,49 +13,27 @@ import {
     MessageSquare
 } from "lucide-react";
 
-const recentTopics = [
-    { title: "Machine Learning Basics", time: "2 hours ago" },
-    { title: "Calculus III Integration", time: "Yesterday" },
-    { title: "History Essay Outline", time: "Oct 24, 2023" },
-    { title: "Python Loops Recap", time: "Oct 22, 2023" }
-];
-
-const messages = [
-    {
-        role: "assistant",
-        name: "MSSquare AI",
-        content: "Hello Alex! I'm your MSSquare AI Assistant. I can help you with course summaries, problem solving, or scheduling your study sessions. What's on your mind today?",
-        time: "TODAY"
-    },
-    {
-        role: "user",
-        name: "You",
-        content: "Can you explain the difference between supervised and unsupervised learning in Machine Learning? I have a quiz tomorrow.",
-        time: "TODAY"
-    },
-    {
-        role: "assistant",
-        name: "MSSquare AI",
-        content: `Certainly! Think of it like this:
-
-• **Supervised Learning:** It's like learning with a teacher. You have input data and the correct answers (labels). The goal is to learn the mapping from inputs to outputs.
-
-• **Unsupervised Learning:** It's like exploring on your own. You have data but no labels. The goal is to find hidden patterns or structures within the data.
-
-Would you like some specific examples for each?`,
-        time: "TODAY"
-    }
-];
-
 import { useAuth } from "@/components/providers/AuthProvider";
-import { useEffect, useRef } from "react";
-
 import { getGeminiResponse } from "@/lib/gemini";
+
+type Message = {
+    role: "assistant" | "user";
+    name: string;
+    content: string;
+    time: string;
+};
 
 export default function AICoachPage() {
     const { user } = useAuth();
     const [input, setInput] = useState("");
-    const [messagesState, setMessages] = useState(messages);
+    const [messages, setMessages] = useState<Message[]>([
+        {
+            role: "assistant",
+            name: "MSSquare AI",
+            content: `Hello ${user?.user_metadata?.name || 'there'}! I'm your MSSquare AI Coach. I can help you with course summaries, complex problem solving, or just planning your study sessions. What would you like to learn today?`,
+            time: "TODAY"
+        }
+    ]);
     const [isLoading, setIsLoading] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -63,19 +41,22 @@ export default function AICoachPage() {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-    }, [messagesState]);
+    }, [messages]);
 
     const handleSend = async () => {
         const userPrompt = input.trim();
+        if (!userPrompt || isLoading) return;
+        
         if (userPrompt.length > 2000) {
             alert("Message is too long. Please keep it under 2000 characters.");
             return;
         }
-        const newUserMsg = {
+
+        const newUserMsg: Message = {
             role: "user",
-            name: user?.user_metadata?.full_name || "You",
+            name: user?.user_metadata?.name || "You",
             content: userPrompt,
-            time: "JUST NOW"
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
         
         setMessages(prev => [...prev, newUserMsg]);
@@ -83,73 +64,87 @@ export default function AICoachPage() {
         setIsLoading(true);
 
         try {
-            // Convert messagesState to Gemini history format if needed
-            // For now, simple prompt
-            const aiResponse = await getGeminiResponse(userPrompt);
+            // Prepare history for Gemini (limited to last 10 messages for speed/token limits)
+            const history = messages.slice(-10).map(msg => ({
+                role: msg.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: msg.content }]
+            }));
+
+            const aiResponse = await getGeminiResponse(userPrompt, history);
             
-            const newAiMsg = {
+            const newAiMsg: Message = {
                 role: "assistant",
                 name: "MSSquare AI",
                 content: aiResponse,
-                time: "JUST NOW"
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             };
             
             setMessages(prev => [...prev, newAiMsg]);
         } catch (error) {
-            console.error(error);
+            console.error("AI Chat Error:", error);
+            const errorMsg: Message = {
+                role: "assistant",
+                name: "MSSquare AI",
+                content: "I'm sorry, I hit a snag while thinking. Please make sure your Gemini API key is correctly configured in the environment.",
+                time: "JUST NOW"
+            };
+            setMessages(prev => [...prev, errorMsg]);
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="h-[calc(100vh-140px)] flex flex-col bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm relative">
-
-            {/* Chat Area */}
+        <div className="h-[calc(100vh-120px)] flex flex-col bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative">
+            
             <div className="flex-1 flex flex-col min-w-0 bg-[#fafafc]">
-
                 {/* Chat Header */}
-                <header className="h-16 border-b border-gray-100 bg-white/80 backdrop-blur-md px-8 flex items-center justify-between shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-[#8b5cf6] rounded-lg flex items-center justify-center text-white">
-                            <Zap size={16} fill="white" />
+                <header className="h-20 border-b border-gray-100 bg-white/80 backdrop-blur-md px-10 flex items-center justify-between shrink-0">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-primary-purple rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary-purple/20">
+                            <Zap size={20} fill="white" />
                         </div>
-                        <h2 className="font-bold text-gray-900 font-heading">AI Assistant</h2>
-                        <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                        <div>
+                            <h2 className="font-bold text-gray-900 font-heading text-lg tracking-tight">AI Study Coach</h2>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Now</span>
+                            </div>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-4 text-gray-400">
-                        <button className="hover:text-gray-600 transition-colors"><Search size={20} /></button>
-                        <button className="hover:text-gray-600 transition-colors"><MoreVertical size={20} /></button>
+                    <div className="flex items-center gap-5">
+                        <button className="p-2.5 text-gray-400 hover:text-primary-purple hover:bg-primary-purple/5 rounded-xl transition-all"><Search size={22} /></button>
+                        <button className="p-2.5 text-gray-400 hover:text-primary-purple hover:bg-primary-purple/5 rounded-xl transition-all"><MoreVertical size={22} /></button>
                     </div>
                 </header>
 
-                {/* Messages */}
-                <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-8">
-                    <div className="flex justify-center mb-4">
-                        <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-3 py-1 rounded-full uppercase tracking-widest">Chat History</span>
-                    </div>
-
-                    {messagesState.map((msg, i) => (
-                        <div key={i} className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${msg.role === 'assistant' ? 'bg-[#f5f3ff] text-[#8b5cf6]' : 'overflow-hidden border border-gray-200 shadow-sm'
-                                }`}>
+                {/* Messages Area */}
+                <div ref={scrollRef} className="flex-1 overflow-y-auto p-10 space-y-10 scroll-smooth">
+                    {messages.map((msg, i) => (
+                        <div key={i} className={`flex gap-5 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${
+                                msg.role === 'assistant' 
+                                ? 'bg-white text-primary-purple border border-gray-100' 
+                                : 'bg-primary-purple text-white shadow-primary-purple/20'
+                            }`}>
                                 {msg.role === 'assistant' ? (
-                                    <Zap size={18} fill="#8b5cf6" />
+                                    <Sparkles size={18} className="fill-primary-purple" />
                                 ) : (
-                                    <img src={user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/notionists/svg?seed=${user?.email || 'Alex'}&backgroundColor=fed7aa`} alt="User" className="w-full h-full object-cover" />
+                                    <span className="font-black text-xs">{msg.name.charAt(0)}</span>
                                 )}
                             </div>
-                            <div className={`max-w-[80%] ${msg.role === 'user' ? 'text-right' : ''}`}>
-                                <div className="text-[11px] font-bold text-gray-400 mb-2 px-1">
-                                    {msg.role === 'user' ? (user?.user_metadata?.full_name || "You") : msg.name}
+                            <div className={`max-w-[75%] ${msg.role === 'user' ? 'text-right' : ''}`}>
+                                <div className="text-[10px] font-black text-gray-400 mb-2 px-1 uppercase tracking-widest opacity-60">
+                                    {msg.name} • {msg.time}
                                 </div>
-                                <div className={`p-5 rounded-[1.5rem] text-sm leading-relaxed shadow-sm ${msg.role === 'assistant'
-                                        ? 'bg-white text-gray-700 border border-gray-100 rounded-tl-none'
-                                        : 'bg-[#8b5cf6] text-white rounded-tr-none text-left'
-                                    }`}>
+                                <div className={`p-6 rounded-[2rem] text-[0.95rem] leading-relaxed shadow-sm ${
+                                    msg.role === 'assistant'
+                                    ? 'bg-white text-gray-700 border border-gray-50 rounded-tl-none font-medium'
+                                    : 'bg-primary-purple text-white rounded-tr-none text-left font-semibold'
+                                }`}>
                                     {msg.content.split('\n').map((line, j) => (
-                                        <p key={j} className={line.trim() === '' ? 'h-2' : ''}>
-                                            {line.startsWith('•') ? <span className="block pl-2">{line}</span> : line}
+                                        <p key={j} className={line.trim() === '' ? 'h-3' : 'mb-1 last:mb-0'}>
+                                            {line}
                                         </p>
                                     ))}
                                 </div>
@@ -158,17 +153,17 @@ export default function AICoachPage() {
                     ))}
                     
                     {isLoading && (
-                        <div className="flex gap-4">
-                            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#f5f3ff] text-[#8b5cf6]">
-                                <Zap size={18} fill="#8b5cf6" className="animate-pulse" />
+                        <div className="flex gap-5">
+                            <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 bg-white border border-gray-100 text-primary-purple shadow-sm">
+                                <Zap size={18} fill="currentColor" className="animate-pulse" />
                             </div>
-                            <div className="max-w-[80%]">
-                                <div className="text-[11px] font-bold text-gray-400 mb-2 px-1">MSSquare AI</div>
-                                <div className="bg-white p-5 rounded-[1.5rem] rounded-tl-none border border-gray-100 shadow-sm">
+                            <div className="max-w-[75%]">
+                                <div className="text-[10px] font-black text-gray-400 mb-2 px-1 uppercase tracking-widest opacity-60">AI Coach Thinking</div>
+                                <div className="bg-white p-6 rounded-[2rem] rounded-tl-none border border-gray-50 shadow-sm">
                                     <div className="flex gap-1.5">
-                                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce"></div>
+                                        <div className="w-2 h-2 bg-primary-purple/30 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                                        <div className="w-2 h-2 bg-primary-purple/30 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                                        <div className="w-2 h-2 bg-primary-purple/30 rounded-full animate-bounce"></div>
                                     </div>
                                 </div>
                             </div>
@@ -176,12 +171,12 @@ export default function AICoachPage() {
                     )}
                 </div>
 
-                {/* Chat Input */}
-                <div className="p-8 pt-0">
+                {/* Input Area */}
+                <div className="p-10 pt-0">
                     <div className="max-w-4xl mx-auto relative group">
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                            <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100">
-                                <Paperclip size={20} />
+                        <div className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center gap-3">
+                            <button className="p-2.5 text-gray-300 hover:text-primary-purple transition-colors rounded-xl hover:bg-primary-purple/5">
+                                <Plus size={22} />
                             </button>
                         </div>
                         <input
@@ -190,26 +185,27 @@ export default function AICoachPage() {
                             disabled={isLoading}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                            placeholder={isLoading ? "AI is thinking..." : "Type your message here..."}
-                            className="w-full bg-white border border-gray-100 rounded-2xl py-5 pl-14 pr-24 text-sm focus:ring-4 focus:ring-[#8b5cf6]/10 outline-none placeholder:text-gray-300 font-medium text-gray-700 shadow-xl shadow-black/[0.02] transition-all disabled:opacity-50"
+                            placeholder={isLoading ? "Generating response..." : "Ask your MSSquare AI Coach anything..."}
+                            className="w-full bg-white border border-gray-100 rounded-[1.75rem] py-6 pl-16 pr-28 text-[0.95rem] focus:ring-8 focus:ring-primary-purple/5 focus:border-primary-purple outline-none placeholder:text-gray-300 font-semibold text-gray-700 shadow-2xl shadow-black/[0.02] transition-all disabled:opacity-50"
                         />
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                            <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100">
-                                <Mic size={20} />
+                        <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                            <button className="p-2.5 text-gray-300 hover:text-primary-purple transition-colors rounded-xl hover:bg-primary-purple/5">
+                                <Mic size={22} />
                             </button>
                             <button 
                                 onClick={handleSend}
-                                disabled={isLoading}
-                                className="w-10 h-10 bg-[#8b5cf6] text-white rounded-xl flex items-center justify-center shadow-lg shadow-[#8b5cf6]/20 hover:scale-105 transition-transform active:scale-95 disabled:opacity-50 disabled:scale-100"
+                                disabled={!input.trim() || isLoading}
+                                className="w-12 h-12 bg-primary-purple text-white rounded-2xl flex items-center justify-center shadow-xl shadow-primary-purple/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:scale-100 disabled:shadow-none"
                             >
-                                <Send size={18} className="ml-0.5" />
+                                <Send size={20} className="ml-1" />
                             </button>
                         </div>
                     </div>
-                    <p className="text-center text-[10px] text-gray-400 mt-4 font-medium uppercase tracking-widest leading-loose">MSSquare AI can make mistakes. Consider checking important information</p>
+                    <p className="text-center text-[9px] text-gray-400 mt-5 font-black uppercase tracking-[0.2em] opacity-50">
+                        Powered by Google Gemini • Context Aware Learning
+                    </p>
                 </div>
             </div>
-
         </div>
     );
 }
