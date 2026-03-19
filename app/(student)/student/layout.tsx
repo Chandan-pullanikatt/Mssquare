@@ -21,6 +21,7 @@ import {
 import { useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { NotificationBell } from "@/components/layout/NotificationBell";
 
 const sidebarItems = [
   { name: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
@@ -39,7 +40,6 @@ export default function StudentLayout({
 }) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { signOut, user } = useAuth();
 
@@ -117,38 +117,7 @@ export default function StudentLayout({
           </div>
 
           <div className="flex items-center gap-6 ml-4">
-            {/* Notifications */}
-            <div className="relative">
-              <button
-                className={`relative p-2 rounded-xl transition-all ${isNotificationsOpen ? 'bg-[#f5f3ff] text-[#8b5cf6]' : 'text-gray-500 hover:text-[#8b5cf6] hover:bg-gray-50'}`}
-                onClick={() => {
-                  setIsNotificationsOpen(!isNotificationsOpen);
-                  setIsProfileOpen(false);
-                }}
-              >
-                <Bell size={20} />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-[#8b5cf6] rounded-full border-2 border-white"></span>
-              </button>
-
-              {isNotificationsOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsNotificationsOpen(false)} />
-                  <div className="absolute right-0 mt-3 w-80 bg-white border border-gray-100 rounded-3xl shadow-xl shadow-black/5 z-50 p-6 animate-in fade-in zoom-in-95 duration-200">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-bold text-gray-900">Notifications</h3>
-                      <span className="text-[10px] font-bold text-[#8b5cf6] bg-purple-50 px-2 py-1 rounded-lg uppercase">0 New</span>
-                    </div>
-                    <div className="py-10 flex flex-col items-center justify-center text-center">
-                      <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-300 mb-3">
-                        <Bell size={24} />
-                      </div>
-                      <p className="text-sm font-bold text-gray-900">No new notifications</p>
-                      <p className="text-xs text-gray-400 mt-1">We'll let you know when something important happens.</p>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+            <NotificationBell targetRole="student" />
 
             {/* Profile Dropdown */}
             <div className="relative">
@@ -156,7 +125,6 @@ export default function StudentLayout({
                 className={`flex items-center gap-3 border-l border-gray-100 pl-6 group transition-all ${isProfileOpen ? 'opacity-70' : ''}`}
                 onClick={() => {
                   setIsProfileOpen(!isProfileOpen);
-                  setIsNotificationsOpen(false);
                 }}
               >
                 <div className="text-right hidden sm:block">

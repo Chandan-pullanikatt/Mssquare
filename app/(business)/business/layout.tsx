@@ -11,7 +11,6 @@ import {
   HeadphonesIcon,
   Search,
   Bell,
-  Settings,
   Plus,
   Menu,
   X,
@@ -22,6 +21,7 @@ import {
 import { useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { authHelpers } from "@/utils/authHelpers";
+import { NotificationBell } from "@/components/layout/NotificationBell";
 
 const sidebarItems = [
   { name: "Dashboard", href: "/business/dashboard", icon: LayoutDashboard },
@@ -176,13 +176,7 @@ export default function BusinessLayout({
 
           {/* Right Actions */}
           <div className="flex items-center gap-4 ml-4">
-            <button className="w-10 h-10 rounded-full border border-gray-100 bg-gray-50 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors relative">
-              <Bell size={18} />
-              <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#8b5cf6] rounded-full border border-white"></div>
-            </button>
-            <Link href="/business/profile" className="w-10 h-10 rounded-full border border-gray-100 bg-gray-50 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors">
-              <Settings size={18} />
-            </Link>
+            <NotificationBell targetRole="business_client" />
 
             <Link href="/business/submit-requirement" className="ml-2 flex items-center gap-2 bg-[#8b5cf6] hover:bg-[#7c3aed] text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-sm shadow-[#8b5cf6]/20 transition-all">
               <Plus size={16} className="stroke-[3]" />

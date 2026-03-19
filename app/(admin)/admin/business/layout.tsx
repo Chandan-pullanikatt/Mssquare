@@ -29,6 +29,7 @@ const businessAdminSidebarItems = [
   { name: "Client Requests", href: "/admin/business/requests", icon: Briefcase },
   { name: "Project Management", href: "/admin/business/projects", icon: FileText },
   { name: "Client List", href: "/admin/business/clients", icon: Users },
+  { name: "Manage Notifications", href: "/admin/business/notifications", icon: Bell },
   { name: "Settings", href: "/admin/business/settings", icon: Settings },
 ];
 
@@ -117,10 +118,6 @@ export default function BusinessAdminLayout({
           </div>
           
           <div className="flex items-center gap-4 ml-4">
-             <button className="p-2 rounded-xl text-gray-500 hover:text-[#8b5cf6] hover:bg-gray-50 transition-all relative">
-                <Bell size={20} />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-[#8b5cf6] rounded-full border-2 border-white"></span>
-             </button>
              <div className="border-l border-gray-100 pl-4">
                <UserMenu variant="light" />
              </div>
