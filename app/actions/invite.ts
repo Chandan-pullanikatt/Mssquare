@@ -35,7 +35,7 @@ export async function inviteInstructor(email: string, remarks?: string) {
     console.log(`Inviting/Re-inviting user: ${email}. Existing: ${!!existingUser}, Confirmed: ${!!existingUser?.confirmed_at}`);
     
     const { data: inviteData, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/set-password`,
       data: {
         role: 'instructor'
       }
