@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.warn("AuthProvider: initializeAuth safety timeout reached. Unlocking UI.");
           setLoading(false);
         }
-      }, 15000);
+      }, 8000);
 
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -62,6 +62,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               let userRole = session.user.app_metadata?.role as UserRole | null | undefined;
               if (!userRole) {
                 userRole = await authHelpers.getUserRole(session.user.id);
+                
+                // If still no role and we are on a portal route, try to ensure a profile
+                if (!userRole && mounted) {
+                  const portalMatch = pathname.match(/^\/(student|business|instructor|admin\/lms|admin\/business|admin\/cms)/);
+                  if (portalMatch) {
+                    const detectedRole = portalMatch[1].replace('/', '_');
+                    console.log(`AuthProvider: No role found on portal route ${pathname}, ensuring ${detectedRole} profile...`);
+                    userRole = await authHelpers.ensureUserProfile(session.user, detectedRole);
+                  }
+                }
               }
               if (mounted) setRole((userRole || null) as UserRole | null);
             } else {

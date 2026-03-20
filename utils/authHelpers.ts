@@ -20,27 +20,21 @@ export const authHelpers = {
     try {
       // Use Promise.race to prevent indefinite hangs
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout fetching role')), 5000)
+        setTimeout(() => reject(new Error('Timeout fetching role')), 3000)
       );
 
       const fetchPromise = (async () => {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', userId)
-          .maybeSingle();
+        // Fetch from both tables in parallel for maximum speed
+        const [profileRes, userRes] = await Promise.all([
+          supabase.from('profiles').select('role').eq('id', userId).maybeSingle(),
+          supabase.from('users').select('role').eq('id', userId).maybeSingle()
+        ]);
         
-        if (!data || error) {
-          // Try falling back to 'users' table if it exists
-          const { data: userData } = await supabase
-            .from('users')
-            .select('role')
-            .eq('id', userId)
-            .maybeSingle();
-          
-          return (userData as any)?.role as UserRole || null;
-        }
-        return (data as any)?.role as UserRole;
+        const profileRole = profileRes.data ? (profileRes.data as any).role : null;
+        const userRole = userRes.data ? (userRes.data as any).role : null;
+        
+        const role = profileRole || userRole;
+        return (role as UserRole) || null;
       })();
 
       return await Promise.race([fetchPromise, timeoutPromise]) as UserRole | null;

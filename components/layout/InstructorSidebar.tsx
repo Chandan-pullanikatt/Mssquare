@@ -17,6 +17,7 @@ const instructorSidebarItems = [
   { name: "My Courses", href: "/instructor/courses", icon: BookOpen },
   { name: "My Students", href: "/instructor/students", icon: Users },
   { name: "My Sessions", href: "/instructor/sessions", icon: Calendar },
+  { name: "Timetable", href: "/instructor/timetable", icon: Calendar },
   { name: "Notifications", href: "/instructor/notifications", icon: Bell },
 ];
 

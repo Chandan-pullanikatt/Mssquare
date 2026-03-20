@@ -88,8 +88,11 @@ function AuthForm() {
       
       if (data.user) {
         // Fetch real role from DB to compare with selection
-        const userRole = await authHelpers.getUserRole(data.user.id);
-        const isInstructor = await authHelpers.isInstructor(data.user.id);
+        // Parallelize role checks for speed
+        const [userRole, isInstructor] = await Promise.all([
+          authHelpers.getUserRole(data.user.id),
+          authHelpers.isInstructor(data.user.id)
+        ]);
         
         const effectiveRole = (selectedPortal.id === 'instructor' && isInstructor) 
           ? 'instructor' 

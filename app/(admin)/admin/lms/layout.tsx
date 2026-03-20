@@ -37,6 +37,7 @@ const adminSidebarItems = [
   { name: "Student Management", href: "/admin/lms/students", icon: Users },
   { name: "Instructor Management", href: "/admin/lms/instructors", icon: UserCheck },
   { name: "Group Sessions", href: "/admin/lms/group-sessions", icon: Calendar },
+  { name: "Course Timetable", href: "/admin/lms/timetable", icon: Calendar },
   { name: "Manage Notifications", href: "/admin/lms/notifications", icon: Bell },
 ];
 

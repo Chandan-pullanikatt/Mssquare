@@ -73,5 +73,24 @@ export const coursesApi = {
     
     if (error) throw error;
     return true;
+  },
+
+  async getTimetables() {
+    const { data, error } = await supabase
+      .from('course_timetables')
+      .select(`
+        *,
+        course:courses(title),
+        instructor:profiles!instructor_id(email),
+        instructors:timetable_instructors(
+          instructor_id,
+          profile:profiles!instructor_id(email)
+        )
+      `)
+      .order('day_of_week', { ascending: true })
+      .order('start_time', { ascending: true });
+
+    if (error) throw error;
+    return data;
   }
 };

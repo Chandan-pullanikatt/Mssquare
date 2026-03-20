@@ -312,5 +312,83 @@ export const adminApi = {
       .eq('id', id);
     if (error) throw error;
     return true;
+  },
+
+  async getTimetables() {
+    const { data, error } = await supabase
+      .from('course_timetables')
+      .select(`
+        *,
+        course:courses(title),
+        instructor:profiles!instructor_id(email),
+        instructors:timetable_instructors(
+          instructor_id,
+          profile:profiles!instructor_id(email)
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  async createTimetable(timetableData: any, additionalInstructorIds: string[] = []) {
+    const { data: timetable, error } = await (supabase.from('course_timetables') as any)
+      .insert([timetableData])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    if (additionalInstructorIds.length > 0) {
+      const links = additionalInstructorIds.map(id => ({
+        timetable_id: timetable.id,
+        instructor_id: id
+      }));
+      const { error: linkError } = await (supabase.from('timetable_instructors') as any)
+        .insert(links);
+      if (linkError) throw linkError;
+    }
+
+    return timetable;
+  },
+
+  async updateTimetable(id: string, updates: any, additionalInstructorIds: string[] = []) {
+    const { data: timetable, error } = await (supabase.from('course_timetables') as any)
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Sync additional instructors
+    if (additionalInstructorIds) {
+      // 1. Delete old links
+      await (supabase.from('timetable_instructors') as any)
+        .delete()
+        .eq('timetable_id', id);
+
+      // 2. Insert new links
+      if (additionalInstructorIds.length > 0) {
+        const links = additionalInstructorIds.map((instId: string) => ({
+          timetable_id: id,
+          instructor_id: instId
+        }));
+        const { error: linkError } = await (supabase.from('timetable_instructors') as any)
+          .insert(links);
+        if (linkError) throw linkError;
+      }
+    }
+
+    return timetable;
+  },
+
+  async deleteTimetable(id: string) {
+    const { error } = await (supabase.from('course_timetables') as any)
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    return true;
   }
 };

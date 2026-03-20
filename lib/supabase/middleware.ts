@@ -57,6 +57,7 @@ export async function updateSession(request: NextRequest) {
     { path: '/admin/lms', role: 'lms_admin' },
     { path: '/admin/business', role: 'business_admin' },
     { path: '/admin/cms', role: 'cms_admin' },
+    { path: '/instructor', role: 'instructor' },
   ];
   const currentPortal = portalRoutes.find((p) => pathname.startsWith(p.path));
   const isProtected = currentPortal || pathname === '/dashboard' || pathname === '/portal' || pathname === '/unauthorized';
@@ -80,6 +81,7 @@ export async function updateSession(request: NextRequest) {
     else if (role === 'lms_admin') url.pathname = '/admin/lms/dashboard';
     else if (role === 'business_admin') url.pathname = '/admin/business/dashboard';
     else if (role === 'cms_admin') url.pathname = '/admin/cms/dashboard';
+    else if (role === 'instructor') url.pathname = '/instructor/dashboard';
     else url.pathname = '/';
     return NextResponse.redirect(url)
   }
