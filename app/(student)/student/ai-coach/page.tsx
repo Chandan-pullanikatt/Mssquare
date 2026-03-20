@@ -64,11 +64,14 @@ export default function AICoachPage() {
         setIsLoading(true);
 
         try {
-            // Prepare history for Gemini (limited to last 10 messages for speed/token limits)
-            const history = messages.slice(-10).map(msg => ({
-                role: msg.role === 'assistant' ? 'model' : 'user',
-                parts: [{ text: msg.content }]
-            }));
+            // Prepare history for Gemini (skip the initial assistant greeting)
+            const firstUserIndex = messages.findIndex(m => m.role === 'user');
+            const history = (firstUserIndex === -1 ? [] : messages.slice(firstUserIndex))
+                .slice(-10)
+                .map(msg => ({
+                    role: msg.role === 'assistant' ? 'model' : 'user',
+                    parts: [{ text: msg.content }]
+                }));
 
             const aiResponse = await getGeminiResponse(userPrompt, history);
             

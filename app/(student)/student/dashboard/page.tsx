@@ -18,6 +18,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { enrollmentsApi } from "@/lib/api/enrollments";
 import { lessonProgressApi } from "@/lib/api/lessonProgress";
 import { Course } from "@/types/database";
+import { coursesApi } from "@/lib/api/courses";
 
 export default function StudentDashboard() {
   const { user, loading: authLoading } = useAuth();
@@ -29,6 +30,7 @@ export default function StudentDashboard() {
     certificatesEarned: 0,
     averageGrade: "0%"
   });
+  const [timetables, setTimetables] = useState<any[]>([]);
 
   const hasFetched = useRef<string | null>(null);
 
@@ -60,10 +62,11 @@ export default function StudentDashboard() {
 
       const fetchPromise = Promise.all([
         enrollmentsApi.getEnrollmentsByUser(user.id),
-        lessonProgressApi.getAllUserProgress(user.id)
+        lessonProgressApi.getAllUserProgress(user.id),
+        coursesApi.getTimetables()
       ]);
 
-      const [enrollmentsData, allProgress] = await Promise.race([fetchPromise, timeoutPromise]) as [any[], any[]];
+      const [enrollmentsData, allProgress, timetableData] = await Promise.race([fetchPromise, timeoutPromise]) as [any[], any[], any[]];
       
       console.log(`StudentDashboard: Fetched ${enrollmentsData.length} enrollments and ${allProgress.length} progress markers.`);
       
@@ -99,6 +102,7 @@ export default function StudentDashboard() {
         certificatesEarned: 0,
         averageGrade: "N/A"
       });
+      setTimetables(timetableData || []);
     } catch (error) {
       console.error("StudentDashboard: Error fetching student dashboard data:", error);
       // On error, we still want to unlock the UI
@@ -107,6 +111,23 @@ export default function StudentDashboard() {
       console.log("StudentDashboard: Fetch cycle complete.");
     }
   };
+
+  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const today = daysOfWeek[new Date().getDay()];
+
+  // Sort and filter timetables to show today's and next classes
+  const upcomingClasses = [...timetables].sort((a, b) => {
+    const dayIndexA = daysOfWeek.indexOf(a.day_of_week);
+    const dayIndexB = daysOfWeek.indexOf(b.day_of_week);
+    const todayIndex = new Date().getDay();
+    
+    // Adjust indices to put today first
+    let adjA = (dayIndexA - todayIndex + 7) % 7;
+    let adjB = (dayIndexB - todayIndex + 7) % 7;
+    
+    if (adjA !== adjB) return adjA - adjB;
+    return a.start_time.localeCompare(b.start_time);
+  });
 
   if (authLoading || (loading && enrollments.length === 0)) {
     return (
@@ -254,24 +275,33 @@ export default function StudentDashboard() {
           <section>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold font-heading text-gray-900">Upcoming Classes</h2>
-              <button className="text-[#8b5cf6] text-sm font-bold hover:underline">Full Schedule</button>
+              <Link href="/student/timetable" className="text-[#8b5cf6] text-sm font-bold hover:underline">Full Schedule</Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border-l-4 border-l-[#8b5cf6] flex flex-col hover:shadow-lg transition-shadow bg-gradient-to-br from-purple-50/50 to-white">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#8b5cf6] mb-2 tracking-wider">
-                  09:00 - 11:30
+              {upcomingClasses.length > 0 ? (
+                upcomingClasses.slice(0, 3).map((item, idx) => (
+                  <div key={idx} className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border-l-4 border-l-[#8b5cf6] flex flex-col hover:shadow-lg transition-shadow bg-gradient-to-br from-purple-50/50 to-white">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#8b5cf6] mb-2 tracking-wider uppercase">
+                      {item.day_of_week === today ? 'Today' : item.day_of_week} • {item.start_time.slice(0, 5)} - {item.end_time.slice(0, 5)}
+                    </div>
+                    <h3 className="font-bold text-gray-900 mb-2 leading-snug truncate">{item.title}</h3>
+                    <div className="flex items-center gap-2 flex-1 text-xs font-semibold text-gray-500 mb-5">
+                      <User size={14} className="text-gray-400" />
+                      <span className="truncate">{item.instructor?.email?.split('@')[0] || "Instructor"}</span>
+                    </div>
+                    <div>
+                      <span className="bg-emerald-50 text-emerald-600 border border-emerald-100/50 text-[10px] font-bold px-3 py-1.5 rounded-full inline-block truncate max-w-full">
+                        {item.location || "Live Online"}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full py-10 text-center bg-gray-50/50 rounded-[2rem] border border-dashed border-gray-200">
+                   <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">No classes scheduled</p>
                 </div>
-                <h3 className="font-bold text-gray-900 mb-2 leading-snug">Full Stack Web Dev</h3>
-                <div className="flex items-center gap-2 flex-1 text-xs font-semibold text-gray-500 mb-5">
-                  <User size={14} className="text-gray-400" />
-                  Dr. Sarah Jenkins
-                </div>
-                <div>
-                  <span className="bg-emerald-50 text-emerald-600 border border-emerald-100/50 text-[10px] font-bold px-3 py-1.5 rounded-full inline-block">Live Online</span>
-                </div>
-              </div>
-              {/* Other class card 2 and 3 omitted for length but kept in actual file */}
+              )}
             </div>
           </section>
 

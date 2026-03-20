@@ -23,19 +23,41 @@ export function Solutions() {
     fetchContent();
   }, []);
 
-  const data = content || {
+  const defaultData = {
     badge: "Our Services",
     title: "Scalable solutions for modern businesses.",
     description: "We help startups and companies design, build, and launch digital products.",
     items: [
-        { title: "Website Dev", desc: "High-performance marketing sites that convert visitors into loyal customers." },
-        { title: "Web App Dev", desc: "Robust, full-stack applications built with the latest technologies for scale." },
-        { title: "Startup MVP Dev", desc: "Go from idea to product in weeks, not months. Optimized for speed and agility." },
-        { title: "Product Consulting", desc: "Strategy, UX design, and technical roadmapping to ensure your product succeeds." }
+        { 
+          title: "Website Dev", 
+          desc: "High-performance marketing sites that convert visitors into loyal customers.",
+          image: "/assets/services/website-dev.png"
+        },
+        { 
+          title: "Web App Dev", 
+          desc: "Robust, full-stack applications built with the latest technologies for scale.",
+          image: "/assets/services/webapp-dev.png"
+        },
+        { 
+          title: "Startup MVP Dev", 
+          desc: "Go from idea to product in weeks, not months. Optimized for speed and agility.",
+          image: "/assets/services/startup-mvp.png"
+        },
+        { 
+          title: "Product Consulting", 
+          desc: "Strategy, UX design, and technical roadmapping to ensure your product succeeds.",
+          image: "/assets/services/product-consulting.png"
+        }
     ]
   };
 
-  const icons = [<Globe size={24} />, <Cpu size={24} />, <Zap size={24} />, <PenTool size={24} />];
+  const data = content || defaultData;
+  
+  // Ensure images are present if fetched from DB
+  const items = (data.items || []).map((item: any, i: number) => ({
+    ...item,
+    image: item.image || defaultData.items[i]?.image || "/assets/services/website-dev.png"
+  }));
 
   return (
     <section id="solutions" className="bg-[#F5F5F7] py-20 px-[5%] relative border-b border-gray-100" ref={revealRef as React.RefObject<HTMLElement>}>
@@ -52,20 +74,30 @@ export function Solutions() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-        {(data.items || []).map((solution: any, i: number) => (
-          <div key={i} className={`rev rev-d${i + 1} group bg-white border border-gray-100 rounded-3xl p-10 relative overflow-hidden transition-all duration-300 hover:bg-white hover:shadow-2xl hover:shadow-[#7C3AED]/5 hover:border-[#7C3AED]/10 hover:-translate-y-1`}>
-
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-8 bg-white shadow-sm border border-gray-100 transition-transform group-hover:scale-105`}>
-              <div className="text-[#7C3AED]">
-                {icons[i] || <Zap size={24} />}
-              </div>
+        {items.map((solution: any, i: number) => (
+          <div key={i} className={`rev rev-d${i + 1} group bg-white border border-gray-100 rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-[#7C3AED]/10 hover:border-[#7C3AED]/20 hover:-translate-y-2 flex flex-col`}>
+            
+            <div className="relative aspect-[4/3] overflow-hidden">
+              <img 
+                src={`${solution.image}?v=${Date.now()}`} 
+                alt={solution.title}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             </div>
 
-            <h3 className="text-[1.3rem] font-extrabold mb-4 tracking-[-0.02em] text-gray-900 font-heading">{solution.title}</h3>
-
-            <p className="text-gray-500 text-[0.92rem] leading-[1.6] font-medium">
-              {solution.desc}
-            </p>
+            <div className="p-8 flex flex-col flex-grow">
+              <h3 className="text-[1.4rem] font-extrabold mb-3 tracking-[-0.02em] text-gray-900 font-heading group-hover:text-[#7C3AED] transition-colors">
+                {solution.title}
+              </h3>
+              <p className="text-gray-500 text-[0.95rem] leading-[1.6] font-medium">
+                {solution.desc}
+              </p>
+              
+              <div className="mt-auto pt-6 flex items-center gap-2 text-[#7C3AED] font-bold text-sm opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                Learn more <Zap size={14} className="fill-[#7C3AED]" />
+              </div>
+            </div>
           </div>
         ))}
       </div>
