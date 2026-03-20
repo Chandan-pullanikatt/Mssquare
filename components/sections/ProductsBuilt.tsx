@@ -25,24 +25,42 @@ export function ProductsBuilt() {
     fetchContent();
   }, []);
 
-  const data = content || {
+  const defaultData = {
     badge: "Portfolio",
     title: "Products We've Built",
-    description: "We build real products while training developers. Here is a platform developed through our consultancy.",
-    product: {
-        title: "Our Home Tuition",
-        headline: "Connecting thousands of students with expert tutors.",
-        description: "A comprehensive ed-tech platform featuring real-time booking, progress tracking, and secure payment integration. Built to scale for nationwide operations.",
-        features: ["Microservices Architecture", "Real-time Analytics Dashboard"],
-        link: "https://our-home-tuition.vercel.app/",
-        image: "/assets/home-tuition-product.png"
-    }
+    description: "We build real products while training developers. From ed-tech to e-commerce, we turn ideas into scalable platforms.",
+    items: [
+        {
+            title: "Our Home Tuition",
+            headline: "Connecting students with expert tutors.",
+            desc: "A comprehensive ed-tech platform featuring real-time booking, progress tracking, and secure payments.",
+            link: "https://our-home-tuition.vercel.app/",
+            image: "/assets/projects/home-tuition-v2.png"
+        },
+        {
+            title: "SwiftShop",
+            headline: "High-end fashion e-commerce platform.",
+            desc: "A high-performance luxury marketplace with real-time inventory management and seamless checkout flows.",
+            link: "#",
+            image: "/assets/projects/cloth-shop.png"
+        },
+        {
+            title: "Examineer",
+            headline: "Secure & scalable examination portal.",
+            desc: "A robust testing platform with proctoring for large-scale assessments.",
+            link: "#",
+            image: "/assets/projects/exam-lms.png"
+        }
+    ]
   };
 
+  const data = content || defaultData;
+  const items = data.items || defaultData.items;
+
   return (
-    <section id="portfolio" className="py-20 bg-white relative z-10">
+    <section id="portfolio" className="py-12 bg-white relative z-10">
       <Container>
-        <div className="flex flex-col items-center text-center mb-16">
+        <div className="flex flex-col items-center text-center mb-10">
           <span className="text-[#7C3AED] font-bold text-xs uppercase tracking-[0.2em] mb-4">{data.badge}</span>
           <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-6 font-heading">{data.title}</h2>
           <p className="max-w-[600px] text-gray-500 font-medium">
@@ -50,64 +68,55 @@ export function ProductsBuilt() {
           </p>
         </div>
 
-        <div className="max-w-6xl mx-auto">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="group bg-[#F5F5F7] rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-[#7C3AED]/10 transition-all duration-500 border border-gray-100 p-10 md:p-14 lg:p-16 flex flex-col md:flex-row items-center gap-12"
-          >
-            <div className="flex-1 space-y-6 text-left">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#2563EB] rounded-full flex items-center justify-center shadow-sm text-white font-bold">
-                  {data.product.title.split(' ').map((n: string) => n[0]).join('')}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {items.map((project: any, i: number) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="group bg-[#F5F5F7] rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-[#7C3AED]/10 transition-all duration-500 border border-gray-100 flex flex-col"
+            >
+              <div className="relative aspect-[4/3] overflow-hidden bg-white">
+                <img 
+                  src={`${project.image}?v=${Date.now()}`} 
+                  alt={project.title} 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              </div>
+
+              <div className="p-8 flex flex-col flex-grow">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-[#7C3AED] rounded-lg flex items-center justify-center text-white text-[0.7rem] font-bold">
+                    {project.title.split(' ').map((n: string) => n[0]).join('')}
+                  </div>
+                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">{project.title}</h3>
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold text-gray-900">{data.product.title}</h3>
+
+                <h3 className="text-[1.4rem] font-extrabold mb-3 tracking-[-0.02em] text-gray-900 font-heading leading-tight group-hover:text-[#7C3AED] transition-colors">
+                  {project.headline}
+                </h3>
+
+                <p className="text-gray-500 text-[0.92rem] leading-[1.6] font-medium mb-6">
+                  {project.desc}
+                </p>
+
+                <div className="mt-auto pt-4">
+                  <Link 
+                    href={project.link} 
+                    target="_blank"
+                    className="inline-flex items-center gap-2 text-[#7C3AED] font-bold hover:gap-3 transition-all underline underline-offset-4 text-sm"
+                  >
+                    View Project <ArrowRight size={16} />
+                  </Link>
                 </div>
               </div>
-              
-              <h3 className="text-3xl font-extrabold text-gray-900 leading-[1.2] tracking-[-0.02em]">
-                {data.product.headline}
-              </h3>
-
-              <p className="text-gray-500 font-medium leading-relaxed text-[1rem]">
-                {data.product.description}
-              </p>
-
-              <div className="flex flex-col gap-3 pt-2">
-                 {data.product.features.map((feat: string, i: number) => (
-                   <div key={i} className="flex items-center gap-3 text-sm font-bold text-gray-700">
-                     <div className="w-5 h-5 rounded-full bg-[#7C3AED]/10 flex items-center justify-center">
-                       <ShieldCheck size={12} className="text-[#7C3AED]" />
-                     </div>
-                     {feat}
-                   </div>
-                 ))}
-              </div>
-
-              <div className="pt-4">
-                <Link 
-                  href={data.product.link} 
-                  target="_blank"
-                  className="inline-flex items-center gap-2 text-[#7C3AED] font-bold hover:gap-3 transition-all underline underline-offset-4"
-                >
-                  Visit Product <ArrowRight size={18} />
-                </Link>
-              </div>
-            </div>
-
-            <div className="flex-1 w-full aspect-video rounded-3xl overflow-hidden bg-white border border-gray-200 shadow-inner group-hover:-translate-y-2 transition-transform duration-700">
-              <img 
-                src={data.product.image} 
-                alt={data.product.title} 
-                className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-              />
-            </div>
-          </motion.div>
+            </motion.div>
+          ))}
         </div>
       </Container>
     </section>
   );
 }
-

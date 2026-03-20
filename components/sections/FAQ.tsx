@@ -45,9 +45,9 @@ export function FAQ() {
   };
 
   return (
-    <section id="faq" className="bg-white pt-[60px] pb-[120px] px-[5%] relative border-b border-gray-100">
+    <section id="faq" className="bg-white py-12 px-[5%] relative border-b border-gray-100">
       <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

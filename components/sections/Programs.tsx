@@ -67,8 +67,8 @@ export function Programs() {
   };
 
   return (
-    <section id="courses" className="bg-[#F5F5F7] py-20 px-[5%] relative border-b border-gray-100" ref={revealRef as React.RefObject<HTMLElement>}>
-      <div className="max-w-7xl mx-auto mb-16 flex flex-col md:flex-row md:items-end justify-between gap-8">
+    <section id="courses" className="bg-[#F5F5F7] py-12 px-[5%] relative border-b border-gray-100" ref={revealRef as React.RefObject<HTMLElement>}>
+      <div className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div className="max-w-2xl">
           <div className="rev inline-flex items-center gap-2 text-[0.75rem] font-bold tracking-[0.14em] uppercase text-[#7C3AED] mb-4">
             {data.badge}

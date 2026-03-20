@@ -34,9 +34,9 @@ export function Testimonials() {
   };
 
   return (
-    <section id="testimonials" className="bg-white py-20 pb-[100px] border-b border-gray-100" ref={revealRef as React.RefObject<HTMLElement>}>
+    <section id="testimonials" className="bg-white py-12 border-b border-gray-100" ref={revealRef as React.RefObject<HTMLElement>}>
       <div className="px-[5%] max-w-[1100px] mx-auto">
-        <div className="text-center mb-16 max-w-2xl mx-auto">
+        <div className="text-center mb-10 max-w-2xl mx-auto">
           <h2 className="rev text-[clamp(2rem,5vw,3rem)] font-extrabold tracking-[-0.03em] leading-[1.1] mb-5 font-heading text-gray-900">
             {data.title}
           </h2>

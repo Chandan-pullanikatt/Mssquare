@@ -132,7 +132,7 @@ export function Hero() {
       <div className="absolute inset-0 bg-[#0B0B0F]/80 z-[1]"></div>
 
       {/* Content */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between pt-[120px] pb-[80px] gap-12">
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between pt-[120px] pb-12 gap-12">
         
         {/* Left Side: Content */}
         <div className="flex-1 flex flex-col items-start text-left">

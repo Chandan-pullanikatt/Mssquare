@@ -25,9 +25,9 @@ export default function WebServices() {
       <WebServicesNavbar />
       <div className="pt-[70px]">
       {/* Hero Section */}
-      <section className="py-12 md:py-20 bg-white">
+      <section className="pt-4 md:pt-8 pb-12 md:pb-16 bg-white overflow-hidden">
         <Container>
-          <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+          <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16 relative">
             <div className="flex-1 space-y-6 text-center lg:text-left">
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
@@ -81,9 +81,9 @@ export default function WebServices() {
                 <div className="absolute -inset-1 bg-gradient-to-r from-[#7C3AED] to-purple-600 rounded-3xl blur opacity-10 group-hover:opacity-20 transition duration-1000"></div>
                 <div className="relative bg-white rounded-3xl overflow-hidden shadow-2xl ring-1 ring-gray-200">
                   <img 
-                    src="/assets/hero-dashboard.png" 
-                    className="w-full h-auto object-cover" 
-                    alt="Dashboard Showcase" 
+                    src="/assets/web-services-hero.png" 
+                    className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-700" 
+                    alt="Software Studio Hero" 
                   />
                 </div>
               </div>
@@ -113,38 +113,43 @@ export default function WebServices() {
               {
                 title: "Startup MVP Development",
                 desc: "Fast-track your idea to market with a lean, functional, and scalable MVP.",
-                icon: Zap,
-                bg: "bg-violet-50",
-                iconColor: "text-violet-600"
+                image: "/assets/services/startup-mvp.png",
+                icon: Zap
               },
               {
                 title: "Business Websites",
                 desc: "High-converting websites that represent your brand and drive actual business results.",
-                icon: Globe,
-                bg: "bg-violet-50/50",
-                iconColor: "text-violet-600"
+                image: "/assets/services/website-dev.png",
+                icon: Globe
               },
               {
                 title: "Custom Web Apps",
                 desc: "Powerful internal tools and SaaS applications built for speed and reliability.",
-                icon: Code2,
-                bg: "bg-violet-50/30",
-                iconColor: "text-violet-600"
+                image: "/assets/services/webapp-dev.png",
+                icon: Code2
               },
               {
                 title: "Product Consulting",
                 desc: "Strategic guidance on architecture, UX design, and scaling your tech infrastructure.",
-                icon: Users,
-                bg: "bg-violet-50/20",
-                iconColor: "text-violet-600"
+                image: "/assets/services/product-consulting.png",
+                icon: Users
               }
             ].map((service, i) => (
-              <div key={i} className="bg-white border border-gray-100 rounded-2xl p-10 hover:shadow-xl transition-all duration-300 group hover:-translate-y-1 h-full flex flex-col">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${service.bg} group-hover:scale-110 transition-transform flex-shrink-0`}>
-                  <service.icon size={24} className={service.iconColor} />
+              <div key={i} className="group bg-white border border-gray-100 rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-violet-500/10 hover:-translate-y-2 flex flex-col">
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  <img src={service.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={service.title} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
+                  <div className="absolute bottom-4 left-4 p-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
+                    <service.icon size={20} className="text-white" />
+                  </div>
                 </div>
-                <h3 className="font-extrabold text-lg text-gray-900 mb-4">{service.title}</h3>
-                <p className="text-gray-500 text-sm font-medium leading-relaxed flex-grow">{service.desc}</p>
+                <div className="p-8 flex flex-col flex-grow">
+                  <h3 className="font-extrabold text-xl text-gray-900 mb-4 font-heading group-hover:text-violet-600 transition-colors uppercase tracking-tight">{service.title}</h3>
+                  <p className="text-gray-500 text-[0.95rem] font-medium leading-relaxed mb-6">{service.desc}</p>
+                  <div className="mt-auto pt-4 flex items-center gap-2 text-violet-600 font-bold text-sm">
+                    Read more <ArrowRight size={14} />
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -183,50 +188,77 @@ export default function WebServices() {
         </Container>
       </section>
 
-      {/* Product Showcase Section */}
-      <section id="case-study" className="py-12 md:py-20 bg-white">
+      {/* Project Showcase Section */}
+      <section id="case-study" className="py-12 md:py-16 bg-white overflow-hidden">
         <Container>
-          <div className="relative rounded-[3rem] bg-[#7C3AED] overflow-hidden p-8 md:p-14 shadow-2xl shadow-[#7C3AED]/20">
-            <div className="absolute top-0 right-0 w-2/3 h-full opacity-20 bg-gradient-to-l from-white/20 to-transparent"></div>
-            <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 relative z-10">
-              <div className="flex-1 space-y-8">
-                <div className="space-y-4">
-                  <span className="text-white/80 font-bold text-xs uppercase tracking-widest px-3 py-1 bg-white/10 rounded-full">CASE STUDY</span>
-                  <h2 className="text-4xl md:text-5xl font-extrabold text-white">Our Home Tuition</h2>
-                </div>
-                <p className="text-white/80 text-lg font-medium leading-relaxed max-w-xl">
-                  A complete ecosystem for online tutoring. We built a real-time classroom platform connecting thousands of students with expert tutors.
-                </p>
-                <Link
-                  href="https://our-home-tuition.vercel.app/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-white text-[#7C3AED] px-6 py-3 rounded-xl font-bold hover:bg-white/90 transition-all hover:-translate-y-1"
-                >
-                  Visit Product
-                  <ArrowRight size={18} />
-                </Link>
-                <div className="flex gap-4">
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 min-w-[140px] border border-white/5">
-                    <p className="text-white/60 text-xs font-bold mb-1 uppercase tracking-wider">Students</p>
-                    <p className="text-white text-3xl font-extrabold">50k+</p>
-                  </div>
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 min-w-[140px] border border-white/5">
-                    <p className="text-white/60 text-xs font-bold mb-1 uppercase tracking-wider">Growth</p>
-                    <p className="text-white text-3xl font-extrabold">200%</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex-1 w-full max-w-xl">
-                <div className="relative transform lg:rotate-3 shadow-2xl rounded-2xl overflow-hidden ring-8 ring-white/10 transition-transform hover:rotate-0 duration-500">
+          <div className="max-w-3xl mx-auto text-center mb-16 space-y-4">
+             <span className="text-violet-600 font-bold text-xs uppercase tracking-[0.2em]">Featured Selection</span>
+             <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 font-heading">Digital Success Stories</h2>
+             <p className="text-gray-500 font-medium">From concept to production-grade platforms.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Our Home Tuition",
+                headline: "A complete ecosystem for online tutoring.",
+                desc: "Connecting thousands of students with expert tutors in real-time.",
+                image: "/assets/projects/home-tuition-v2.png",
+                link: "https://our-home-tuition.vercel.app/",
+                stats: "50k+ Users"
+              },
+              {
+                title: "SwiftShop",
+                headline: "Luxury fashion e-commerce platform.",
+                desc: "A high-performance luxury marketplace with seamless checkout flows.",
+                image: "/assets/projects/cloth-shop.png",
+                link: "#",
+                stats: "Global Reach"
+              },
+              {
+                title: "Examineer",
+                headline: "Secure & scalable examination portal.",
+                desc: "A robust testing platform with proctoring for large-scale assessments.",
+                image: "/assets/projects/exam-lms.png",
+                link: "#",
+                stats: "Proctoring Enabled"
+              }
+            ].map((project, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="group bg-gray-50 rounded-[2.5rem] overflow-hidden border border-gray-100 hover:shadow-2xl hover:shadow-violet-500/10 transition-all duration-500 flex flex-col"
+              >
+                <div className="relative aspect-[4/3] overflow-hidden">
                    <img 
-                    src="/assets/product-home-tuition.png" 
-                    className="w-full h-auto" 
-                    alt="Our Home Tuition Showcase" 
+                    src={project.image} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                    alt={project.title} 
                   />
+                  <div className="absolute top-4 right-4 p-3 bg-white/90 backdrop-blur-md rounded-2xl shadow-sm text-[0.65rem] font-bold text-violet-600 uppercase tracking-widest border border-white/50">
+                    {project.stats}
+                  </div>
                 </div>
-              </div>
-            </div>
+                <div className="p-10 flex flex-col flex-grow">
+                   <span className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-[0.2em] mb-4">{project.title}</span>
+                   <h3 className="text-2xl font-extrabold text-gray-900 mb-4 font-heading group-hover:text-violet-600 transition-colors leading-tight">{project.headline}</h3>
+                   <p className="text-gray-500 text-[0.95rem] font-medium leading-relaxed mb-8">{project.desc}</p>
+                   <div className="mt-auto">
+                      <Link
+                        href={project.link}
+                        target="_blank"
+                        className="inline-flex items-center gap-2 text-violet-600 font-extrabold hover:gap-3 transition-all underline underline-offset-8"
+                      >
+                        Visit Case Study
+                        <ArrowRight size={18} />
+                      </Link>
+                   </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </Container>
       </section>

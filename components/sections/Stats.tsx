@@ -48,7 +48,7 @@ export function Stats() {
 };
 
   return (
-    <section className="py-20 bg-white relative z-10 border-b border-gray-100">
+    <section className="py-12 bg-white relative z-10 border-b border-gray-100">
       <Container>
         <motion.div 
           className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12"

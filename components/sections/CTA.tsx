@@ -40,7 +40,7 @@ export function CTA() {
           color: #94A3B8;
         }
       `}</style>
-      <section id="cta" className="bg-light-background border-t border-light-border text-center py-[120px] px-[5%] relative overflow-hidden" ref={revealRef as React.RefObject<HTMLElement>}>
+      <section id="cta" className="bg-light-background border-t border-light-border text-center py-20 px-[5%] relative overflow-hidden" ref={revealRef as React.RefObject<HTMLElement>}>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(124,58,237,0.08)_0%,transparent_65%)] pointer-events-none rounded-full"></div>
 
       <div className="relative z-10 max-w-[680px] mx-auto">
