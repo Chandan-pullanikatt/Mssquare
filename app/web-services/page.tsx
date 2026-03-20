@@ -14,10 +14,31 @@ import {
   Zap,
   Users,
   Search,
-  PenTool,
-  CheckCircle2
+  CheckCircle2,
+  Database,
+  Smartphone,
+  Server,
+  Cloud,
+  Github,
+  Monitor,
+  Terminal,
+  PenTool
 } from "lucide-react";
 import Link from "next/link";
+
+const techStack = [
+  { name: "React / Next.js", icon: Globe, color: "text-blue-600" },
+  { name: "Tailwind CSS", icon: Zap, color: "text-cyan-500" },
+  { name: "Node.js", icon: Terminal, color: "text-green-600" },
+  { name: "Python", icon: Code2, color: "text-blue-700" },
+  { name: "TypeScript", icon: Code2, color: "text-blue-500" },
+  { name: "PostgreSQL", icon: Database, color: "text-indigo-600" },
+  { name: "MongoDB", icon: Database, color: "text-green-500" },
+  { name: "AWS / Cloud", icon: Cloud, color: "text-orange-500" },
+  { name: "Mobile (Flutter)", icon: Smartphone, color: "text-cyan-600" },
+  { name: "UI/UX Design", icon: Layout, color: "text-pink-600" },
+  { name: "CI/CD / GitHub", icon: Github, color: "text-gray-900" }
+];
 
 export default function WebServices() {
   return (
@@ -60,7 +81,7 @@ export default function WebServices() {
                 className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2"
               >
                 <Link
-                  href="/auth"
+                  href="/auth?portal=business_client"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-8 py-4 rounded-xl text-[1rem] font-bold shadow-lg shadow-[#7C3AED]/20 hover:-translate-y-1 transition-all duration-300"
                 >
                   Start Your Project
@@ -179,8 +200,8 @@ export default function WebServices() {
                   <step.icon size={22} />
                 </div>
                 <div className="space-y-2">
-                  <h4 className="font-extrabold text-gray-900">{step.title}</h4>
-                  <p className="text-gray-400 text-xs font-medium leading-relaxed max-w-[160px] mx-auto">{step.desc}</p>
+                  <h4 className="font-extrabold text-gray-900 text-lg">{step.title}</h4>
+                  <p className="text-gray-500 text-sm font-medium leading-relaxed max-w-[180px] mx-auto">{step.desc}</p>
                 </div>
               </div>
             ))}
@@ -264,26 +285,64 @@ export default function WebServices() {
       </section>
 
       {/* Tech Stack Section */}
-      <section id="tech-stack" className="py-12 md:py-20 bg-gray-100 overflow-hidden">
+      <section id="tech-stack" className="py-10 bg-gray-50 overflow-hidden">
         <Container>
-          <div className="text-center mb-12 space-y-4">
-            <h2 className="text-4xl font-extrabold text-gray-900">Technologies We Use</h2>
+          <div className="text-center mb-10 space-y-2">
+            <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Technologies We Use</h2>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
-            {[
-              { name: "React", color: "text-blue-500", dot: "bg-blue-500" },
-              { name: "Next.js", color: "text-gray-900", dot: "bg-gray-900" },
-              { name: "Tailwind CSS", color: "text-cyan-500", dot: "bg-cyan-500" },
-              { name: "Node.js", color: "text-green-500", dot: "bg-green-500" },
-              { name: "Python", color: "text-yellow-600", dot: "bg-yellow-600" },
-              { name: "TypeScript", color: "text-blue-600", dot: "bg-blue-600" }
-            ].map((tech, i) => (
-              <div key={i} className="flex items-center gap-2 px-8 py-4 rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                <div className={`w-2 h-2 rounded-full ${tech.dot}`}></div>
-                <span className={`font-bold text-sm ${tech.color}`}>{tech.name}</span>
-              </div>
-            ))}
+          <div className="relative w-full overflow-hidden space-y-4">
+            <style>{`
+              @keyframes scroll {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+              }
+              @keyframes scroll-reverse {
+                0% { transform: translateX(-50%); }
+                100% { transform: translateX(0); }
+              }
+              .animate-scroll {
+                display: flex;
+                width: max-content;
+                animation: scroll 25s linear infinite;
+              }
+              .animate-scroll-reverse {
+                display: flex;
+                width: max-content;
+                animation: scroll-reverse 25s linear infinite;
+              }
+              .animate-scroll:hover, .animate-scroll-reverse:hover {
+                animation-play-state: paused;
+              }
+            `}</style>
+            
+            {/* Row 1 */}
+            <div className="animate-scroll gap-4 px-2">
+              {[...techStack.slice(0, 6), ...techStack.slice(0, 6)].map((tech, i) => (
+                <div key={i} className="flex items-center gap-3 px-6 py-4 rounded-[1.5rem] bg-white border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group whitespace-nowrap min-w-[200px]">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gray-50 group-hover:bg-violet-50 transition-colors`}>
+                    <tech.icon size={18} className={`${tech.color} group-hover:scale-110 transition-transform`} />
+                  </div>
+                  <span className={`font-bold text-[0.95rem] tracking-tight text-gray-800`}>{tech.name}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Row 2 */}
+            <div className="animate-scroll-reverse gap-4 px-2">
+              {[...techStack.slice(6), ...techStack.slice(6)].map((tech, i) => (
+                <div key={i} className="flex items-center gap-3 px-6 py-4 rounded-[1.5rem] bg-white border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group whitespace-nowrap min-w-[200px]">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gray-50 group-hover:bg-violet-50 transition-colors`}>
+                    <tech.icon size={18} className={`${tech.color} group-hover:scale-110 transition-transform`} />
+                  </div>
+                  <span className={`font-bold text-[0.95rem] tracking-tight text-gray-800`}>{tech.name}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Fades for smooth entry/exit - Reduced opacity/width as requested */}
+            <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none"></div>
+            <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none"></div>
           </div>
         </Container>
       </section>

@@ -43,7 +43,7 @@ export function WebServicesNavbar() {
             <UserMenu variant="light" />
           ) : (
             <Link
-              href="/auth"
+              href="/auth?portal=business_client"
               className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold px-6 py-2.5 rounded-full text-sm transition-all duration-200 shadow-lg shadow-[#7C3AED]/30"
             >
               Start Your Project

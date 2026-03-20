@@ -39,7 +39,19 @@ const PORTALS: PortalType[] = [
 ];
 
 function AuthForm() {
-  const [selectedPortal, setSelectedPortal] = useState<PortalType>(PORTALS[0]);
+  const searchParams = useSearchParams();
+  const [selectedPortal, setSelectedPortal] = useState<PortalType>(() => {
+    // Try to get from search params if possible (SSR safe check)
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const pId = params.get('portal');
+      if (pId) {
+        const found = PORTALS.find(p => p.id === pId);
+        if (found) return found;
+      }
+    }
+    return PORTALS[0];
+  });
   const [showPortalDropdown, setShowPortalDropdown] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,16 +60,23 @@ function AuthForm() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { user, role, loading: authLoading } = useAuth();
 
   const submitting = useRef(false);
 
-  // Sync error from URL
+  // Sync error or portal from URL
   useEffect(() => {
     const errorParam = searchParams.get('error');
     if (errorParam) {
       setError(errorParam);
+    }
+
+    const portalParam = searchParams.get('portal');
+    if (portalParam) {
+      const portal = PORTALS.find(p => p.id === portalParam);
+      if (portal) {
+        setSelectedPortal(portal);
+      }
     }
   }, [searchParams]);
 
