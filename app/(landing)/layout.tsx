@@ -8,7 +8,7 @@ export default function LandingLayout({
 }>) {
     return (
         <>
-            <Navbar />
+            <Navbar variant="light" />
             <main className="flex-1 relative z-10 flex flex-col">
                 {children}
             </main>

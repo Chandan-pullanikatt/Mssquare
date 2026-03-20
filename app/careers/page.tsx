@@ -170,45 +170,61 @@ export default function CareersPage() {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {[
                             {
                                 title: "Innovation-led",
                                 description: "We push the boundaries of what's possible in tech and learning.",
                                 icon: Lightbulb,
-                                color: "text-[#7C3AED]",
-                                bg: "bg-[#F5F3FF]"
+                                image: "/assets/careers/innovation.png",
+                                color: "text-violet-500",
+                                bg: "bg-violet-50"
                             },
                             {
                                 title: "Continuous Learning",
                                 description: "Regular workshops, mentors, and professional growth budgets for all.",
                                 icon: GraduationCap,
-                                color: "text-[#7C3AED]",
-                                bg: "bg-[#F5F3FF]"
+                                image: "/assets/careers/learning.png",
+                                color: "text-blue-500",
+                                bg: "bg-blue-50"
                             },
                             {
                                 title: "Work-Life Balance",
                                 description: "Flexible hours and remote-first culture to keep you refreshed.",
                                 icon: Scale,
-                                color: "text-[#7C3AED]",
-                                bg: "bg-[#F5F3FF]"
+                                image: "/assets/careers/balance.png",
+                                color: "text-emerald-500",
+                                bg: "bg-emerald-50"
                             },
                             {
                                 title: "Impactful Projects",
                                 description: "Build solutions that directly touch and improve millions of lives.",
                                 icon: Globe,
-                                color: "text-[#7C3AED]",
-                                bg: "bg-[#F5F3FF]"
+                                image: "/assets/careers/impact.png",
+                                color: "text-indigo-500",
+                                bg: "bg-indigo-50"
                             }
                         ].map((item, i) => (
-                            <div key={i} className="group p-8 bg-white border border-gray-100 rounded-3xl text-left hover:shadow-xl transition-all duration-300">
-                                <div className={`w-12 h-12 ${item.bg} ${item.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                                    <item.icon size={24} />
+                            <div key={i} className="group bg-white border border-gray-100 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-violet-500/10 hover:-translate-y-2 flex flex-col">
+                                <div className="relative aspect-[16/11] overflow-hidden">
+                                    <img 
+                                        src={item.image} 
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                                        alt={item.title} 
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent group-hover:opacity-0 transition-opacity"></div>
+                                    <div className={`absolute top-4 left-4 p-3 ${item.bg} rounded-2xl border border-white/50 shadow-sm transition-transform group-hover:scale-110`}>
+                                        <item.icon size={20} className={item.color} />
+                                    </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-[#1e293b] mb-3">{item.title}</h3>
-                                <p className="text-gray-400 text-sm leading-relaxed">
-                                    {item.description}
-                                </p>
+                                <div className="p-8 flex flex-col flex-grow text-left">
+                                    <h3 className="font-extrabold text-lg text-gray-900 mb-3 font-heading group-hover:text-[#7C3AED] transition-colors uppercase tracking-tight">
+                                        {item.title}
+                                    </h3>
+                                    <p className="text-gray-500 text-sm font-medium leading-relaxed">
+                                        {item.description}
+                                    </p>
+                                </div>
                             </div>
                         ))}
                     </div>
