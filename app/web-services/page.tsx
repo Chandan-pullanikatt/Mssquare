@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { WebServicesNavbar } from "@/components/layout/WebServicesNavbar";
 import { motion } from "framer-motion";
@@ -41,6 +42,50 @@ const techStack = [
 ];
 
 export default function WebServices() {
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    companyName: "",
+    projectType: "Startup MVP",
+    message: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/apply/enquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error("Submission failed");
+
+      setIsSubmitting(false);
+      setShowSuccess(true);
+      setFormData({
+        fullName: "",
+        email: "",
+        companyName: "",
+        projectType: "Startup MVP",
+        message: ""
+      });
+      setTimeout(() => setShowSuccess(false), 5000);
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong. Please try again.");
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="w-full bg-white font-sans">
       <WebServicesNavbar />
@@ -123,10 +168,6 @@ export default function WebServices() {
                 Comprehensive digital solutions tailored for growth and scalability using modern technology stacks.
               </p>
             </div>
-            <Link href="#" className="flex items-center gap-2 text-[#7C3AED] font-bold hover:underline mb-1">
-              Explore all services
-              <ArrowRight size={18} className="-rotate-45" />
-            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -358,27 +399,55 @@ export default function WebServices() {
                   <p className="text-gray-400 font-medium">Tell us about your idea and let&apos;s bring it to life together.</p>
                 </div>
 
-                <form className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest pl-1">Full Name</label>
-                      <input type="text" placeholder="John Doe" className="w-full bg-white border border-gray-200 rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-[#7C3AED]/10 focus:border-[#7C3AED] outline-none transition-all" />
+                      <input
+                        required
+                        type="text"
+                        name="fullName"
+                        value={formData.fullName}
+                        onChange={handleInputChange}
+                        placeholder="John Doe"
+                        className="w-full bg-white border border-gray-200 rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-[#7C3AED]/10 focus:border-[#7C3AED] outline-none transition-all"
+                      />
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest pl-1">Email Address</label>
-                      <input type="email" placeholder="john@example.com" className="w-full bg-white border border-gray-200 rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-[#7C3AED]/10 focus:border-[#7C3AED] outline-none transition-all" />
+                      <input
+                        required
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="john@example.com"
+                        className="w-full bg-white border border-gray-200 rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-[#7C3AED]/10 focus:border-[#7C3AED] outline-none transition-all"
+                      />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest pl-1">Company Name</label>
-                      <input type="text" placeholder="Your Startup" className="w-full bg-white border border-gray-200 rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-[#7C3AED]/10 focus:border-[#7C3AED] outline-none transition-all" />
+                      <input
+                        type="text"
+                        name="companyName"
+                        value={formData.companyName}
+                        onChange={handleInputChange}
+                        placeholder="Your Startup"
+                        className="w-full bg-white border border-gray-200 rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-[#7C3AED]/10 focus:border-[#7C3AED] outline-none transition-all"
+                      />
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest pl-1">Project Type</label>
                       <div className="relative">
-                        <select className="w-full bg-white border border-gray-200 rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-[#7C3AED]/10 focus:border-[#7C3AED] outline-none appearance-none transition-all">
+                        <select
+                          name="projectType"
+                          value={formData.projectType}
+                          onChange={handleInputChange}
+                          className="w-full bg-white border border-gray-200 rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-[#7C3AED]/10 focus:border-[#7C3AED] outline-none appearance-none transition-all"
+                        >
                           <option>Startup MVP</option>
                           <option>Business Website</option>
                           <option>Custom Web App</option>
@@ -393,11 +462,33 @@ export default function WebServices() {
 
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest pl-1">Message</label>
-                    <textarea rows={3} placeholder="Tell us more about your vision..." className="w-full bg-white border border-gray-200 rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-[#7C3AED]/10 focus:border-[#7C3AED] outline-none resize-none transition-all"></textarea>
+                    <textarea
+                      rows={3}
+                      name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      placeholder="Tell us more about your vision..."
+                      className="w-full bg-white border border-gray-200 rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-[#7C3AED]/10 focus:border-[#7C3AED] outline-none resize-none transition-all"
+                    ></textarea>
                   </div>
 
-                  <button className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-5 rounded-xl font-extrabold tracking-wide shadow-xl shadow-[#7C3AED]/20 transition-all hover:-translate-y-1 active:scale-[0.98]">
-                    Send Inquiry
+                  <button
+                    disabled={isSubmitting}
+                    className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-5 rounded-xl font-extrabold tracking-wide shadow-xl shadow-[#7C3AED]/20 transition-all hover:-translate-y-1 active:scale-[0.98] disabled:opacity-70 disabled:scale-100 flex items-center justify-center gap-3"
+                  >
+                    {isSubmitting ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : showSuccess ? (
+                      <>
+                        <CheckCircle2 size={18} />
+                        Enquiry Sent!
+                      </>
+                    ) : (
+                      <>
+                        <Send size={18} />
+                        Send Inquiry
+                      </>
+                    )}
                   </button>
                 </form>
               </div>
