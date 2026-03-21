@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { ChevronDown, LogOut, User, Settings, LayoutDashboard } from "lucide-react";
+import { ChevronDown, LogOut, User, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -115,18 +115,7 @@ export function UserMenu({ variant = "dark" }: UserMenuProps) {
               </button>
               
               
-              <Link
-                href={role === 'student' ? '/student/profile' : '#'}
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-bold text-sm ${
-                  isLight 
-                    ? "text-gray-600 hover:bg-gray-50 hover:text-primary-purple" 
-                    : "text-white/70 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                <Settings size={18} />
-                Account Settings
-              </Link>
+              {/* Removed Account Settings as per user request */}
 
               <div className={`my-2 h-px ${isLight ? "bg-gray-100" : "bg-white/5"}`} />
 

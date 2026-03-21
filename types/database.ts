@@ -58,24 +58,110 @@ export interface Enrollment {
   course_id: string;
   enrolled_at: string;
   progress: number; // Added for progress tracking
+  status: 'active' | 'inactive' | 'refunded' | 'suspended';
 }
 
 export interface Project {
   id: string;
   course_id: string;
   title: string;
-  description: string;
-  tags: string[];
+  description: string | null;
+  project_type: 'solo' | 'team' | 'optional_team';
+  team_size_min: number | null;
+  team_size_max: number | null;
+  cert_credit: boolean;
+  tech_tags: string[] | null;
+  resources: any;
+  milestones?: ProjectMilestone[];
   created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectMilestone {
+  id: string;
+  project_id: string;
+  title: string;
+  description: string | null;
+  due_date: string | null;
+  marks: number | null;
+  requires_sub: boolean;
+  order_index: number;
+}
+
+export interface ProjectSubmission {
+  id: string;
+  project_id: string;
+  milestone_id: string;
+  student_id: string | null;
+  status: 'pending' | 'submitted' | 'graded' | 'returned' | 'rejected';
+  content: string | null;
+  file_url: string | null;
+  marks_awarded: number | null;
+  graded_by: string | null;
+  graded_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Assignment {
   id: string;
   course_id: string;
   title: string;
-  description: string;
+  description: string | null;
   due_date: string | null;
+  available_from: string | null;
+  pass_mark: number | null;
+  max_marks: number | null;
+  max_attempts: number | null;
+  allow_late: boolean;
+  allowed_types: string[] | null;
+  max_file_mb: number | null;
+  peer_review: boolean;
+  rubric?: AssignmentRubric[];
   created_at: string;
+  updated_at: string;
+}
+
+export interface AssignmentRubric {
+  id: string;
+  assignment_id: string;
+  criterion: string;
+  max_marks: number;
+  order_index: number;
+}
+
+export interface Submission {
+  id: string;
+  assignment_id: string;
+  student_id: string;
+  status: 'pending' | 'submitted' | 'graded' | 'returned' | 'rejected';
+  content: string | null;
+  file_url: string | null;
+  annotated_url: string | null;
+  attempt_number: number;
+  marks_awarded: number | null;
+  graded_by: string | null;
+  graded_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RecordedSession {
+  id: string;
+  course_id: string;
+  title: string;
+  video_url: string;
+  description: string | null;
+  duration: string | null;
+  order_index: number;
+  created_at: string;
+}
+
+export interface SessionView {
+  id: string;
+  session_id: string;
+  user_id: string;
+  watched_at: string;
 }
 
 export interface CertificationMetadata {
@@ -194,18 +280,18 @@ export interface Database {
       };
       enrollments: {
         Row: Enrollment;
-        Insert: Omit<Enrollment, 'id' | 'enrolled_at' | 'progress'> & { id?: string; enrolled_at?: string; progress?: number };
+        Insert: Omit<Enrollment, 'id' | 'enrolled_at' | 'progress' | 'status'> & { id?: string; enrolled_at?: string; progress?: number; status?: Enrollment['status'] };
         Update: Partial<Omit<Enrollment, 'id' | 'enrolled_at'>>;
       };
       projects: {
         Row: Project;
-        Insert: Omit<Project, 'id' | 'created_at'> & { id?: string; created_at?: string };
-        Update: Partial<Omit<Project, 'id' | 'created_at'>>;
+        Insert: Omit<Project, 'id' | 'created_at' | 'updated_at'> & { id?: string; created_at?: string; updated_at?: string };
+        Update: Partial<Omit<Project, 'id' | 'created_at' | 'updated_at'>>;
       };
       assignments: {
         Row: Assignment;
-        Insert: Omit<Assignment, 'id' | 'created_at'> & { id?: string; created_at?: string };
-        Update: Partial<Omit<Assignment, 'id' | 'created_at'>>;
+        Insert: Omit<Assignment, 'id' | 'created_at' | 'updated_at'> & { id?: string; created_at?: string; updated_at?: string };
+        Update: Partial<Omit<Assignment, 'id' | 'created_at' | 'updated_at'>>;
       };
       certification_metadata: {
         Row: CertificationMetadata;
@@ -435,6 +521,16 @@ export interface Database {
           session_id?: string;
           instructor_id?: string;
         };
+      };
+      recorded_sessions: {
+        Row: RecordedSession;
+        Insert: Omit<RecordedSession, 'id' | 'created_at' | 'order_index' | 'duration'> & { id?: string; created_at?: string; order_index?: number; duration?: string | null };
+        Update: Partial<Omit<RecordedSession, 'id' | 'created_at'>>;
+      };
+      session_views: {
+        Row: SessionView;
+        Insert: Omit<SessionView, 'id' | 'watched_at'> & { id?: string; watched_at?: string };
+        Update: Partial<Omit<SessionView, 'id' | 'watched_at'>>;
       };
     };
   };

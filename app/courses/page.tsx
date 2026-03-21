@@ -16,6 +16,8 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import CourseCard from "@/components/courses/CourseCard";
 import { CoursesNavbar } from "@/components/layout/CoursesNavbar";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { useRouter } from "next/navigation";
 
 // Local Course Images
 const images = {
@@ -82,6 +84,8 @@ export default function CoursesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [liveCourses, setLiveCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const router = useRouter();
 
   const hasFetched = useRef(false);
   useEffect(() => {
@@ -354,35 +358,23 @@ export default function CoursesPage() {
               Join thousands of students building their careers with MSsquare Technologies. Unlock your potential with global experts.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 lg:gap-6">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 lg:gap-6">
-              <button className="w-full sm:w-auto px-10 py-5 bg-white text-[#7C3AED] font-black rounded-2xl shadow-xl hover:scale-105 transition-all">
+              <button 
+                onClick={() => {
+                  if (user) {
+                    router.push("/courses");
+                  } else {
+                    router.push("/auth");
+                  }
+                }}
+                className="w-full sm:w-auto px-10 py-5 bg-white text-[#7C3AED] font-black rounded-2xl shadow-xl hover:scale-105 transition-all"
+              >
                 Enroll Now
               </button>
-              <button className="w-full sm:w-auto px-10 py-5 border border-white/30 text-white font-black rounded-2xl hover:bg-white/10 transition-all">
-                Talk to Advisor
-              </button>
-            </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer Branding */}
-      <footer className="py-12 border-t border-gray-100 flex flex-col items-center">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-8 h-8 bg-[#7C3AED] rounded-lg flex items-center justify-center text-white">
-            <Rocket size={16} fill="white" />
-          </div>
-          <span className="text-xl font-black font-heading text-gray-900">MSSquare</span>
-        </div>
-        <div className="flex flex-wrap justify-center gap-8 mb-8 text-sm font-bold text-gray-400">
-          <Link href="/courses" className="hover:text-[#7C3AED] transition-colors">Certification</Link>
-          <Link href="/courses" className="hover:text-[#7C3AED] transition-colors">Mentorship</Link>
-          <Link href="/courses" className="hover:text-[#7C3AED] transition-colors">Placement</Link>
-          <Link href="/auth" className="hover:text-[#7C3AED] transition-colors">Login</Link>
-        </div>
-        <p className="text-xs font-bold text-gray-400">© 2026 MSsquare Technologies. All rights reserved.</p>
-      </footer>
     </div>
   );
 }

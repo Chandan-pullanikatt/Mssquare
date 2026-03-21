@@ -36,5 +36,9 @@ export const storageApi = {
 
   async uploadTeamImage(file: File, fileName: string) {
     return this.uploadFile('team-images', fileName, file);
+  },
+
+  async uploadCertificateTemplate(file: File, fileName: string) {
+    return this.uploadFile('certificates', fileName, file);
   }
 };

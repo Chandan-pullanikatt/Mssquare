@@ -128,7 +128,7 @@ export default function StudentProjectsPage() {
                             </p>
 
                             <div className="flex flex-wrap gap-1.5 mb-6">
-                                {project.tags?.map((tag, j) => (
+                                {project.tech_tags?.map((tag, j) => (
                                     <span key={j} className="text-[10px] font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-lg">
                                         {tag}
                                     </span>

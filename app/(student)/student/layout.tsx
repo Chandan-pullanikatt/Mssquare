@@ -17,7 +17,8 @@ import {
   Briefcase,
   Bell,
   FileText,
-  Calendar
+  Calendar,
+  Video
 } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
@@ -30,6 +31,7 @@ const sidebarItems = [
   { name: "My Courses", href: "/student/courses", icon: BookOpen },
   { name: "Projects", href: "/student/projects", icon: FolderGit2 },
   { name: "Assignments", href: "/student/assignments", icon: FileText },
+  { name: "Recorded Sessions", href: "/student/recorded-sessions", icon: Video },
   { name: "Timetable", href: "/student/timetable", icon: Calendar },
   { name: "Certifications", href: "/student/certifications", icon: Award },
   { name: "Payments", href: "/student/payments", icon: CreditCard },

@@ -14,6 +14,7 @@ import {
   Plus
 } from "lucide-react";
 import { notificationsApi, Notification, NotificationTarget, NotificationType } from "@/lib/api/notifications";
+import { adminApi } from "@/lib/api/admin";
 
 export default function LMSNotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -26,6 +27,8 @@ export default function LMSNotificationsPage() {
   const [message, setMessage] = useState("");
   const [target, setTarget] = useState<NotificationTarget>("student");
   const [type, setType] = useState<NotificationType>("info");
+  const [courseId, setCourseId] = useState<string>("");
+  const [courses, setCourses] = useState<any[]>([]);
 
   useEffect(() => {
     fetchNotifications();
@@ -34,12 +37,16 @@ export default function LMSNotificationsPage() {
   async function fetchNotifications() {
     try {
       setLoading(true);
-      const data = await notificationsApi.getNotifications();
+      const [notificationsData, coursesData] = await Promise.all([
+        notificationsApi.getNotifications(),
+        adminApi.getCourses()
+      ]);
       // Filter for student or all (relevant to LMS)
-      setNotifications(data.filter(n => n.target_role === 'student' || n.target_role === 'all'));
+      setNotifications(notificationsData.filter(n => n.target_role === 'student' || n.target_role === 'all'));
+      setCourses(coursesData);
     } catch (err) {
-      console.error("Error fetching notifications:", err);
-      setError("Failed to load notifications.");
+      console.error("Error fetching notifications/courses:", err);
+      setError("Failed to load data.");
     } finally {
       setLoading(false);
     }
@@ -58,12 +65,14 @@ export default function LMSNotificationsPage() {
         title,
         message,
         target_role: target,
-        type
+        type,
+        course_id: courseId || undefined
       });
       
       // Reset form
       setTitle("");
       setMessage("");
+      setCourseId("");
       
       // Refresh list
       fetchNotifications();
@@ -135,7 +144,11 @@ export default function LMSNotificationsPage() {
                   <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Recipient</label>
                   <select
                     value={target}
-                    onChange={(e) => setTarget(e.target.value as NotificationTarget)}
+                    onChange={(e) => {
+                      const newTarget = e.target.value as NotificationTarget;
+                      setTarget(newTarget);
+                      if (newTarget !== 'student') setCourseId("");
+                    }}
                     className="w-full bg-gray-50 border-none rounded-xl py-2.5 px-3 text-xs font-bold text-gray-700 outline-none"
                   >
                     <option value="student">Students Only</option>
@@ -156,6 +169,22 @@ export default function LMSNotificationsPage() {
                   </select>
                 </div>
               </div>
+
+              {target === 'student' && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Specific Course (Optional)</label>
+                  <select
+                    value={courseId}
+                    onChange={(e) => setCourseId(e.target.value)}
+                    className="w-full bg-gray-50 border-none rounded-2xl py-3 px-4 text-sm font-bold text-gray-700 focus:ring-2 focus:ring-[#8b5cf6]/20 outline-none transition-all cursor-pointer"
+                  >
+                    <option value="">All LMS Courses</option>
+                    {courses.map(course => (
+                      <option key={course.id} value={course.id}>{course.title}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               {error && (
                 <div className="p-3 bg-red-50 border border-red-100 rounded-xl flex items-center gap-2 text-red-600 text-[10px] font-bold">
@@ -229,6 +258,11 @@ export default function LMSNotificationsPage() {
                           }`}>
                             {n.target_role}
                           </span>
+                          {(n as any).course && (
+                            <span className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter bg-amber-50 text-amber-600">
+                              {(n as any).course.title}
+                            </span>
+                          )}
                         </div>
                         <p className="text-sm text-gray-600 font-medium leading-relaxed italic mb-4 max-w-xl">{n.message}</p>
                         <div className="flex items-center gap-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">

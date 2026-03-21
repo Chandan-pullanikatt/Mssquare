@@ -39,9 +39,9 @@ export const COLORS = {
   
   // Light mode (for landing page sections)
   light: {
-    background: '#ffffff',
+    background: '#f8fafc',
     foreground: '#1f2937',
-    surface: '#f9fafb',
+    surface: '#f1f5f9',
     border: 'rgba(0, 0, 0, 0.1)',
     text: {
       primary: '#0F172A',      // slate-950 - primary text on light backgrounds

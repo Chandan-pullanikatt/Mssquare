@@ -18,11 +18,13 @@ import {
 import Link from "next/link";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { adminApi } from "@/lib/api/admin";
+import { storageApi } from "@/lib/api/storage";
 
 export default function CreateCoursePage() {
   const router = useRouter();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -58,6 +60,23 @@ export default function CreateCoursePage() {
       alert("Failed to create course. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const fileName = `${Date.now()}-${file.name}`;
+      const publicUrl = await storageApi.uploadCourseThumbnail(file, fileName);
+      setFormData({ ...formData, thumbnail: publicUrl });
+    } catch (err) {
+      console.error("Upload failed", err);
+      alert("Failed to upload image. Please try again.");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -185,13 +204,31 @@ export default function CreateCoursePage() {
                 Media
               </h2>
               <div className="space-y-4">
-                <input 
-                  type="text"
-                  placeholder="Thumbnail Image URL"
-                  value={formData.thumbnail}
-                  onChange={(e) => setFormData({...formData, thumbnail: e.target.value})}
-                  className="w-full bg-gray-50 border-2 border-transparent rounded-2xl py-3 px-5 text-xs font-bold text-gray-900 focus:bg-white focus:border-blue-600/20 focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-gray-300"
-                />
+                <div className="flex flex-col gap-3">
+                  <input 
+                    type="text"
+                    placeholder="Thumbnail Image URL"
+                    value={formData.thumbnail}
+                    onChange={(e) => setFormData({...formData, thumbnail: e.target.value})}
+                    className="w-full bg-gray-50 border-2 border-transparent rounded-2xl py-3 px-5 text-xs font-bold text-gray-900 focus:bg-white focus:border-blue-600/20 focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-gray-300"
+                  />
+                  <div className="flex items-center gap-2">
+                    <div className="h-[1px] flex-1 bg-gray-100" />
+                    <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">or</span>
+                    <div className="h-[1px] flex-1 bg-gray-100" />
+                  </div>
+                  <label className="flex items-center justify-center gap-2 bg-blue-50 text-blue-600 py-3 rounded-2xl text-xs font-bold border-2 border-dashed border-blue-200 cursor-pointer hover:bg-blue-100 transition-all active:scale-95 disabled:opacity-50">
+                    {uploading ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+                    <span>{uploading ? "Uploading..." : "Browse Local File"}</span>
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploading}
+                    />
+                  </label>
+                </div>
                 
                 {formData.thumbnail && (
                    <div className="aspect-video w-full rounded-2xl bg-gray-50 border-2 border-dashed border-gray-100 overflow-hidden flex items-center justify-center group relative">
@@ -204,7 +241,7 @@ export default function CreateCoursePage() {
                          alert("Invalid Image URL");
                        }}
                      />
-                     <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">PREVIEW</span>
+                     <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-tighter">Current Preview</span>
                    </div>
                 )}
               </div>

@@ -10,6 +10,7 @@ export interface Notification {
   target_role: NotificationTarget;
   sender_id?: string;
   type: NotificationType;
+  course_id?: string;
   created_at: string;
 }
 
@@ -17,11 +18,14 @@ export const notificationsApi = {
   async getNotifications() {
     const { data, error } = await supabase
       .from('notifications')
-      .select('*')
+      .select(`
+        *,
+        course:courses(title)
+      `)
       .order('created_at', { ascending: false });
     
     if (error) throw error;
-    return data as Notification[];
+    return data as (Notification & { course?: { title: string } })[];
   },
 
   async sendNotification(notification: Omit<Notification, 'id' | 'created_at'>) {

@@ -161,7 +161,7 @@ export default function CareersPage() {
             </section>
 
             {/* Why Join Us Section */}
-            <section id="why-join-us" className="py-24 px-8 bg-white overflow-hidden">
+            <section id="why-join-us" className="py-24 px-8 bg-light-background overflow-hidden">
                 <div className="max-w-7xl mx-auto text-center space-y-16">
                     <div className="max-w-3xl mx-auto">
                         <h2 className="text-5xl font-extrabold text-[#1e293b] font-heading mb-6">Why Join Us</h2>
@@ -289,7 +289,7 @@ export default function CareersPage() {
             </section>
 
             {/* Application Form Section */}
-            <section ref={formRef} className="py-32 px-8 bg-white">
+            <section ref={formRef} className="py-32 px-8 bg-light-surface text-gray-900">
                 <div className="max-w-4xl mx-auto bg-white border border-gray-100 rounded-[3rem] p-8 md:p-16 shadow-2xl shadow-black/5 relative overflow-hidden">
                     {/* Banner Decoration */}
                     <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-primary-purple to-purple-500"></div>

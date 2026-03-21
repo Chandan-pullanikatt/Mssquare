@@ -39,6 +39,13 @@ export default function TimetablePage() {
   });
   const [selectedInstructorIds, setSelectedInstructorIds] = useState<string[]>([]);
 
+  // Clear additional instructors if the primary instructor matches one of them
+  useEffect(() => {
+    if (formData.instructor_id && selectedInstructorIds.includes(formData.instructor_id)) {
+      setSelectedInstructorIds(prev => prev.filter(id => id !== formData.instructor_id));
+    }
+  }, [formData.instructor_id, selectedInstructorIds]);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -320,28 +327,35 @@ export default function TimetablePage() {
                 </select>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Day of Week</label>
-                <select 
-                  required
-                  value={formData.day_of_week}
-                  onChange={(e) => setFormData({...formData, day_of_week: e.target.value})}
-                  className="w-full bg-gray-50 border-2 border-transparent rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 focus:bg-white focus:border-[#8b5cf6]/20 outline-none transition-all appearance-none cursor-pointer"
-                >
-                  {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => (
-                    <option key={day} value={day}>{day}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Specific Date (Optional)</label>
-                <input 
-                  type="date"
-                  value={formData.scheduled_at}
-                  onChange={(e) => setFormData({...formData, scheduled_at: e.target.value})}
-                  className="w-full bg-gray-50 border-2 border-transparent rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 focus:bg-white focus:border-[#8b5cf6]/20 outline-none transition-all"
-                />
+              <div className="space-y-4 md:col-span-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Date</label>
+                <div className="relative group/date">
+                   <div className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within/date:text-[#8b5cf6] transition-colors flex items-center gap-2 pointer-events-none">
+                      <Calendar size={18} />
+                      {formData.scheduled_at && (
+                        <span className="text-xs font-black text-[#8b5cf6] uppercase tracking-wider bg-purple-50 px-2 py-0.5 rounded-lg border border-purple-100/50">
+                          {formData.day_of_week}
+                        </span>
+                      )}
+                   </div>
+                   <input 
+                    required
+                    type="date"
+                    value={formData.scheduled_at || ""}
+                    onChange={(e) => {
+                      const dateVal = e.target.value;
+                      if (!dateVal) {
+                        setFormData({...formData, scheduled_at: "", day_of_week: ""});
+                        return;
+                      }
+                      const [year, month, day] = dateVal.split('-').map(Number);
+                      const date = new Date(year, month - 1, day);
+                      const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                      setFormData({...formData, scheduled_at: dateVal, day_of_week: days[date.getDay()]});
+                    }}
+                    className="w-full bg-gray-50 border-2 border-transparent rounded-2xl py-5 pl-[140px] pr-6 text-sm font-bold text-gray-900 focus:bg-white focus:border-[#8b5cf6]/20 outline-none transition-all cursor-pointer box-border"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -368,31 +382,56 @@ export default function TimetablePage() {
 
               <div className="space-y-4 md:col-span-2 border-t border-gray-50 pt-4">
                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Additional Instructors (Group Class)</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-2">
-                  {instructors.map(instructor => (
-                    <button
-                      key={instructor.id}
-                      type="button"
-                      disabled={instructor.id === formData.instructor_id}
-                      onClick={() => {
-                        setSelectedInstructorIds(prev => 
-                          prev.includes(instructor.id) 
-                            ? prev.filter(i => i !== instructor.id) 
-                            : [...prev, instructor.id]
-                        );
+                
+                <div className="space-y-3">
+                  <div className="relative">
+                    <select 
+                      value=""
+                      onChange={(e) => {
+                        const id = e.target.value;
+                        if (id && !selectedInstructorIds.includes(id)) {
+                          setSelectedInstructorIds(prev => [...prev, id]);
+                        }
                       }}
-                      className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
-                        selectedInstructorIds.includes(instructor.id)
-                          ? 'bg-purple-50 border-[#8b5cf6] text-[#8b5cf6]'
-                          : instructor.id === formData.instructor_id 
-                            ? 'bg-gray-50 border-gray-100 opacity-50 cursor-not-allowed'
-                            : 'bg-white border-gray-50 text-gray-500 hover:border-gray-100'
-                      }`}
+                      className="w-full bg-gray-50 border-2 border-transparent rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 focus:bg-white focus:border-[#8b5cf6]/20 outline-none transition-all appearance-none cursor-pointer"
                     >
-                      <div className={`w-2 h-2 rounded-full ${selectedInstructorIds.includes(instructor.id) ? 'bg-[#8b5cf6]' : 'bg-gray-200'}`} />
-                      <span className="text-xs font-bold truncate">{instructor.email}</span>
-                    </button>
-                  ))}
+                      <option value="">Add Additional Instructor...</option>
+                      {instructors
+                        .filter(i => i.id !== formData.instructor_id && !selectedInstructorIds.includes(i.id))
+                        .map(instructor => (
+                          <option key={instructor.id} value={instructor.id}>{instructor.email}</option>
+                        ))
+                      }
+                    </select>
+                    <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                      <Plus size={18} />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 min-h-[40px] p-1">
+                    {selectedInstructorIds.map(id => {
+                      const instructor = instructors.find(i => i.id === id);
+                      if (!instructor) return null;
+                      return (
+                        <div 
+                          key={id} 
+                          className="flex items-center gap-2 bg-purple-50 text-[#8b5cf6] px-3 py-1.5 rounded-xl border border-purple-100 text-xs font-bold animate-in zoom-in-95 duration-200"
+                        >
+                          <span className="truncate max-w-[150px]">{instructor.email}</span>
+                          <button 
+                            type="button"
+                            onClick={() => setSelectedInstructorIds(prev => prev.filter(i => i !== id))}
+                            className="hover:bg-purple-200 rounded-lg p-0.5 transition-colors"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      );
+                    })}
+                    {selectedInstructorIds.length === 0 && (
+                      <p className="text-[11px] text-gray-400 italic ml-1 mt-2">No additional instructors selected</p>
+                    )}
+                  </div>
                 </div>
               </div>
 

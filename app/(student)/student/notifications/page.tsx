@@ -12,19 +12,35 @@ import {
   Filter
 } from "lucide-react";
 import { notificationsApi, Notification } from "@/lib/api/notifications";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { enrollmentsApi } from "@/lib/api/enrollments";
 
 export default function StudentNotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const { user } = useAuth();
+
   useEffect(() => {
     async function fetchNotifications() {
+      if (!user?.id) return;
+      
       try {
         setLoading(true);
-        const data = await notificationsApi.getNotifications();
-        // Filter for students or all
-        setNotifications(data.filter(n => n.target_role === 'student' || n.target_role === 'all'));
+        const [notificationsData, enrollmentsData] = await Promise.all([
+          notificationsApi.getNotifications(),
+          enrollmentsApi.getEnrollmentsByUser(user.id)
+        ]);
+        
+        const enrolledCourseIds = enrollmentsData.map((e: any) => e.course_id);
+        
+        // Filter for students or all, and match course_id if present
+        setNotifications(notificationsData.filter(n => {
+          const isTargetRole = n.target_role === 'student' || n.target_role === 'all';
+          const isCourseMatch = !n.course_id || enrolledCourseIds.includes(n.course_id);
+          return isTargetRole && isCourseMatch;
+        }));
       } catch (err) {
         console.error("Error fetching notifications:", err);
         setError("Failed to load notifications.");
@@ -34,7 +50,7 @@ export default function StudentNotificationsPage() {
     }
 
     fetchNotifications();
-  }, []);
+  }, [user?.id]);
 
   const getTypeStyles = (type: string) => {
     switch (type) {
