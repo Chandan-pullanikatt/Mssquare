@@ -2,17 +2,45 @@
 
 import { useState } from "react";
 import { Briefcase, MapPin, ArrowRight, Zap, Target, Users, UploadCloud, CheckCircle2 } from "lucide-react";
+import { useEffect } from "react";
+import { websiteApi } from "@/lib/api/website";
 
 export default function CareerPage() {
   const [selectedJob, setSelectedJob] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
-  const jobs = [
-    { id: 1, role: "Senior Frontend Engineer", department: "Engineering", location: "Remote", type: "Full-Time" },
-    { id: 2, role: "UI/UX Product Designer", department: "Design", location: "Hybrid / New York", type: "Full-Time" },
-    { id: 3, role: "Full-Stack Instructor", department: "Education", location: "Remote", type: "Contract" },
-    { id: 4, role: "Developer Advocate", department: "Marketing", location: "Remote", type: "Full-Time" },
-  ];
+  const [content, setContent] = useState<any>({
+    hero: {
+      badge: "We are hiring",
+      title: "Build the Future of Tech With Us",
+      subtitle: "Join a team of passionate educators, builders, and innovators dedicated to bridging the gap between learning and building.",
+    },
+    benefits: [
+      { title: "High Impact Work", desc: "Build products that scale and train developers who will shape the future." },
+      { title: "Incredible Culture", desc: "A flat hierarchy where best ideas win. No bureaucracy, just pure building." },
+      { title: "Continuous Growth", desc: "Unlimited access to our courses, mentorship, and a generous learning stipend." },
+    ],
+    jobs: [
+      { id: 1, role: "Senior Frontend Engineer", department: "Engineering", location: "Remote", type: "Full-Time" },
+      { id: 2, role: "UI/UX Product Designer", department: "Design", location: "Hybrid / New York", type: "Full-Time" },
+      { id: 3, role: "Full-Stack Instructor", department: "Education", location: "Remote", type: "Contract" },
+      { id: 4, role: "Developer Advocate", department: "Marketing", location: "Remote", type: "Full-Time" },
+    ]
+  });
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const data = await websiteApi.getSection("careers_content");
+        if (data?.content_json) {
+          setContent(data.content_json);
+        }
+      } catch (err) {
+        console.error("Failed to fetch careers content", err);
+      }
+    };
+    fetchContent();
+  }, []);
 
   const handleApply = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,13 +63,13 @@ export default function CareerPage() {
       <div className="text-center max-w-3xl mx-auto mb-20 anim-fup">
         <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-[0.75rem] font-semibold tracking-[0.12em] uppercase px-5 py-2 rounded-full mb-6 text-primary-cyan">
           <span className="w-1.5 h-1.5 bg-primary-cyan rounded-full anim-blink"></span>
-          We are hiring
+          {content.hero.badge}
         </div>
         <h1 className="text-[clamp(2.5rem,5vw,4.5rem)] font-extrabold font-heading tracking-[-0.02em] mb-4 leading-[1.1]">
-          Build the <span className="text-gradient">Future</span> of Tech With Us
+          {content.hero.title}
         </h1>
         <p className="text-gray-400 font-light text-lg mb-8 leading-relaxed">
-          Join a team of passionate educators, builders, and innovators dedicated to bridging the gap between learning and building.
+          {content.hero.subtitle}
         </p>
         <button 
           onClick={() => document.getElementById('openings')?.scrollIntoView({ behavior: 'smooth' })}
@@ -55,19 +83,22 @@ export default function CareerPage() {
       <div className="mb-24 anim-fup d-02">
         <h2 className="text-3xl font-extrabold font-heading text-center mb-12">Why MSsquare?</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            { icon: Zap, title: "High Impact Work", desc: "Build products that scale and train developers who will shape the future.", color: "text-primary-blue", bg: "bg-primary-blue/10" },
-            { icon: Users, title: "Incredible Culture", desc: "A flat hierarchy where best ideas win. No bureaucracy, just pure building.", color: "text-primary-cyan", bg: "bg-primary-cyan/10" },
-            { icon: Target, title: "Continuous Growth", desc: "Unlimited access to our courses, mentorship, and a generous learning stipend.", color: "text-primary-green", bg: "bg-primary-green/10" },
-          ].map((feature, i) => (
-            <div key={i} className="bg-white/[0.02] border border-white/10 rounded-3xl p-8 hover-lift hover:border-white/20 transition-all text-center flex flex-col items-center">
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 ${feature.bg}`}>
-                <feature.icon className={`w-8 h-8 ${feature.color}`} />
+          {content.benefits.map((feature: any, i: number) => {
+            const Icons = [Zap, Users, Target];
+            const Icon = Icons[i % Icons.length];
+            const colors = ["text-primary-blue", "text-primary-cyan", "text-primary-green"];
+            const bgs = ["bg-primary-blue/10", "bg-primary-cyan/10", "bg-primary-green/10"];
+
+            return (
+              <div key={i} className="bg-white/[0.02] border border-white/10 rounded-3xl p-8 hover-lift hover:border-white/20 transition-all text-center flex flex-col items-center">
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 ${bgs[i % bgs.length]}`}>
+                  <Icon className={`w-8 h-8 ${colors[i % colors.length]}`} />
+                </div>
+                <h3 className="text-xl font-bold font-heading mb-3">{feature.title}</h3>
+                <p className="text-gray-400 font-light leading-relaxed">{feature.desc}</p>
               </div>
-              <h3 className="text-xl font-bold font-heading mb-3">{feature.title}</h3>
-              <p className="text-gray-400 font-light leading-relaxed">{feature.desc}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -76,7 +107,7 @@ export default function CareerPage() {
         <h2 className="text-3xl font-extrabold font-heading mb-8">Current Openings</h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {jobs.map((job) => (
+          {content.jobs.map((job: any) => (
             <div 
               key={job.id} 
               className={`bg-white/[0.03] border rounded-3xl p-6 transition-all duration-300 ${
@@ -135,7 +166,7 @@ export default function CareerPage() {
             <div className="relative z-10">
               <div className="mb-10">
                 <h3 className="text-2xl font-bold font-heading mb-2">
-                  Apply for <span className="text-primary-cyan">{jobs.find(j => j.id === selectedJob)?.role}</span>
+                  Apply for <span className="text-primary-cyan">{content.jobs.find((j: any) => j.id === selectedJob)?.role}</span>
                 </h3>
                 <p className="text-gray-400">Fill out the form below and attach your resume.</p>
               </div>

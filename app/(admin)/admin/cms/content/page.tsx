@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe, Layout, Info, HelpCircle, Shield, FileText } from "lucide-react";
+import { Globe, Layout, Info, HelpCircle, Shield, FileText, Users } from "lucide-react";
 import Link from "next/link";
 
 const sections = [
@@ -39,6 +39,33 @@ const sections = [
     color: "text-rose-600",
     bg: "bg-rose-50",
     href: "/admin/cms/faq-legal"
+  },
+  {
+    id: "careers",
+    name: "Careers Page",
+    description: "Job openings, hero text, and benefits",
+    icon: FileText,
+    color: "text-cyan-600",
+    bg: "bg-cyan-50",
+    href: "/admin/cms/content/careers"
+  },
+  {
+    id: "webservices",
+    name: "Web Services Page",
+    description: "Services, tech stack, and showcase",
+    icon: Globe,
+    color: "text-violet-600",
+    bg: "bg-violet-50",
+    href: "/admin/cms/content/webservices"
+  },
+  {
+    id: "become-instructor",
+    name: "Become Instructor",
+    description: "Join us section and instructor hero",
+    icon: Users,
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    href: "/admin/cms/content/become-instructor"
   }
 ];
 

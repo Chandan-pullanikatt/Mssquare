@@ -41,12 +41,18 @@ export const sendApplicationConfirmation = async ({
     `;
 
   const resendClient = getResendClient();
-  return resendClient.emails.send({
+  const { data, error } = await resendClient.emails.send({
     from: 'MSSquare HR <hr@mssquaretechnologies.com>',
     to: [email],
     subject: subject,
     html: content,
   });
+
+  if (error) {
+    console.error('Resend Error (Application):', error);
+    throw new Error(error.message);
+  }
+  return data;
 };
 
 export const sendEnquiryConfirmation = async ({
@@ -69,7 +75,7 @@ export const sendEnquiryConfirmation = async ({
         <ul>
           <li>Submit detailed project requirements</li>
           <li>Track development milestones</li>
-          <li>Communicate directly with your assigned experts</li>
+          <li>Communication directly with your assigned experts</li>
         </ul>
         <a href="https://mssquare.in/auth?portal=business_client" style="display: inline-block; background: #7C3AED; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">Create portal account</a>
       </div>
@@ -80,13 +86,20 @@ export const sendEnquiryConfirmation = async ({
   `;
 
   const resendClient = getResendClient();
-  return resendClient.emails.send({
+  const { data, error } = await resendClient.emails.send({
     from: 'MSSquare Studio <hr@mssquaretechnologies.com>',
     to: [email],
     subject: subject,
     html: content,
   });
+
+  if (error) {
+    console.error('Resend Error (Enquiry):', error);
+    throw new Error(error.message);
+  }
+  return data;
 };
+
 export const sendMatchWelcome = async ({
   email
 }: {
@@ -133,10 +146,16 @@ export const sendMatchWelcome = async ({
   `;
 
   const resendClient = getResendClient();
-  return resendClient.emails.send({
+  const { data, error } = await resendClient.emails.send({
     from: 'MSSquare <hr@mssquaretechnologies.com>',
     to: [email],
     subject: subject,
     html: content,
   });
+
+  if (error) {
+    console.error('Resend Error (Match):', error);
+    throw new Error(error.message);
+  }
+  return data;
 };

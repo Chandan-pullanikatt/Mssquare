@@ -60,6 +60,7 @@ export const adminApi = {
       { count: totalBlogs },
       { count: totalEnrollments },
       { count: totalLeads },
+      { count: totalInquiries },
       { data: recentActivity },
       { data: recentSignups }
     ] = await Promise.all([
@@ -69,6 +70,7 @@ export const adminApi = {
       supabase.from('blogs').select('*', { count: 'exact', head: true }),
       supabase.from('student_enrollments').select('*', { count: 'exact', head: true }),
       supabase.from('leads').select('*', { count: 'exact', head: true }),
+      supabase.from('webservice_enquiries').select('*', { count: 'exact', head: true }),
       supabase.from('student_enrollments').select(`id, created_at, course_id, student_id`).order('created_at', { ascending: false }).limit(5),
       supabase.from('profiles').select('id, email, created_at, role').order('created_at', { ascending: false }).limit(5)
     ]);
@@ -87,6 +89,7 @@ export const adminApi = {
       totalBlogs: totalBlogs || 0,
       totalEnrollments: totalEnrollments || 0,
       totalLeads: totalLeads || 0,
+      totalInquiries: totalInquiries || 0,
       recentActivity: enrichedActivity,
       recentSignups: recentSignups || []
     };

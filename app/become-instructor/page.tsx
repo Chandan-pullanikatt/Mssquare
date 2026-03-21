@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Upload, Send, CheckCircle2 } from "lucide-react";
+import { websiteApi } from "@/lib/api/website";
 
 export default function BecomeInstructorPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -16,6 +17,27 @@ export default function BecomeInstructorPage() {
     });
     const [resumeFile, setResumeFile] = useState<File | null>(null);
     const fileInputRef = useState<HTMLInputElement | null>(null);
+
+    const [content, setContent] = useState<any>({
+        hero: {
+            title: "Become An Instructor",
+            subtitle: "Share your expertise and help shape the next generation of developers. Join our elite circle of mentors and instructors.",
+        }
+    });
+
+    useEffect(() => {
+        const fetchContent = async () => {
+            try {
+                const data = await websiteApi.getSection("become_instructor_content");
+                if (data?.content_json) {
+                    setContent(data.content_json);
+                }
+            } catch (err) {
+                console.error("Failed to fetch become-instructor content", err);
+            }
+        };
+        fetchContent();
+    }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -78,10 +100,10 @@ export default function BecomeInstructorPage() {
                 <div className="max-w-4xl mx-auto space-y-12">
                     <div className="text-center space-y-6">
                         <h1 className="text-5xl md:text-6xl font-extrabold text-[#1e293b] font-heading tracking-tight italic">
-                            Become An <span className="text-primary-purple">Instructor</span>
+                            {content.hero.title}
                         </h1>
                         <p className="text-gray-600 text-lg font-medium max-w-2xl mx-auto leading-relaxed">
-                            Share your expertise and help shape the next generation of developers. Join our elite circle of mentors and instructors.
+                            {content.hero.subtitle}
                         </p>
                     </div>
 

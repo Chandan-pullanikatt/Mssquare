@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Container } from "@/components/ui/Container";
 import { WebServicesNavbar } from "@/components/layout/WebServicesNavbar";
 import { motion } from "framer-motion";
+import { websiteApi } from "@/lib/api/website";
 import { 
   Code2, 
   Layout, 
@@ -27,21 +28,39 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-const techStack = [
-  { name: "React / Next.js", icon: Globe, color: "text-blue-600" },
-  { name: "Tailwind CSS", icon: Zap, color: "text-cyan-500" },
-  { name: "Node.js", icon: Terminal, color: "text-green-600" },
-  { name: "Python", icon: Code2, color: "text-blue-700" },
-  { name: "TypeScript", icon: Code2, color: "text-blue-500" },
-  { name: "PostgreSQL", icon: Database, color: "text-indigo-600" },
-  { name: "MongoDB", icon: Database, color: "text-green-500" },
-  { name: "AWS / Cloud", icon: Cloud, color: "text-orange-500" },
-  { name: "Mobile (Flutter)", icon: Smartphone, color: "text-cyan-600" },
-  { name: "UI/UX Design", icon: Layout, color: "text-pink-600" },
-  { name: "CI/CD / GitHub", icon: Github, color: "text-gray-900" }
-];
-
 export default function WebServices() {
+  const [content, setContent] = useState<any>({
+    hero: {
+      badge: "SOFTWARE DEVELOPMENT STUDIO",
+      title: "Build Your Product With MSSquare",
+      subtitle: "We help startups and businesses design, build, and launch digital products that people love. From ideation to deployment.",
+    },
+    services: [
+      { title: "Startup MVP Development", desc: "Fast-track your idea to market with a lean, functional, and scalable MVP.", image: "/assets/services/startup-mvp.png" },
+      { title: "Business Websites", desc: "High-converting websites that represent your brand and drive actual business results.", image: "/assets/services/website-dev.png" },
+      { title: "Custom Web Apps", desc: "Powerful internal tools and SaaS applications built for speed and reliability.", image: "/assets/services/webapp-dev.png" },
+      { title: "Product Consulting", desc: "Strategic guidance on architecture, UX design, and scaling your tech infrastructure.", image: "/assets/services/product-consulting.png" }
+    ],
+    projects: [
+      { title: "Our Home Tuition", headline: "A complete ecosystem for online tutoring.", desc: "Connecting thousands of students with expert tutors in real-time.", image: "/assets/projects/home-tuition-v2.png", link: "https://our-home-tuition.vercel.app/", stats: "50k+ Users" },
+      { title: "SwiftShop", headline: "Luxury fashion e-commerce platform.", desc: "A high-performance luxury marketplace with seamless checkout flows.", image: "/assets/projects/cloth-shop.png", link: "#", stats: "Global Reach" },
+      { title: "Examineer", headline: "Secure & scalable examination portal.", desc: "A robust testing platform with proctoring for large-scale assessments.", image: "/assets/projects/exam-lms.png", link: "#", stats: "Proctoring Enabled" }
+    ],
+    techStack: [
+      { name: "React / Next.js", color: "text-blue-600" },
+      { name: "Tailwind CSS", color: "text-cyan-500" },
+      { name: "Node.js", color: "text-green-600" },
+      { name: "Python", color: "text-blue-700" },
+      { name: "TypeScript", color: "text-blue-500" },
+      { name: "PostgreSQL", color: "text-indigo-600" },
+      { name: "MongoDB", color: "text-green-500" },
+      { name: "AWS / Cloud", color: "text-orange-500" },
+      { name: "Mobile (Flutter)", color: "text-cyan-600" },
+      { name: "UI/UX Design", color: "text-pink-600" },
+      { name: "CI/CD / GitHub", color: "text-gray-900" }
+    ]
+  });
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -51,6 +70,20 @@ export default function WebServices() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const data = await websiteApi.getSection("webservices_content");
+        if (data?.content_json) {
+          setContent(data.content_json);
+        }
+      } catch (err) {
+        console.error("Failed to fetch webservices content", err);
+      }
+    };
+    fetchContent();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -101,7 +134,7 @@ export default function WebServices() {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-50 text-[#7C3AED] font-bold text-xs uppercase tracking-wider"
               >
                 <Rocket size={14} />
-                SOFTWARE DEVELOPMENT STUDIO
+                {content.hero.badge}
               </motion.div>
               <motion.h1 
                 initial={{ opacity: 0, y: 20 }}
@@ -109,7 +142,7 @@ export default function WebServices() {
                 transition={{ delay: 0.1 }}
                 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-gray-900 leading-tight"
               >
-                Build Your Product <br /> With <span className="text-[#7C3AED]">MSSquare</span>
+                {content.hero.title}
               </motion.h1>
               <motion.p 
                 initial={{ opacity: 0, y: 20 }}
@@ -117,7 +150,7 @@ export default function WebServices() {
                 transition={{ delay: 0.2 }}
                 className="text-lg text-gray-500 font-medium max-w-[550px] mx-auto lg:mx-0"
               >
-                We help startups and businesses design, build, and launch digital products that people love. From ideation to deployment.
+                {content.hero.subtitle}
               </motion.p>
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -171,49 +204,28 @@ export default function WebServices() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                title: "Startup MVP Development",
-                desc: "Fast-track your idea to market with a lean, functional, and scalable MVP.",
-                image: "/assets/services/startup-mvp.png",
-                icon: Zap
-              },
-              {
-                title: "Business Websites",
-                desc: "High-converting websites that represent your brand and drive actual business results.",
-                image: "/assets/services/website-dev.png",
-                icon: Globe
-              },
-              {
-                title: "Custom Web Apps",
-                desc: "Powerful internal tools and SaaS applications built for speed and reliability.",
-                image: "/assets/services/webapp-dev.png",
-                icon: Code2
-              },
-              {
-                title: "Product Consulting",
-                desc: "Strategic guidance on architecture, UX design, and scaling your tech infrastructure.",
-                image: "/assets/services/product-consulting.png",
-                icon: Users
-              }
-            ].map((service, i) => (
-              <div key={i} className="group bg-white border border-gray-100 rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-violet-500/10 hover:-translate-y-2 flex flex-col">
-                <div className="relative aspect-[16/10] overflow-hidden">
-                  <img src={service.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={service.title} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
-                  <div className="absolute bottom-4 left-4 p-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
-                    <service.icon size={20} className="text-white" />
+            {content.services.map((service: any, i: number) => {
+              const icons = [Zap, Globe, Code2, Users];
+              const Icon = icons[i % icons.length];
+              return (
+                <div key={i} className="group bg-white border border-gray-100 rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-violet-500/10 hover:-translate-y-2 flex flex-col">
+                  <div className="relative aspect-[16/10] overflow-hidden">
+                    <img src={service.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={service.title} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
+                    <div className="absolute bottom-4 left-4 p-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
+                      <Icon size={20} className="text-white" />
+                    </div>
+                  </div>
+                  <div className="p-8 flex flex-col flex-grow">
+                    <h3 className="font-extrabold text-xl text-gray-900 mb-4 font-heading group-hover:text-violet-600 transition-colors uppercase tracking-tight">{service.title}</h3>
+                    <p className="text-gray-500 text-[0.95rem] font-medium leading-relaxed mb-6">{service.desc}</p>
+                    <div className="mt-auto pt-4 flex items-center gap-2 text-violet-600 font-bold text-sm">
+                      Read more <ArrowRight size={14} />
+                    </div>
                   </div>
                 </div>
-                <div className="p-8 flex flex-col flex-grow">
-                  <h3 className="font-extrabold text-xl text-gray-900 mb-4 font-heading group-hover:text-violet-600 transition-colors uppercase tracking-tight">{service.title}</h3>
-                  <p className="text-gray-500 text-[0.95rem] font-medium leading-relaxed mb-6">{service.desc}</p>
-                  <div className="mt-auto pt-4 flex items-center gap-2 text-violet-600 font-bold text-sm">
-                    Read more <ArrowRight size={14} />
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Container>
       </section>
@@ -260,32 +272,7 @@ export default function WebServices() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Our Home Tuition",
-                headline: "A complete ecosystem for online tutoring.",
-                desc: "Connecting thousands of students with expert tutors in real-time.",
-                image: "/assets/projects/home-tuition-v2.png",
-                link: "https://our-home-tuition.vercel.app/",
-                stats: "50k+ Users"
-              },
-              {
-                title: "SwiftShop",
-                headline: "Luxury fashion e-commerce platform.",
-                desc: "A high-performance luxury marketplace with seamless checkout flows.",
-                image: "/assets/projects/cloth-shop.png",
-                link: "#",
-                stats: "Global Reach"
-              },
-              {
-                title: "Examineer",
-                headline: "Secure & scalable examination portal.",
-                desc: "A robust testing platform with proctoring for large-scale assessments.",
-                image: "/assets/projects/exam-lms.png",
-                link: "#",
-                stats: "Proctoring Enabled"
-              }
-            ].map((project, i) => (
+            {content.projects.map((project: any, i: number) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
@@ -359,26 +346,34 @@ export default function WebServices() {
             
             {/* Row 1 */}
             <div className="animate-scroll gap-4 px-2">
-              {[...techStack.slice(0, 6), ...techStack.slice(0, 6)].map((tech, i) => (
-                <div key={i} className="flex items-center gap-3 px-6 py-4 rounded-[1.5rem] bg-white border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group whitespace-nowrap min-w-[200px]">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gray-50 group-hover:bg-violet-50 transition-colors`}>
-                    <tech.icon size={18} className={`${tech.color} group-hover:scale-110 transition-transform`} />
+              {[...content.techStack.slice(0, 6), ...content.techStack.slice(0, 6)].map((tech: any, i: number) => {
+                const icons = [Globe, Zap, Terminal, Code2, Code2, Database];
+                const Icon = icons[i % icons.length];
+                return (
+                  <div key={i} className="flex items-center gap-3 px-6 py-4 rounded-[1.5rem] bg-white border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group whitespace-nowrap min-w-[200px]">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gray-50 group-hover:bg-violet-50 transition-colors`}>
+                      <Icon size={18} className={`${tech.color} group-hover:scale-110 transition-transform`} />
+                    </div>
+                    <span className={`font-bold text-[0.95rem] tracking-tight text-gray-800`}>{tech.name}</span>
                   </div>
-                  <span className={`font-bold text-[0.95rem] tracking-tight text-gray-800`}>{tech.name}</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Row 2 */}
             <div className="animate-scroll-reverse gap-4 px-2">
-              {[...techStack.slice(6), ...techStack.slice(6)].map((tech, i) => (
-                <div key={i} className="flex items-center gap-3 px-6 py-4 rounded-[1.5rem] bg-white border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group whitespace-nowrap min-w-[200px]">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gray-50 group-hover:bg-violet-50 transition-colors`}>
-                    <tech.icon size={18} className={`${tech.color} group-hover:scale-110 transition-transform`} />
+              {[...content.techStack.slice(6), ...content.techStack.slice(6)].map((tech: any, i: number) => {
+                const icons = [Database, Cloud, Smartphone, Layout, Github];
+                const Icon = icons[i % icons.length];
+                return (
+                  <div key={i} className="flex items-center gap-3 px-6 py-4 rounded-[1.5rem] bg-white border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group whitespace-nowrap min-w-[200px]">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gray-50 group-hover:bg-violet-50 transition-colors`}>
+                      <Icon size={18} className={`${tech.color} group-hover:scale-110 transition-transform`} />
+                    </div>
+                    <span className={`font-bold text-[0.95rem] tracking-tight text-gray-800`}>{tech.name}</span>
                   </div>
-                  <span className={`font-bold text-[0.95rem] tracking-tight text-gray-800`}>{tech.name}</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Fades for smooth entry/exit - Reduced opacity/width as requested */}
