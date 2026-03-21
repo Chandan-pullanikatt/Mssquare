@@ -71,24 +71,80 @@ const jobs = [
 ];
 
 export default function CareersPage() {
-    const [activeFilter, setActiveFilter] = useState("All Roles");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [activeFilter, setActiveFilter] = useState("All");
+    const [formData, setFormData] = useState({
+        fullName: "",
+        email: "",
+        phone: "",
+        position: "Select a role",
+        linkedinUrl: "",
+        portfolioUrl: "",
+        coverLetter: ""
+    });
+    const [resumeFile, setResumeFile] = useState<File | null>(null);
     const formRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const scrollToForm = () => {
-        formRef.current?.scrollIntoView({ behavior: "smooth" });
+        formRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setResumeFile(e.target.files[0]);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!resumeFile) {
+            alert("Please upload your resume");
+            return;
+        }
+
         setIsSubmitting(true);
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            const data = new FormData();
+            Object.entries(formData).forEach(([key, value]) => {
+                data.append(key, value);
+            });
+            data.append("resume", resumeFile);
+
+            const response = await fetch("/api/apply/career", {
+                method: "POST",
+                body: data,
+            });
+
+            if (!response.ok) throw new Error("Submission failed");
+
             setIsSubmitting(false);
             setShowSuccess(true);
+            
+            // Reset form
+            setFormData({
+                fullName: "",
+                email: "",
+                phone: "",
+                position: "Select a role",
+                linkedinUrl: "",
+                portfolioUrl: "",
+                coverLetter: ""
+            });
+            setResumeFile(null);
+            
             setTimeout(() => setShowSuccess(false), 5000);
-        }, 2000);
+        } catch (error) {
+            console.error(error);
+            alert("Something went wrong. Please try again.");
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -306,6 +362,9 @@ export default function CareersPage() {
                                 <input
                                     required
                                     type="text"
+                                    name="fullName"
+                                    value={formData.fullName}
+                                    onChange={handleInputChange}
                                     className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-400"
                                     placeholder="John Doe"
                                 />
@@ -315,6 +374,9 @@ export default function CareersPage() {
                                 <input
                                     required
                                     type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleInputChange}
                                     className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-400"
                                     placeholder="john@example.com"
                                 />
@@ -324,6 +386,9 @@ export default function CareersPage() {
                                 <input
                                     required
                                     type="tel"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleInputChange}
                                     className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-400"
                                     placeholder="+1 (555) 000-0000"
                                 />
@@ -331,8 +396,13 @@ export default function CareersPage() {
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-gray-700 uppercase tracking-widest ml-1">Applying for Position</label>
                                 <div className="relative">
-                                    <select className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all appearance-none cursor-pointer">
-                                        <option>Select a role</option>
+                                    <select 
+                                        name="position"
+                                        value={formData.position}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all appearance-none cursor-pointer"
+                                    >
+                                        <option disabled>Select a role</option>
                                         <option>Senior React Developer</option>
                                         <option>UI/UX Designer</option>
                                         <option>Growth Marketing Manager</option>
@@ -346,6 +416,9 @@ export default function CareersPage() {
                             <label className="text-xs font-bold text-gray-700 uppercase tracking-widest ml-1">LinkedIn Profile</label>
                             <input
                                 type="url"
+                                name="linkedinUrl"
+                                value={formData.linkedinUrl}
+                                onChange={handleInputChange}
                                 className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-400"
                                 placeholder="https://linkedin.com/in/username"
                             />
@@ -353,11 +426,22 @@ export default function CareersPage() {
 
                         <div className="space-y-2">
                             <label className="text-xs font-bold text-gray-700 uppercase tracking-widest ml-1">Resume / CV</label>
-                            <div className="border-2 border-dashed border-purple-100 bg-primary-purple/5 rounded-3xl p-12 text-center group hover:border-primary-purple/30 hover:bg-primary-purple/10 transition-all cursor-pointer">
+                            <div 
+                                onClick={() => fileInputRef.current?.click()}
+                                className="border-2 border-dashed border-purple-100 bg-primary-purple/5 rounded-3xl p-12 text-center group hover:border-primary-purple/30 hover:bg-primary-purple/10 transition-all cursor-pointer"
+                            >
                                 <Upload size={32} className="mx-auto text-primary-purple mb-4 group-hover:-translate-y-1 transition-transform" />
-                                <p className="text-sm font-bold text-gray-900">Click to upload or drag and drop</p>
+                                <p className="text-sm font-bold text-gray-900">
+                                    {resumeFile ? resumeFile.name : "Click to upload or drag and drop"}
+                                </p>
                                 <p className="text-xs text-gray-400 mt-2 font-medium">PDF, DOCX up to 10MB</p>
-                                <input type="file" className="hidden" />
+                                <input 
+                                    type="file" 
+                                    ref={fileInputRef}
+                                    onChange={handleFileChange}
+                                    className="hidden" 
+                                    accept=".pdf,.doc,.docx"
+                                />
                             </div>
                         </div>
 
@@ -365,6 +449,9 @@ export default function CareersPage() {
                             <label className="text-xs font-bold text-gray-700 uppercase tracking-widest ml-1">Cover Letter</label>
                             <textarea
                                 rows={5}
+                                name="coverLetter"
+                                value={formData.coverLetter}
+                                onChange={handleInputChange}
                                 className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-[2rem] p-8 text-sm font-bold text-gray-900 outline-none transition-all resize-none placeholder:text-gray-400 leading-relaxed"
                                 placeholder="Tell us why you're a great fit..."
                             />
