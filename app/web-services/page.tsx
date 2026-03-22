@@ -219,9 +219,7 @@ export default function WebServices() {
                   <div className="p-8 flex flex-col flex-grow">
                     <h3 className="font-extrabold text-xl text-gray-900 mb-4 font-heading group-hover:text-violet-600 transition-colors uppercase tracking-tight">{service.title}</h3>
                     <p className="text-gray-500 text-[0.95rem] font-medium leading-relaxed mb-6">{service.desc}</p>
-                    <div className="mt-auto pt-4 flex items-center gap-2 text-violet-600 font-bold text-sm">
-                      Read more <ArrowRight size={14} />
-                    </div>
+
                   </div>
                 </div>
               );

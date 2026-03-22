@@ -94,9 +94,7 @@ export function Solutions() {
                 {solution.desc}
               </p>
               
-              <div className="mt-auto pt-6 flex items-center gap-2 text-[#7C3AED] font-bold text-sm opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                Learn more <Zap size={14} className="fill-[#7C3AED]" />
-              </div>
+
             </div>
           </div>
         ))}
