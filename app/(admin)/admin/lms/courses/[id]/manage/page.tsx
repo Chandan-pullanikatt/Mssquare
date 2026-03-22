@@ -17,7 +17,8 @@ import {
   ArrowUp,
   ArrowDown,
   Clock,
-  Upload
+  Upload,
+  ExternalLink
 } from "lucide-react";
 import Link from "next/link";
 import { coursesApi } from "@/lib/api/courses";
@@ -399,6 +400,21 @@ export default function ManageCourseContent() {
                       value={newSessionData.video_url}
                       onChange={e => setNewSessionData({...newSessionData, video_url: e.target.value})}
                     />
+                    <div className="flex items-center gap-2 mt-2 ml-1">
+                      <a 
+                        href="https://studio.youtube.com/channel/upload" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-[11px] font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1 bg-purple-50 px-2 py-1 rounded-md transition-colors"
+                      >
+                        <Upload size={10} />
+                        Upload to YouTube
+                      </a>
+                      <span className="text-gray-300 text-[10px]">•</span>
+                      <p className="text-[10px] text-gray-400 font-medium">
+                        Need help? <span className="text-purple-500 font-bold">Unlisted</span> is recommended.
+                      </p>
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center justify-end gap-3 mt-4">
