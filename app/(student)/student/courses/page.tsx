@@ -9,14 +9,13 @@ import {
     Filter,
     Star,
     Loader2,
-    GraduationCap,
+    CheckCircle2,
     Sparkles
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { enrollmentsApi } from "@/lib/api/enrollments";
-import { lessonProgressApi } from "@/lib/api/lessonProgress";
 
 export default function MyCoursesPage() {
     const { user, loading: authLoading } = useAuth();
@@ -30,7 +29,6 @@ export default function MyCoursesPage() {
         if (user?.id && hasFetched.current === user.id) return;
         
         if (user?.id) {
-            console.log("MyCoursesPage: Initializing enrollments fetch...");
             fetchEnrollments();
         }
     }, [user?.id]);
@@ -38,42 +36,28 @@ export default function MyCoursesPage() {
     const fetchEnrollments = async () => {
         if (!user?.id) return;
         try {
-            console.log("MyCoursesPage: Starting fetchEnrollments...");
             if (!enrollments.length) {
                 setLoading(true);
             }
             
-            // Parallel fetch: All enrollments + All user lesson progress
-            const [data, allProgress] = await Promise.all([
-                enrollmentsApi.getEnrollmentsByUser(user.id),
-                lessonProgressApi.getAllUserProgress(user.id)
-            ]);
-            
-            console.log(`MyCoursesPage: Fetched ${data.length} enrollments and ${allProgress.length} progress markers.`);
+            const data = await enrollmentsApi.getEnrollmentsByUser(user.id);
             
             const enriched = data.map((enrollment: any) => {
-                // Filter progress for THIS course from the pre-fetched list
-                const courseProgress = allProgress.filter((p: any) => p.lessons?.course_id === enrollment.course_id);
-                const totalLessons = enrollment.courses?.lessons?.length || 1;
-                const progress = Math.min(Math.round((courseProgress.length / totalLessons) * 100), 100);
-                
                 return {
                     ...enrollment,
-                    progress,
+                    progress: 0,
                     accent: enrollment.courses?.category === 'Tech' ? '#3b82f6' : 
                             enrollment.courses?.category === 'AI' ? '#8b5cf6' : 
                             enrollment.courses?.category === 'Design' ? '#f59e0b' : '#10b981'
                 };
             });
 
-            console.log("MyCoursesPage: Data enrichment complete.");
             setEnrollments(enriched);
             hasFetched.current = user.id;
         } catch (error) {
             console.error("MyCoursesPage: Error fetching enrollments:", error);
         } finally {
             setLoading(false);
-            console.log("MyCoursesPage: Fetch cycle complete.");
         }
     };
 
@@ -143,22 +127,19 @@ export default function MyCoursesPage() {
                                     <h3 className="text-lg font-bold font-heading text-gray-900 mb-1 group-hover:text-[#8b5cf6] transition-colors leading-tight">
                                         {enrollment.courses?.title}
                                     </h3>
-                                    <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
-                                        Modules: {enrollment.courses?.modules || 'TBA'}
-                                    </p>
-                                </div>
-
-                                <div className="mt-auto space-y-4 pt-4">
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between text-[10px] font-bold font-heading uppercase tracking-widest text-gray-400">
-                                            <span>Progress</span>
-                                            <span style={{ color: enrollment.accent }}>{enrollment.progress}%</span>
+                                    <div className="flex items-center justify-between py-2 border-t border-gray-50">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500">
+                                                <CheckCircle2 size={12} />
+                                            </div>
+                                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Active Enrollment</span>
                                         </div>
-                                        <div className="w-full bg-gray-50 rounded-full h-1.5">
-                                            <div
-                                                className="h-1.5 rounded-full transition-all duration-1000"
-                                                style={{ width: `${enrollment.progress}%`, backgroundColor: enrollment.accent }}
-                                            ></div>
+                                        <div className="flex -space-x-1.5">
+                                            {[1, 2, 3].map((i) => (
+                                                <div key={i} className="w-5 h-5 rounded-full border border-white bg-gray-100 overflow-hidden shadow-sm">
+                                                    <img src={`https://i.pravatar.cc/100?u=${i + (enrollment.courses?.id || '')}`} alt="Student" className="w-full h-full object-cover" />
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
 
@@ -180,7 +161,7 @@ export default function MyCoursesPage() {
                 <div className="py-20 px-6 text-center bg-white border border-gray-100 rounded-[2.5rem] shadow-sm relative overflow-hidden group">
                     <div className="relative z-10">
                         <div className="w-20 h-20 bg-purple-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                            <GraduationCap className="text-[#8b5cf6] w-10 h-10" />
+                            <Sparkles className="text-[#8b5cf6] w-10 h-10" />
                         </div>
                         <h3 className="text-2xl font-black text-gray-900 mb-3 tracking-tight">No courses found</h3>
                         <p className="text-gray-500 font-medium max-w-sm mx-auto mb-8 leading-relaxed">
@@ -190,8 +171,8 @@ export default function MyCoursesPage() {
                             href="/student/explore" 
                             className="inline-flex items-center gap-2 bg-[#8b5cf6] text-white px-8 py-4 rounded-2xl font-bold hover:-translate-y-1 transition-all"
                         >
-                            <Sparkles size={20} />
-                            Browse Programs
+                            <Play size={20} fill="currentColor" />
+                            Explore Programs
                         </Link>
                     </div>
                 </div>
