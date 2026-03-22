@@ -49,17 +49,11 @@ export default function StudentLayout({
 
   return (
     <div className="flex min-h-screen bg-white text-gray-900 border-[8px] border-violet-50 overflow-hidden relative">
-      {/* Mobile Menu Button */}
-      <button
-        className="lg:hidden fixed bottom-6 right-6 z-50 bg-[#8b5cf6] text-white p-4 rounded-full shadow-lg"
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-      >
-        {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
+      {/* Mobile Menu Button - Moved to Header */}
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-1 left-1 bottom-1 h-[calc(100vh-8px)] w-[260px] bg-white border-r border-gray-100 flex flex-col transition-transform duration-300 z-40 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        className={`fixed top-1 left-1 bottom-1 h-[calc(100vh-8px)] w-[260px] bg-white border-r border-gray-100 flex flex-col transition-transform duration-300 z-40 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           }`}
       >
         {/* Logo Area */}
@@ -108,9 +102,16 @@ export default function StudentLayout({
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-h-screen bg-gray-50/30 w-full overflow-hidden lg:pl-[260px]">
+      <main className="flex-1 flex flex-col min-h-screen bg-gray-50/30 w-full overflow-hidden md:pl-[260px]">
         {/* Top Header */}
-        <header className="h-[80px] bg-white/80 backdrop-blur-md px-8 flex items-center justify-between border-b border-gray-100 z-30 sticky top-0">
+        <header className="h-[80px] bg-white/80 backdrop-blur-md px-4 sm:px-8 flex items-center gap-4 border-b border-gray-100 z-30 sticky top-0">
+          <button
+            className="md:hidden p-2 text-gray-600 hover:bg-gray-50 rounded-xl transition-colors shrink-0"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+
           <div className="flex-1 max-w-2xl relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
@@ -186,7 +187,7 @@ export default function StudentLayout({
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-30 lg:hidden"
+          className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-30 md:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}

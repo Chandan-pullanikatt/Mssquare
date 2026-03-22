@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getGeminiResponse } from "@/lib/gemini";
+import { getAIResponse } from "@/lib/ai";
 
 type Message = {
     role: "assistant" | "user";
@@ -73,7 +73,7 @@ export default function AICoachPage() {
                     parts: [{ text: msg.content }]
                 }));
 
-            const aiResponse = await getGeminiResponse(userPrompt, history);
+            const aiResponse = await getAIResponse(userPrompt, history);
             
             const newAiMsg: Message = {
                 role: "assistant",
@@ -83,12 +83,19 @@ export default function AICoachPage() {
             };
             
             setMessages(prev => [...prev, newAiMsg]);
-        } catch (error) {
+        } catch (error: any) {
             console.error("AI Chat Error:", error);
+            let errorMessage = "I'm sorry, I hit a snag while thinking. Please make sure your Gemini API key is correctly configured in the environment.";
+            
+            // Check for 429 error
+            if (error?.status === 429 || error?.message?.includes("429") || error?.response?.status === 429) {
+                errorMessage = "AI assistant is temporarily unavailable, please try again shortly";
+            }
+            
             const errorMsg: Message = {
                 role: "assistant",
                 name: "MSSquare AI",
-                content: "I'm sorry, I hit a snag while thinking. Please make sure your Gemini API key is correctly configured in the environment.",
+                content: errorMessage,
                 time: "JUST NOW"
             };
             setMessages(prev => [...prev, errorMsg]);
@@ -98,7 +105,7 @@ export default function AICoachPage() {
     };
 
     return (
-        <div className="h-[calc(100vh-120px)] flex flex-col bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative">
+        <div className="flex flex-col bg-white rounded-[2.5rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative">
             
             <div className="flex-1 flex flex-col min-w-0 bg-[#fafafc]">
                 {/* Chat Header */}
@@ -122,7 +129,7 @@ export default function AICoachPage() {
                 </header>
 
                 {/* Messages Area */}
-                <div ref={scrollRef} className="flex-1 overflow-y-auto p-10 space-y-10 scroll-smooth">
+                <div ref={scrollRef} className="p-10 space-y-10">
                     {messages.map((msg, i) => (
                         <div key={i} className={`flex gap-5 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                             <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${

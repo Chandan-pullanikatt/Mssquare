@@ -7,7 +7,7 @@ const securityHeaders = [
       default-src 'self';
       script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://apis.google.com;
       frame-src https://api.razorpay.com https://accounts.google.com https://www.youtube.com https://www.youtube-nocookie.com;
-      connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+      connect-src 'self' https://*.supabase.co wss://*.supabase.co https://generativelanguage.googleapis.com;
       img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com;
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
       font-src 'self' https://fonts.gstatic.com;
