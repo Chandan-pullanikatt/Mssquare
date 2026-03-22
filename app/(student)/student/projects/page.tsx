@@ -71,8 +71,8 @@ export default function StudentProjectsPage() {
     };
 
     const filteredProjects = projects.filter(p => 
-        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.course_title.toLowerCase().includes(searchQuery.toLowerCase())
+        (p.title?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+        (p.course_title?.toLowerCase() || "").includes(searchQuery.toLowerCase())
     );
 
     if (authLoading || loading) {

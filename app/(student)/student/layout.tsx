@@ -121,6 +121,8 @@ export default function StudentLayout({
             />
           </div>
 
+          <div className="flex-1" /> {/* Spacer to push profile to the right */}
+
           <div className="flex items-center gap-6 ml-4">
             <NotificationBell targetRole="student" />
 

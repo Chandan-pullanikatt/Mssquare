@@ -15,6 +15,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { enrollmentsApi } from "@/lib/api/enrollments";
 import { recordedSessionsApi } from "@/lib/api/recordedSessions";
 import { RecordedSession } from "@/types/database";
+import VideoPlayer from "@/components/shared/VideoPlayer";
 
 export default function StudentRecordedSessionsPage() {
     const { user, loading: authLoading } = useAuth();
@@ -102,14 +103,7 @@ export default function StudentRecordedSessionsPage() {
                             <div key={i} className="bg-white border border-gray-100 rounded-[2.5rem] overflow-hidden shadow-sm flex flex-col group hover:shadow-xl transition-all duration-500 hover:border-[#8b5cf6]/20">
                                 <div className="aspect-video bg-gray-900 relative">
                                     {isPlaying ? (
-                                        <iframe
-                                            className="absolute inset-0 w-full h-full"
-                                            src={`https://www.youtube-nocookie.com/embed/${session.video_url}?rel=0&modestbranding=1&autoplay=1`}
-                                            title={session.title}
-                                            frameBorder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowFullScreen
-                                        ></iframe>
+                                        <VideoPlayer videoId={session.video_url} title={session.title} />
                                     ) : (
                                         <button 
                                             onClick={() => handlePlay(session.id, session.video_url)}
