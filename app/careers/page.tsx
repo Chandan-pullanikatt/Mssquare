@@ -73,7 +73,7 @@ const jobs = [
 export default function CareersPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
-    const [activeFilter, setActiveFilter] = useState("All");
+    const [activeFilter, setActiveFilter] = useState("All Roles");
     const [formData, setFormData] = useState({
         fullName: "",
         email: "",
@@ -171,7 +171,7 @@ export default function CareersPage() {
             </nav>
 
             {/* Hero Section */}
-            <section className="relative pt-40 pb-20 px-8 max-w-7xl mx-auto overflow-hidden">
+            <section className="relative pt-32 pb-16 px-8 max-w-7xl mx-auto overflow-hidden">
                 <div className="flex flex-col lg:flex-row items-center gap-12">
                     <div className="flex-1 space-y-8 animate-in fade-in slide-in-from-left-8 duration-700">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-purple/10 text-primary-purple rounded-full text-xs font-bold uppercase tracking-widest">
@@ -217,7 +217,7 @@ export default function CareersPage() {
             </section>
 
             {/* Why Join Us Section */}
-            <section id="why-join-us" className="py-24 px-8 bg-light-background overflow-hidden">
+            <section id="why-join-us" className="py-16 px-8 bg-slate-50/30 overflow-hidden">
                 <div className="max-w-7xl mx-auto text-center space-y-16">
                     <div className="max-w-3xl mx-auto">
                         <h2 className="text-5xl font-extrabold text-[#1e293b] font-heading mb-6">Why Join Us</h2>
@@ -288,7 +288,7 @@ export default function CareersPage() {
             </section>
 
             {/* Open Positions Section */}
-            <section className="py-24 px-8 bg-light-surface">
+            <section className="py-16 px-8 bg-slate-50/50">
                 <div className="max-w-7xl mx-auto space-y-12">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                         <div>
@@ -345,7 +345,7 @@ export default function CareersPage() {
             </section>
 
             {/* Application Form Section */}
-            <section ref={formRef} className="py-32 px-8 bg-light-surface text-gray-900">
+            <section ref={formRef} className="py-20 px-8 bg-light-surface text-gray-900">
                 <div className="max-w-4xl mx-auto bg-white border border-gray-100 rounded-[3rem] p-8 md:p-16 shadow-2xl shadow-black/5 relative overflow-hidden">
                     {/* Banner Decoration */}
                     <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-primary-purple to-purple-500"></div>
