@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { authHelpers } from "@/utils/authHelpers";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
+import Image from "next/image";
 
 type PortalType = {
   id: string;
@@ -194,8 +195,13 @@ function AuthForm() {
           <div className="flex items-center gap-3 mb-2">
             <div className="flex -space-x-2.5">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="w-8 h-8 rounded-full border-2 border-[#2d2a4a] bg-gray-200 overflow-hidden shadow-md">
-                   <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=user${i+15}&backgroundColor=f8f9fb&text-gray-500`} alt="avatar" />
+                <div key={i} className="w-8 h-8 rounded-full border-2 border-[#2d2a4a] bg-gray-200 relative overflow-hidden shadow-md">
+                   <Image 
+                     src={`https://api.dicebear.com/7.x/avataaars/svg?seed=user${i+15}&backgroundColor=f8f9fb&text-gray-500`} 
+                     alt="avatar" 
+                     fill
+                     className="object-cover"
+                   />
                 </div>
               ))}
             </div>

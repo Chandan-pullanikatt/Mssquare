@@ -138,8 +138,13 @@ export default function StudentLayout({
                   <div className="text-sm font-bold text-gray-900 group-hover:text-[#8b5cf6] transition-colors">{user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User"}</div>
                   <div className="text-xs text-gray-500 font-medium">Student ID: #{user?.id?.slice(-4) || "8821"}</div>
                 </div>
-                <div className={`w-10 h-10 rounded-full bg-[#fed7aa] border-2 transition-all overflow-hidden ${isProfileOpen ? 'border-[#8b5cf6] shadow-lg shadow-[#8b5cf6]/20 scale-110' : 'border-white shadow-sm'}`}>
-                  <img src={user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/notionists/svg?seed=${user?.email || 'Alex'}&backgroundColor=fed7aa`} alt="User" className="w-full h-full object-cover" />
+                <div className={`w-10 h-10 rounded-full bg-[#fed7aa] border-2 transition-all relative overflow-hidden ${isProfileOpen ? 'border-[#8b5cf6] shadow-lg shadow-[#8b5cf6]/20 scale-110' : 'border-white shadow-sm'}`}>
+                  <Image 
+                    src={user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/notionists/svg?seed=${user?.email || 'Alex'}&backgroundColor=fed7aa`} 
+                    alt="User" 
+                    fill
+                    className="object-cover" 
+                  />
                 </div>
               </button>
 

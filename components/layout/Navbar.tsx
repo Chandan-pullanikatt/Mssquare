@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, LogOut } from "lucide-react";
+import Image from "next/image";
 import { COLORS, SHADOWS } from "@/lib/design-tokens";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { UserMenu } from "./UserMenu";
@@ -43,10 +44,13 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
         <div className="flex items-center gap-8">
           {/* Logo */}
           <Link href="/" className="relative h-9 w-36 transition-transform duration-300 hover:scale-[1.02]">
-            <img 
+            <Image 
               src={shouldUseLightStyling ? "/assets/logo-light.png" : "/assets/logo-dark.png"} 
               alt="MSSquare" 
-              className="h-full w-full object-contain object-left transition-opacity duration-500"
+              fill
+              priority
+              className="object-contain object-left transition-opacity duration-500"
+              sizes="(max-width: 768px) 144px, 144px"
             />
           </Link>
         </div>

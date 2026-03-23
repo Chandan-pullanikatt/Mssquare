@@ -11,7 +11,7 @@ const programs = [
     title: "Artificial Intelligence",
     desc: "Learn the fundamentals of AI including intelligent systems, neural networks, and real-world AI applications.",
     meta: "12 WEEKS · INTENSIVE",
-    slug: "artificial-intelligence",
+    slug: "2c1ecfd7-0661-455e-972a-2b49ebde2b33",
     highlight: true,
   },
   {
@@ -20,7 +20,7 @@ const programs = [
     title: "Machine Learning",
     desc: "Understand machine learning algorithms, data modeling, predictive systems, and practical ML implementation.",
     meta: "10 WEEKS · PRACTICAL",
-    slug: "machine-learning",
+    slug: "8d722a48-81c7-4dd2-9d00-5bf6f8fc48c3",
     highlight: false,
   },
   {
@@ -29,7 +29,7 @@ const programs = [
     title: "Human Resources",
     desc: "Learn HR management fundamentals including recruitment, employee relations, performance management, and organizational development.",
     meta: "8 WEEKS · PROFESSIONAL",
-    slug: "human-resources",
+    slug: "a2e6da75-5773-45a6-b9fe-5206507db193",
     highlight: false,
   },
 ];
@@ -60,9 +60,9 @@ export function Programs() {
     title: "Learn By Building Real Products",
     description: "Ditch the tutorials. Learn production-grade engineering by contributing to live projects used by thousands.",
     items: [
-        { title: "Artificial Intelligence", desc: "Learn the fundamentals of AI including intelligent systems, neural networks, and real-world AI applications.", meta: "12 WEEKS · INTENSIVE", slug: "artificial-intelligence", image: "/assets/courses/ArtificialIntelligence.jpg", badge: "POPULAR" },
-        { title: "Machine Learning", desc: "Understand machine learning algorithms, data modeling, predictive systems, and practical ML implementation.", meta: "10 WEEKS · PRACTICAL", slug: "machine-learning", image: "/assets/courses/machinelearning.jpg" },
-        { title: "Human Resources", desc: "Learn HR management fundamentals including recruitment, employee relations, performance management, and organizational development.", meta: "8 WEEKS · PROFESSIONAL", slug: "human-resources", image: "/assets/courses/humanresources.jpg" }
+        { title: "Artificial Intelligence", desc: "Learn the fundamentals of AI including intelligent systems, neural networks, and real-world AI applications.", meta: "12 WEEKS · INTENSIVE", slug: "2c1ecfd7-0661-455e-972a-2b49ebde2b33", image: "/assets/courses/ArtificialIntelligence.jpg", badge: "POPULAR" },
+        { title: "Machine Learning", desc: "Understand machine learning algorithms, data modeling, predictive systems, and practical ML implementation.", meta: "10 WEEKS · PRACTICAL", slug: "8d722a48-81c7-4dd2-9d00-5bf6f8fc48c3", image: "/assets/courses/machinelearning.jpg" },
+        { title: "Human Resources", desc: "Learn HR management fundamentals including recruitment, employee relations, performance management, and organizational development.", meta: "8 WEEKS · PROFESSIONAL", slug: "a2e6da75-5773-45a6-b9fe-5206507db193", image: "/assets/courses/humanresources.jpg" }
     ]
   };
 

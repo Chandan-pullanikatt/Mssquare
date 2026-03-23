@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Mail, Phone } from "lucide-react";
+import Image from "next/image";
 
 export function Footer() {
   return (
@@ -8,10 +9,12 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-16">
           <div className="flex flex-col gap-4">
             <Link href="/" className="relative h-9 w-36 transition-transform duration-300 hover:scale-[1.02]">
-              <img 
+              <Image 
                 src="/assets/logo-dark.png" 
                 alt="MSSquare" 
-                className="h-full w-full object-contain object-left"
+                fill
+                className="object-contain object-left"
+                sizes="(max-width: 768px) 144px, 144px"
               />
             </Link>
             <p className="text-muted text-[0.85rem] leading-[1.6]">

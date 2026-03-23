@@ -38,6 +38,7 @@ const adminSidebarItems = [
   { name: "Media Manager", href: "/admin/cms/media", icon: ImageIcon },
   { name: "Users", href: "/admin/cms/users", icon: Users },
   { name: "Leads & Inquiries", href: "/admin/cms/leads", icon: MessageSquare },
+  { name: "Applications", href: "/admin/cms/applications", icon: Award },
   { name: "Enrollments", href: "/admin/cms/enrollments", icon: UserCheck },
   { name: "FAQ & Legal", href: "/admin/cms/faq-legal", icon: ShieldCheck },
   { name: "Analytics", href: "/admin/cms/analytics", icon: BarChart3 },
