@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getAIResponse } from "@/lib/ai";
 
 type Message = {
     role: "assistant" | "user";
@@ -34,6 +33,10 @@ export default function AICoachPage() {
             time: "TODAY"
         }
     ]);
+    // Note: Conversation history is maintained in state only for this version.
+    // v2 Improvement: Persist chat history to a 'chat_messages' table in Supabase.
+    const [conversationHistory, setConversationHistory] = useState<{ role: string; content: string }[]>([]);
+    
     const [isLoading, setIsLoading] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -64,16 +67,23 @@ export default function AICoachPage() {
         setIsLoading(true);
 
         try {
-            // Prepare history for Gemini (skip the initial assistant greeting)
-            const firstUserIndex = messages.findIndex(m => m.role === 'user');
-            const history = (firstUserIndex === -1 ? [] : messages.slice(firstUserIndex))
-                .slice(-10)
-                .map(msg => ({
-                    role: msg.role === 'assistant' ? 'model' : 'user',
-                    parts: [{ text: msg.content }]
-                }));
+            const response = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: userPrompt,
+                    userId: user?.id,
+                    conversationHistory: conversationHistory
+                })
+            });
 
-            const aiResponse = await getAIResponse(userPrompt, history);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to get AI response");
+            }
+
+            const aiResponse = data.response;
             
             const newAiMsg: Message = {
                 role: "assistant",
@@ -83,13 +93,20 @@ export default function AICoachPage() {
             };
             
             setMessages(prev => [...prev, newAiMsg]);
+            
+            // Update conversation history for next request
+            setConversationHistory(prev => [
+                ...prev,
+                { role: "user", content: userPrompt },
+                { role: "assistant", content: aiResponse }
+            ]);
+
         } catch (error: any) {
             console.error("AI Chat Error:", error);
-            let errorMessage = "I'm sorry, I hit a snag while thinking. Please make sure your Gemini API key is correctly configured in the environment.";
+            let errorMessage = "Something went wrong, please try again.";
             
-            // Check for 429 error
-            if (error?.status === 429 || error?.message?.includes("429") || error?.response?.status === 429) {
-                errorMessage = "AI assistant is temporarily unavailable, please try again shortly";
+            if (error?.message?.includes("wait a moment") || error?.status === 429) {
+                errorMessage = "Please wait a moment before sending another message";
             }
             
             const errorMsg: Message = {
@@ -212,7 +229,7 @@ export default function AICoachPage() {
                         </div>
                     </div>
                     <p className="text-center text-[9px] text-gray-400 mt-5 font-black uppercase tracking-[0.2em] opacity-50">
-                        Powered by Google Gemini • Context Aware Learning
+                        Powered by Groq • Llama 3.1 • Context Aware Learning
                     </p>
                 </div>
             </div>
