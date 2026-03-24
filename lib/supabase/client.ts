@@ -16,4 +16,7 @@ export function createClient() {
 }
 
 // Global singleton for the browser
+if (typeof window !== 'undefined') {
+  console.log("Supabase Client: Initializing with URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
+}
 export const supabase = createClient();

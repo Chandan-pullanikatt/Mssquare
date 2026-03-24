@@ -116,7 +116,7 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
       // But we can at least handle new ones.
       
       alert("Course updated successfully!");
-      router.push("/admin/courses");
+      router.push("/admin/cms/courses");
     } catch (error) {
       console.error("Error updating course:", error);
       alert("Failed to update course.");
@@ -132,7 +132,7 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-100 pb-8">
         <div className="flex items-center gap-4">
-          <Link href="/admin/courses" className="p-3 rounded-2xl bg-white border border-gray-100 text-gray-400 hover:text-gray-900 transition-all">
+          <Link href="/admin/cms/courses" className="p-3 rounded-2xl bg-white border border-gray-100 text-gray-400 hover:text-gray-900 transition-all">
             <ArrowLeft size={20} />
           </Link>
           <div>
