@@ -1,0 +1,7 @@
+﻿[dotenv@17.3.1] injecting env (3) from .env -- tip: ≡ƒöÉ prevent building .env in docker: https://dotenvx.com/prebuild
+--- Verifying Account Roles ---
+[FOUND] chandanpullanikatt@gmail.com | ID: 46dd6099-00e4-4b3f-bace-b20bac51f6d6 | Profile Role: lms_admin
+[FOUND] chandanpullanikatt+admin@gmail.com | ID: 36c0df53-ad5a-4530-b3a2-3a55ce14fc30 | Profile Role: lms_admin
+[FOUND] chandanpullanikatt+business@gmail.com | ID: 46f62bfb-68f3-4a8d-967f-e3bbd7aa9a4d | Profile Role: business_client
+[FOUND] chandanpullanikatt+bizadmin@gmail.com | ID: 1f9e2a8f-7b67-441d-b44b-925d51771dee | Profile Role: business_admin
+[FOUND] chandanpullanikatt+cms@gmail.com | ID: 21ec4fd2-b8cb-48ef-b596-3575e9ae8e81 | Profile Role: cms_admin
