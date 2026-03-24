@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
     Plus,
-    Search,
-    MoreVertical,
     Paperclip,
     Mic,
     Send,
@@ -140,8 +138,6 @@ export default function AICoachPage() {
                         </div>
                     </div>
                     <div className="flex items-center gap-5">
-                        <button className="p-2.5 text-gray-400 hover:text-primary-purple hover:bg-primary-purple/5 rounded-xl transition-all"><Search size={22} /></button>
-                        <button className="p-2.5 text-gray-400 hover:text-primary-purple hover:bg-primary-purple/5 rounded-xl transition-all"><MoreVertical size={22} /></button>
                     </div>
                 </header>
 
