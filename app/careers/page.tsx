@@ -171,9 +171,15 @@ export default function CareersPage() {
             </nav>
 
             {/* Hero Section */}
-            <section className="relative pt-32 pb-16 px-8 max-w-7xl mx-auto overflow-hidden">
-                <div className="flex flex-col lg:flex-row items-center gap-12">
-                    <div className="flex-1 space-y-8 animate-in fade-in slide-in-from-left-8 duration-700">
+            <section className="relative pt-24 pb-16 px-8 max-w-7xl mx-auto overflow-hidden bg-gradient-to-b from-white via-slate-50/50 to-white">
+                {/* Hero Background Decorative Elements */}
+                <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                    <div className="absolute top-24 -left-24 w-[500px] h-[500px] bg-purple-100/40 rounded-full blur-[120px]"></div>
+                    <div className="absolute -top-24 right-0 w-[400px] h-[400px] bg-blue-100/30 rounded-full blur-[100px]"></div>
+                </div>
+
+                <div className="flex flex-col lg:flex-row items-center gap-10 relative z-10">
+                    <div className="flex-1 space-y-6 animate-in fade-in slide-in-from-left-8 duration-700">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-purple/10 text-primary-purple rounded-full text-xs font-bold uppercase tracking-widest">
                             <Rocket size={14} />
                             We are hiring
@@ -202,12 +208,13 @@ export default function CareersPage() {
                     </div>
 
                     <div className="flex-1 relative animate-in fade-in slide-in-from-right-8 duration-1000">
-                        <div className="w-full aspect-[4/3] rounded-[3rem] overflow-hidden shadow-2xl relative group bg-white">
+                        <div className="w-full aspect-[4/3] rounded-[3rem] overflow-hidden shadow-2xl relative group bg-white border border-slate-100/50">
                             <img
                                 src="/assets/careers.png"
                                 alt="Careers at MSSquare"
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
                             />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         </div>
                         {/* Decorative Elements */}
                         <div className="absolute -top-6 -right-6 w-32 h-32 bg-purple-100 rounded-full blur-3xl opacity-60"></div>
@@ -345,10 +352,16 @@ export default function CareersPage() {
             </section>
 
             {/* Application Form Section */}
-            <section ref={formRef} className="py-20 px-8 bg-light-surface text-gray-900">
-                <div className="max-w-4xl mx-auto bg-white border border-gray-100 rounded-[3rem] p-8 md:p-16 shadow-2xl shadow-black/5 relative overflow-hidden">
+            <section ref={formRef} className="py-20 px-8 bg-gradient-to-b from-slate-100 via-slate-200 to-slate-100 text-gray-900 overflow-hidden relative">
+                {/* Background patterns */}
+                <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none">
+                    <div className="absolute -top-24 -left-24 w-96 h-96 bg-purple-200/50 rounded-full blur-[100px]"></div>
+                    <div className="absolute top-1/2 -right-24 w-96 h-96 bg-blue-200/50 rounded-full blur-[100px]"></div>
+                </div>
+                
+                <div className="max-w-4xl mx-auto bg-gradient-to-br from-white to-gray-50/80 border border-gray-200/80 rounded-[3rem] p-6 md:p-12 shadow-2xl shadow-black/5 relative overflow-hidden">
                     {/* Banner Decoration */}
-                    <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-primary-purple to-purple-500"></div>
+                    <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-primary-purple to-purple-500 shadow-sm shadow-primary-purple/20"></div>
 
                     <div className="text-center mb-16 space-y-4">
                         <h2 className="text-4xl font-extrabold text-gray-900 font-heading italic">Start Your Journey</h2>
@@ -365,7 +378,7 @@ export default function CareersPage() {
                                     name="fullName"
                                     value={formData.fullName}
                                     onChange={handleInputChange}
-                                    className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-400"
+                                    className="w-full bg-gray-100/50 border border-gray-200/20 focus:border-primary-purple/30 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-400 shadow-sm shadow-black/[0.02]"
                                     placeholder="John Doe"
                                 />
                             </div>

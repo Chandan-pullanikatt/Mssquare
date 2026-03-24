@@ -96,19 +96,26 @@ export default function BecomeInstructorPage() {
         <div className="min-h-screen bg-white font-sans selection:bg-primary-purple/30">
             <Navbar variant="light" />
 
-            <main className="pt-32 pb-20 px-8">
+            <main className="pt-32 pb-20 px-8 bg-gradient-to-b from-slate-50 via-slate-100 to-slate-50 relative overflow-hidden">
+                {/* Decorative Background Glows */}
+                <div className="absolute top-1/4 -right-24 w-96 h-96 bg-purple-100/40 rounded-full blur-[100px] pointer-events-none"></div>
+                <div className="absolute bottom-1/4 -left-24 w-96 h-96 bg-blue-100/40 rounded-full blur-[100px] pointer-events-none"></div>
+                
                 <div className="max-w-4xl mx-auto space-y-12">
-                    <div className="text-center space-y-6">
-                        <h1 className="text-5xl md:text-6xl font-extrabold text-[#1e293b] font-heading tracking-tight italic">
+                    <div className="text-center space-y-6 relative py-4">
+                        {/* Hero specific decoration */}
+                        <div className="absolute inset-0 bg-white/40 backdrop-blur-3xl -z-10 rounded-[4rem] scale-110 border border-white/20"></div>
+                        
+                        <h1 className="text-5xl md:text-7xl font-extrabold text-[#1e293b] font-heading tracking-tighter italic">
                             {content.hero.title}
                         </h1>
-                        <p className="text-gray-600 text-lg font-medium max-w-2xl mx-auto leading-relaxed">
+                        <p className="text-slate-600 text-xl font-medium max-w-2xl mx-auto leading-relaxed">
                             {content.hero.subtitle}
                         </p>
                     </div>
 
-                    <div className="bg-white border border-gray-100 rounded-[3rem] p-8 md:p-16 shadow-2xl shadow-black/5 relative overflow-hidden">
-                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-purple via-blue-500 to-primary-purple"></div>
+                    <div className="bg-gradient-to-br from-white to-slate-50 border border-slate-200/60 rounded-[3rem] p-6 md:p-12 shadow-2xl shadow-black/[0.03] relative overflow-hidden">
+                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary-purple via-blue-500 to-primary-purple shadow-sm shadow-primary-purple/10"></div>
                         
                         <form onSubmit={handleSubmit} className="space-y-8">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -120,7 +127,7 @@ export default function BecomeInstructorPage() {
                                         name="fullName"
                                         value={formData.fullName}
                                         onChange={handleInputChange}
-                                        className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-400"
+                                        className="w-full bg-slate-100/50 border border-slate-200/30 focus:border-primary-purple/40 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all placeholder:text-gray-400 shadow-sm shadow-black/[0.02]"
                                         placeholder="John Doe"
                                     />
                                 </div>
@@ -178,7 +185,7 @@ export default function BecomeInstructorPage() {
                                     name="message"
                                     value={formData.message}
                                     onChange={handleInputChange}
-                                    className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-[2rem] p-8 text-sm font-bold text-gray-900 outline-none transition-all resize-none placeholder:text-gray-400 leading-relaxed"
+                                    className="w-full bg-slate-100/50 border border-slate-200/30 focus:border-primary-purple/40 focus:bg-white rounded-[2rem] p-8 text-sm font-bold text-gray-900 outline-none transition-all resize-none placeholder:text-gray-400 leading-relaxed shadow-sm shadow-black/[0.02]"
                                     placeholder="Tell us about your teaching experience..."
                                 />
                             </div>
