@@ -11,11 +11,11 @@ export function WebServicesNavbar() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
       <div className="px-[5%] h-[70px] flex items-center justify-between w-full max-w-7xl mx-auto">
         {/* Logo */}
-        <Link href="/" className="relative h-8 w-32 transition-transform duration-300 hover:scale-[1.02]">
+        <Link href="/" className="relative h-12 w-48 transition-transform duration-300 hover:scale-[1.02]">
           <img 
-            src="/assets/logo-light.png" 
+            src="/assets/nobglogo.png" 
             alt="MSSquare" 
-            className="h-full w-full object-contain object-left"
+            className="h-full w-full object-contain object-left brightness-0"
           />
         </Link>
 

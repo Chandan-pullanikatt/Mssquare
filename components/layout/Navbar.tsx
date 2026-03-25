@@ -43,14 +43,16 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
       <div className="px-[5%] h-[70px] flex items-center justify-between w-full">
         <div className="flex items-center gap-8">
           {/* Logo */}
-          <Link href="/" className="relative h-9 w-36 transition-transform duration-300 hover:scale-[1.02]">
+          <Link href="/" className="relative h-12 w-48 transition-transform duration-300 hover:scale-[1.02]">
             <Image 
-              src={shouldUseLightStyling ? "/assets/logo-light.png" : "/assets/logo-dark.png"} 
+              src="/assets/nobglogo.png" 
               alt="MSSquare" 
               fill
               priority
-              className="object-contain object-left transition-opacity duration-500"
-              sizes="(max-width: 768px) 144px, 144px"
+              className={`object-contain object-left transition-all duration-500 ${
+                shouldUseLightStyling ? "brightness-0" : ""
+              }`}
+              sizes="(max-width: 768px) 192px, 192px"
             />
           </Link>
         </div>

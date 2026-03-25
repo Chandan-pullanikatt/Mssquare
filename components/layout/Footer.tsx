@@ -8,13 +8,13 @@ export function Footer() {
       <div className="px-[5%] max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-16">
           <div className="flex flex-col gap-4">
-            <Link href="/" className="relative h-9 w-36 transition-transform duration-300 hover:scale-[1.02]">
+            <Link href="/" className="relative h-12 w-48 transition-transform duration-300 hover:scale-[1.02]">
               <Image 
-                src="/assets/logo-dark.png" 
+                src="/assets/nobglogo.png" 
                 alt="MSSquare" 
                 fill
                 className="object-contain object-left"
-                sizes="(max-width: 768px) 144px, 144px"
+                sizes="(max-width: 768px) 192px, 192px"
               />
             </Link>
             <p className="text-muted text-[0.85rem] leading-[1.6]">
