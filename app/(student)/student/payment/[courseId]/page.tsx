@@ -140,7 +140,7 @@ export default function CoursePaymentPage() {
 
             const verifyData = await verifyRes.json();
             if (verifyRes.ok) {
-              router.push("/student/my-courses?success=true");
+              router.push("/student/dashboard?success=true");
             } else {
               throw new Error(verifyData.error);
             }
