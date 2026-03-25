@@ -14,7 +14,7 @@ export function CoursesNavbar() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
       <div className="px-[5%] h-[70px] flex items-center justify-between w-full max-w-7xl mx-auto">
         {/* Logo */}
-        <Link href="/" className="relative h-12 w-48 transition-transform duration-300 hover:scale-[1.02]">
+        <Link href="/" className="relative h-10 md:h-12 w-40 md:w-48 transition-transform duration-300 hover:scale-[1.02]">
           <img 
             src="/assets/nobglogo.png" 
             alt="MSSquare" 
@@ -74,8 +74,8 @@ export function CoursesNavbar() {
 
       {/* Mobile Menu Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 top-[70px] bg-white z-40 md:hidden p-6 animate-in slide-in-from-top duration-300">
-          <nav className="flex flex-col gap-6">
+        <div className="fixed inset-0 top-[70px] bg-white z-[100] md:hidden p-8 animate-in slide-in-from-top duration-300 h-[calc(100vh-70px)]">
+          <nav className="flex flex-col gap-6 h-full overflow-y-auto pb-10">
             {[
               { name: "Home", href: "/" },
               { name: "Programs", href: "/student/explore" },
@@ -86,7 +86,7 @@ export function CoursesNavbar() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-xl font-black text-gray-900 border-b border-gray-50 pb-4"
+                className="text-2xl font-black text-gray-900 border-b border-gray-50 pb-4 tracking-tight"
                 onClick={() => setIsOpen(false)}
               >
                 {item.name}

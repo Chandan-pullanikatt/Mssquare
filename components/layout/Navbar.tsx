@@ -114,7 +114,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
 
       {/* Mobile Nav */}
       {isMobileMenuOpen && (
-        <div className={`absolute top-full left-0 right-0 md:hidden backdrop-blur-xl border-b px-[5%] py-6 z-50 transition-all duration-300 ${
+        <div className={`absolute top-full left-0 right-0 md:hidden backdrop-blur-xl border-b px-[5%] py-8 z-[100] transition-all duration-300 h-[calc(100vh-70px)] overflow-y-auto ${
           shouldUseLightStyling ? "bg-light-background/95 border-light-border shadow-lg" : "bg-background/95 border-border"
         }`}>
           <nav className="flex flex-col gap-6">

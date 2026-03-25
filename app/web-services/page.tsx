@@ -124,7 +124,7 @@ export default function WebServices() {
       <WebServicesNavbar />
       <div className="pt-[70px]">
       {/* Hero Section */}
-      <section className="pt-4 md:pt-8 pb-12 md:pb-16 bg-white overflow-hidden">
+      <section className="pt-8 md:pt-12 pb-12 md:pb-16 bg-white overflow-hidden">
         <Container>
           <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16 relative">
             <div className="flex-1 space-y-6 text-center lg:text-left">
@@ -140,7 +140,7 @@ export default function WebServices() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-gray-900 leading-tight"
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-gray-900 leading-tight"
               >
                 {content.hero.title}
               </motion.h1>
