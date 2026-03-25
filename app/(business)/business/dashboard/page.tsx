@@ -15,11 +15,13 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
-  PlusCircle
+  PlusCircle,
+  MessageCircleQuestion
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { businessApi, BusinessProject, ServiceRequest } from "@/lib/api/business";
+import { EnquiryModal } from "@/components/business/EnquiryModal";
 
 // Helper to map icon names to Lucide components
 const IconMap: Record<string, any> = {
@@ -36,24 +38,38 @@ export default function BusinessDashboard() {
   const { user, role, loading: authLoading } = useAuth();
   const [projects, setProjects] = useState<BusinessProject[]>([]);
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
+  const [enquiries, setEnquiries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const hasFetched = useRef<string | null>(null);
 
-  useEffect(() => {
+  const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
+  const [selectedContext, setSelectedContext] = useState<{
+    requestId?: string;
+    projectId?: string;
+    subject: string;
+  }>({ subject: "" });
+
+  const openEnquiry = (subject: string, requestId?: string, projectId?: string) => {
+    setSelectedContext({ subject, requestId, projectId });
+    setIsEnquiryModalOpen(true);
+  };
+
     async function fetchData() {
       if (!user) return;
-      if (hasFetched.current === user.id) return;
+      if (hasFetched.current === user.id && enquiries.length > 0) return;
       
       try {
         setLoading(true);
-        const [projectsData, requestsData] = await Promise.all([
+        const [projectsData, requestsData, enquiriesData] = await Promise.all([
           businessApi.getProjects(user.id),
-          businessApi.getServiceRequests(user.id)
+          businessApi.getServiceRequests(user.id),
+          businessApi.getEnquiries(user.id)
         ]);
         setProjects(projectsData || []);
         setRequests(requestsData || []);
+        setEnquiries(enquiriesData || []);
         hasFetched.current = user.id;
       } catch (err: any) {
         console.error("Error fetching business data:", err);
@@ -63,6 +79,7 @@ export default function BusinessDashboard() {
       }
     }
 
+  useEffect(() => {
     if (!authLoading && user) {
       fetchData();
     }
@@ -78,7 +95,7 @@ export default function BusinessDashboard() {
   }
 
   return (
-    <div className="space-y-10 pb-10 relative">
+    <div className="space-y-6 pb-10 relative animate-in fade-in duration-700">
       {/* Subtle loading bar for background re-fetches */}
       {loading && projects.length > 0 && (
         <div className="absolute top-0 left-0 right-0 h-1 bg-gray-100 overflow-hidden z-50 rounded-full">
@@ -139,6 +156,14 @@ export default function BusinessDashboard() {
                     <div className="w-12 h-12 rounded-2xl bg-[#f5f3ff] flex items-center justify-center text-[#8b5cf6]">
                       <Icon size={20} />
                     </div>
+                    <button 
+                      onClick={() => openEnquiry(`Doubt about ${project.title}`, undefined, project.id)}
+                      className="p-2 rounded-xl bg-gray-50 text-gray-400 hover:text-[#8b5cf6] hover:bg-[#f5f3ff] transition-all group/btn flex items-center gap-2"
+                      title="Ask a doubt"
+                    >
+                      <MessageCircleQuestion size={18} />
+                      <span className="text-[10px] font-bold opacity-0 group-hover/btn:opacity-100 transition-opacity">ASK DOUBT</span>
+                    </button>
                     <span className={`text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider ${
                       project.status === 'Delivered' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'
                     }`}>
@@ -217,7 +242,69 @@ export default function BusinessDashboard() {
                     }`}>
                       {request.status}
                     </span>
+
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openEnquiry(`Enquiry for ${request.title}`, request.id);
+                      }}
+                      className="p-2.5 rounded-xl bg-gray-50 text-gray-400 hover:text-[#8b5cf6] hover:bg-[#f5f3ff] transition-all ml-2"
+                      title="Ask a doubt"
+                    >
+                      <MessageCircleQuestion size={18} />
+                    </button>
+                    
                     <ChevronRight size={18} className="text-gray-300 group-hover:text-[#8b5cf6] transition-colors ml-2" />
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+
+          {/* Support Queries & Replies */}
+          <section className="bg-white border border-gray-100 rounded-3xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] overflow-hidden">
+            <div className="p-6 md:p-8 flex items-center justify-between border-b border-gray-50">
+              <div className="flex items-center gap-2">
+                <MessageCircleQuestion className="text-[#8b5cf6]" size={20} />
+                <h2 className="text-xl font-bold font-heading text-gray-900 italic">Support Queries</h2>
+              </div>
+            </div>
+
+            <div className="divide-y divide-gray-50">
+              {enquiries.length === 0 ? (
+                <div className="p-8 text-center bg-gray-50/30">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">No queries submitted yet.</p>
+                </div>
+              ) : (
+                enquiries.slice(0, 5).map((enquiry) => (
+                  <div key={enquiry.id} className="p-6 space-y-3">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h4 className="font-bold text-gray-900 text-sm flex items-center gap-2 italic">
+                          {enquiry.subject}
+                          <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter ${
+                            enquiry.status === 'Open' ? 'bg-amber-50 text-amber-600' : 
+                            enquiry.status === 'In Progress' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'
+                          }`}>
+                            {enquiry.status}
+                          </span>
+                        </h4>
+                        <p className="text-xs text-gray-500 mt-1 italic line-clamp-1">{enquiry.message}</p>
+                      </div>
+                      <span className="text-[10px] text-gray-400 font-bold whitespace-nowrap">
+                        {new Date(enquiry.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+
+                    {enquiry.admin_reply && (
+                      <div className="bg-[#f5f3ff] p-4 rounded-2xl border border-[#8b5cf6]/10 relative group-hover:shadow-sm transition-all duration-300">
+                        <div className="flex items-center gap-2 mb-2">
+                           <div className="w-5 h-5 rounded-full bg-[#8b5cf6] flex items-center justify-center text-[10px] text-white font-bold">A</div>
+                           <span className="text-[10px] font-black text-[#8b5cf6] uppercase tracking-widest">MSSquare Team Reply</span>
+                        </div>
+                        <p className="text-sm font-bold text-gray-700 italic pl-7">{enquiry.admin_reply}</p>
+                      </div>
+                    )}
                   </div>
                 ))
               )}
@@ -274,6 +361,15 @@ export default function BusinessDashboard() {
 
       </div>
 
+      <EnquiryModal
+        isOpen={isEnquiryModalOpen}
+        onClose={() => setIsEnquiryModalOpen(false)}
+        onSuccess={fetchData}
+        userId={user?.id || ""}
+        requestId={selectedContext.requestId}
+        projectId={selectedContext.projectId}
+        initialSubject={selectedContext.subject}
+      />
     </div>
   );
 }

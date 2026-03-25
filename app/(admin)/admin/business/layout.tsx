@@ -29,6 +29,7 @@ const businessAdminSidebarItems = [
   { name: "Client Requests", href: "/admin/business/requests", icon: Briefcase },
   { name: "Project Management", href: "/admin/business/projects", icon: FileText },
   { name: "Client List", href: "/admin/business/clients", icon: Users },
+  { name: "User Enquiries", href: "/admin/business/enquiries", icon: Zap },
   { name: "Manage Notifications", href: "/admin/business/notifications", icon: Bell },
   { name: "Settings", href: "/admin/business/settings", icon: Settings },
 ];

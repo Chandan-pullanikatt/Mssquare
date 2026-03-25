@@ -178,5 +178,96 @@ export const businessApi = {
       service_requests: [{ count: requests?.filter((r: any) => r.user_id === profile.id).length || 0 }],
       business_projects: [{ count: projects?.filter((p: any) => p.user_id === profile.id).length || 0 }]
     }));
+  },
+
+  // Enquiries
+  async submitEnquiry(enquiry: {
+    user_id: string;
+    request_id?: string;
+    project_id?: string;
+    subject: string;
+    message: string;
+  }) {
+    const { data, error } = await (supabase.from('business_enquiries') as any)
+      .insert({
+        ...enquiry,
+        status: 'Open'
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getEnquiries(userId: string) {
+    const { data, error } = await (supabase.from('business_enquiries') as any)
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getAdminEnquiries() {
+    const { data: enquiries, error } = await (supabase.from('business_enquiries') as any)
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    if (!enquiries || enquiries.length === 0) return [];
+
+    // Fetch users (the table that officially holds user names)
+    const userIds = [...new Set(enquiries.map((e: any) => e.user_id))];
+    const { data: userData } = await supabase
+      .from('users')
+      .select('id, name')
+      .in('id', userIds);
+
+    // Also fetch from profiles for email
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('id, email')
+      .in('id', userIds);
+
+    return enquiries.map((e: any) => {
+      const user = userData?.find((u: any) => u.id === e.user_id) as any || null;
+      const profile = profileData?.find((p: any) => p.id === e.user_id) as any || null;
+      
+      return {
+        ...e,
+        profiles: {
+          full_name: user?.name || profile?.email?.split('@')[0] || 'Client',
+          email: profile?.email || ''
+        }
+      };
+    });
+  },
+
+  async updateEnquiryStatus(id: string, status: string) {
+    const { data, error } = await (supabase.from('business_enquiries') as any)
+      .update({ status })
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async replyToEnquiry(id: string, reply: string) {
+    const { data, error } = await (supabase.from('business_enquiries') as any)
+      .update({ 
+        admin_reply: reply, 
+        replied_at: new Date().toISOString(),
+        status: 'In Progress' 
+      })
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 };

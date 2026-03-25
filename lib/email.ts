@@ -42,7 +42,7 @@ export const sendApplicationConfirmation = async ({
 
   const resendClient = getResendClient();
   const { data, error } = await resendClient.emails.send({
-    from: 'MSSquare HR <hr@mssquaretechnologies.com>',
+    from: 'MSSquare HR <onboarding@resend.dev>',
     to: [email],
     subject: subject,
     html: content,
@@ -87,7 +87,7 @@ export const sendEnquiryConfirmation = async ({
 
   const resendClient = getResendClient();
   const { data, error } = await resendClient.emails.send({
-    from: 'MSSquare Studio <hr@mssquaretechnologies.com>',
+    from: 'MSSquare Studio <onboarding@resend.dev>',
     to: [email],
     subject: subject,
     html: content,
@@ -155,6 +155,63 @@ export const sendMatchWelcome = async ({
 
   if (error) {
     console.error('Resend Error (Match):', error);
+    throw new Error(error.message);
+  }
+  return data;
+};
+
+export const sendEnquiryReply = async ({
+  email,
+  name,
+  subject: enquirySubject,
+  isResolved,
+}: {
+  email: string;
+  name: string;
+  subject: string;
+  isResolved?: boolean;
+}) => {
+  const subject = `Update on your enquiry: ${enquirySubject}`;
+  const message = isResolved 
+    ? "Your current issue has been solved. Please check your dashboard for details." 
+    : "We have updated your enquiry with some more information or questions. Please see your dashboard to respond.";
+    
+  const content = `
+    <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;">
+      <div style="background: #7C3AED; padding: 30px; border-radius: 12px 12px 0 0; text-align: center; color: white;">
+        <h1 style="margin: 0;">Update from MSSquare</h1>
+      </div>
+      
+      <div style="padding: 30px; border: 1px solid #eee; border-top: none; border-radius: 0 0 12px 12px;">
+        <p>Hello ${name},</p>
+        <p>Regarding your enquiry "**${enquirySubject}**":</p>
+        
+        <div style="background: #fdfafd; padding: 20px; border-radius: 12px; border: 1px solid #fae8ff; margin: 25px 0; font-weight: bold; color: #4B5563; text-align: center;">
+          ${message}
+        </div>
+
+        <div style="text-align: center;">
+          <a href="https://mssquare.in/business/dashboard" style="display: inline-block; background: #7C3AED; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">View Details in Dashboard</a>
+        </div>
+        
+        <p style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; font-size: 0.9em; color: #999;">
+          Best regards,<br/>
+          **The MSSquare Team**
+        </p>
+      </div>
+    </div>
+  `;
+
+  const resendClient = getResendClient();
+  const { data, error } = await resendClient.emails.send({
+    from: 'MSSquare Support <onboarding@resend.dev>',
+    to: [email],
+    subject: subject,
+    html: content,
+  });
+
+  if (error) {
+    console.error('Resend Error (Enquiry Update):', error);
     throw new Error(error.message);
   }
   return data;
