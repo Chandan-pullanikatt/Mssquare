@@ -42,7 +42,7 @@ export const sendApplicationConfirmation = async ({
 
   const resendClient = getResendClient();
   const { data, error } = await resendClient.emails.send({
-    from: 'MSSquare HR <onboarding@resend.dev>',
+    from: 'MSSquare HR <hr@mssquaretechnologies.com>',
     to: [email],
     subject: subject,
     html: content,
@@ -77,7 +77,7 @@ export const sendEnquiryConfirmation = async ({
           <li>Track development milestones</li>
           <li>Communication directly with your assigned experts</li>
         </ul>
-        <a href="https://mssquare.in/auth?portal=business_client" style="display: inline-block; background: #7C3AED; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">Create portal account</a>
+        <a href="https://mssquaretechnologies.com/auth?portal=business_client" style="display: inline-block; background: #7C3AED; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">Create portal account</a>
       </div>
 
       <p>Alternatively, we will contact you via email shortly to schedule a discovery call.</p>
@@ -87,7 +87,7 @@ export const sendEnquiryConfirmation = async ({
 
   const resendClient = getResendClient();
   const { data, error } = await resendClient.emails.send({
-    from: 'MSSquare Studio <onboarding@resend.dev>',
+    from: 'MSSquare Studio <hello@mssquaretechnologies.com>',
     to: [email],
     subject: subject,
     html: content,
@@ -118,19 +118,19 @@ export const sendMatchWelcome = async ({
       <div style="margin-bottom: 30px;">
         <h3 style="color: #7C3AED; border-bottom: 2px solid #f0f0f0; padding-bottom: 5px;">🎓 Training & Learning</h3>
         <p>Master industry-standard skills with our curated courses. From development to design, we've got you covered.</p>
-        <a href="https://mssquare.in/courses" style="color: #7C3AED; font-weight: bold; text-decoration: none;">Explore Courses &rarr;</a>
+        <a href="https://mssquaretechnologies.com/courses" style="color: #7C3AED; font-weight: bold; text-decoration: none;">Explore Courses &rarr;</a>
       </div>
 
       <div style="margin-bottom: 30px;">
         <h3 style="color: #7C3AED; border-bottom: 2px solid #f0f0f0; padding-bottom: 5px;">💼 Careers & Internships</h3>
         <p>Looking to join our team or start your career journey? Check out our open roles and internship programs.</p>
-        <a href="https://mssquare.in/careers" style="color: #7C3AED; font-weight: bold; text-decoration: none;">View Open Roles &rarr;</a>
+        <a href="https://mssquaretechnologies.com/careers" style="color: #7C3AED; font-weight: bold; text-decoration: none;">View Open Roles &rarr;</a>
       </div>
 
       <div style="margin-bottom: 30px;">
         <h3 style="color: #7C3AED; border-bottom: 2px solid #f0f0f0; padding-bottom: 5px;">🚀 Business Consultancy</h3>
         <p>Have a product idea? Our software studio helps startups and businesses build scalable digital products.</p>
-        <a href="https://mssquare.in/web-services" style="color: #7C3AED; font-weight: bold; text-decoration: none;">Start a Project &rarr;</a>
+        <a href="https://mssquaretechnologies.com/web-services" style="color: #7C3AED; font-weight: bold; text-decoration: none;">Start a Project &rarr;</a>
       </div>
 
       <div style="background: #fdfafd; padding: 20px; border-radius: 12px; border: 1px solid #fae8ff; text-align: center;">
@@ -191,7 +191,7 @@ export const sendEnquiryReply = async ({
         </div>
 
         <div style="text-align: center;">
-          <a href="https://mssquare.in/business/dashboard" style="display: inline-block; background: #7C3AED; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">View Details in Dashboard</a>
+          <a href="https://mssquaretechnologies.com/business/dashboard" style="display: inline-block; background: #7C3AED; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">View Details in Dashboard</a>
         </div>
         
         <p style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; font-size: 0.9em; color: #999;">
@@ -204,7 +204,7 @@ export const sendEnquiryReply = async ({
 
   const resendClient = getResendClient();
   const { data, error } = await resendClient.emails.send({
-    from: 'MSSquare Support <onboarding@resend.dev>',
+    from: 'MSSquare Support <support@mssquaretechnologies.com>',
     to: [email],
     subject: subject,
     html: content,

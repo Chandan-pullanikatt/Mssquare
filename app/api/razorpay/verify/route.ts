@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/service';
 
 export async function POST(req: Request) {
   try {
@@ -36,22 +36,38 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid payment signature' }, { status: 400 });
     }
 
-    // 2. Update Database (student_enrollments)
-    const supabase = await createClient();
-    const { error } = await (supabase as any)
-      .from('student_enrollments')
-      .insert({
-        student_id,
-        course_id,
-        payment_id: razorpay_payment_id,
-        order_id: razorpay_order_id,
-        payment_status: 'success',
-        amount: amount
-      });
+    // 2. Update Database (student_enrollments and profiles) using Admin Client to bypass RLS
+    const supabaseAdmin = createAdminClient();
+    
+    // Perform both updates in the same route
+    const [enrollmentResult, profileResult] = await Promise.all([
+      (supabaseAdmin as any)
+        .from('student_enrollments')
+        .insert({
+          student_id,
+          course_id,
+          payment_id: razorpay_payment_id,
+          order_id: razorpay_order_id,
+          payment_status: 'success',
+          amount: amount
+        }),
+      (supabaseAdmin as any)
+        .from('profiles')
+        .update({ role: 'student' })
+        .eq('id', student_id)
+    ]);
 
-    if (error) {
-      console.error('Database enrollment error:', error);
-      return NextResponse.json({ error: 'Failed to record enrollment' }, { status: 500 });
+    if (enrollmentResult.error) {
+      console.error('Database enrollment error:', enrollmentResult.error);
+      return NextResponse.json({ 
+        error: 'Failed to record enrollment: ' + (enrollmentResult.error.message || 'Unknown error') 
+      }, { status: 500 });
+    }
+
+    if (profileResult.error) {
+      console.warn('Profile role update error (non-blocking):', profileResult.error);
+      // We don't fail the whole request if only the role update fails, 
+      // but it's good to know.
     }
 
     return NextResponse.json({ success: true, message: 'Payment verified and enrollment recorded' });
