@@ -93,7 +93,7 @@ export function Solutions() {
                 {solution.title}
               </h3>
               <p className="text-gray-500 text-[0.95rem] leading-[1.6] font-medium">
-                {solution.desc}
+                {solution.description || solution.desc}
               </p>
               
 
