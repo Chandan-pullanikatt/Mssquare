@@ -210,10 +210,10 @@ function AuthForm() {
       </div>
 
       {/* Right Side: Auth Form Container */}
-      <div className="flex-1 flex flex-col items-center p-4 lg:p-8 relative h-full md:overflow-hidden overflow-y-auto" style={{ backgroundColor: '#ffffff' }}>
+      <div className="flex-1 flex flex-col items-center relative h-full overflow-y-auto" style={{ backgroundColor: '#ffffff' }}>
         
         {/* Back to Home Button */}
-        <div className="absolute top-4 left-4 lg:top-8 lg:left-8 z-20">
+        <div className="absolute top-4 left-4 lg:top-6 lg:left-6 z-20">
           <Link 
             href="/" 
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[0.7rem] font-bold text-[#334155] hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200 group"
@@ -223,173 +223,174 @@ function AuthForm() {
           </Link>
         </div>
 
-        <div className="w-full max-w-[400px] flex flex-col h-full justify-between py-2">
-          
-          <div className="text-center mt-4 mb-3">
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 flex items-center justify-center">
-                <img src="/assets/nobglogo.png" alt="MSSquare Logo" className="w-full h-full object-contain" />
-              </div>
-            </div>
-            <h1 className="text-[1.8rem] lg:text-[2.1rem] font-black mb-1 font-heading tracking-tight leading-tight" style={{ color: '#0F172A' }}>Welcome to MSSquare</h1>
-            <p className="font-medium text-[0.85rem] leading-relaxed" style={{ color: '#334155' }}>
-              Select your destination and sign in to continue.
-            </p>
-          </div>
-
-          {/* New Portal Selection Dropdown */}
-          <div className="relative mb-4 z-30">
-            <label className="text-[0.7rem] font-bold text-[#334155] ml-1 mb-1.5 block">Select Destination</label>
-            <button
-              type="button"
-              onClick={() => setShowPortalDropdown(!showPortalDropdown)}
-              className="w-full flex items-center justify-between p-3.5 rounded-xl border-2 border-gray-100 bg-white hover:border-primary-purple/30 transition-all group shadow-sm"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-primary-purple/10 flex items-center justify-center text-primary-purple group-hover:scale-110 transition-transform">
-                  <selectedPortal.icon size={18} />
-                </div>
-                <div className="flex flex-col items-start text-left">
-                  <span className="text-[0.8rem] font-bold text-[#0F172A] leading-tight">{selectedPortal.name}</span>
-                  <span className="text-[0.65rem] text-[#94A3B8] font-medium">{selectedPortal.description}</span>
+        <div className="w-full max-w-[400px] gap-y-4 flex flex-col px-4 pt-6 pb-6">
+          <div className="space-y-3 pt-4">
+            <div className="text-center mt-3 mb-1">
+              <div className="flex justify-center mb-3 mt-4">
+                <div className="w-14 h-14 flex items-center justify-center">
+                  <img src="/assets/nobglogo.png" alt="MSSquare Logo" className="w-full h-full object-contain" />
                 </div>
               </div>
-              <ChevronDown size={18} className={`text-[#94A3B8] transition-transform duration-300 ${showPortalDropdown ? 'rotate-180' : ''}`} />
-            </button>
-
-            <AnimatePresence>
-              {showPortalDropdown && (
-                <motion.div
-                  initial={{ opacity: 0, y: 5, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 5, scale: 0.98 }}
-                  className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl p-2 z-50 max-h-[280px] overflow-y-auto"
-                >
-                  {PORTALS.map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedPortal(p);
-                        setShowPortalDropdown(false);
-                      }}
-                      className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all group ${
-                        selectedPortal.id === p.id ? 'bg-primary-purple/5' : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                        selectedPortal.id === p.id ? 'bg-primary-purple text-white' : 'bg-gray-50 text-gray-400 group-hover:text-primary-purple'
-                      }`}>
-                        <p.icon size={16} />
-                      </div>
-                      <div className="flex flex-col items-start text-left">
-                        <span className={`text-[0.75rem] font-bold ${selectedPortal.id === p.id ? 'text-primary-purple' : 'text-gray-700'}`}>{p.name}</span>
-                        <span className="text-[0.6rem] text-gray-400 font-medium">{p.description}</span>
-                      </div>
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Login Form Card */}
-          <div className="bg-white p-6 lg:p-7 rounded-2xl border border-light-border shadow-[0_20px_60px_rgba(0,0,0,0.035)] mb-4">
-            <form onSubmit={handleAuth} className="space-y-4">
-              {error && (
-                <div className="bg-red-50 text-red-500 text-xs font-bold p-3 rounded-lg border border-red-100">
-                  {error}
-                </div>
-              )}
-
-              <div className="space-y-1.5">
-                <label className="text-[0.7rem] font-bold text-[#334155] ml-1">Email address</label>
-                <div className="relative group">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary-purple transition-colors">
-                    <Mail size={16} />
-                  </span>
-                  <input 
-                    required
-                    type="email" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@company.com"
-                    className="w-full bg-gray-50/50 border border-gray-100 rounded-lg py-2.5 pl-11 pr-4 text-sm focus:ring-4 focus:ring-primary-purple/5 focus:border-primary-purple outline-none transition-all placeholder:text-gray-300 font-medium text-[#0F172A]"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-center ml-1">
-                  <label className="text-[0.7rem] font-bold text-[#334155]">Password</label>
-                  <button type="button" className="text-[0.65rem] font-black text-primary-purple uppercase tracking-wider hover:underline">
-                    Forgot?
-                  </button>
-                </div>
-                <div className="relative group">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary-purple transition-colors">
-                    <Lock size={16} />
-                  </span>
-                  <input 
-                    required
-                    type={showPassword ? "text" : "password"} 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-gray-50/50 border border-gray-100 rounded-lg py-2.5 pl-11 pr-12 text-sm focus:ring-4 focus:ring-primary-purple/5 focus:border-primary-purple outline-none transition-all placeholder:text-gray-300 font-medium text-[#0F172A]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500"
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </div>
-
-              <button 
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-primary-purple hover:bg-primary-purpleDark text-white py-3 rounded-lg font-bold shadow-lg shadow-primary-purple/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70 mt-2"
-              >
-                {isLoading ? "Signing in..." : "Login to Dashboard"}
-              </button>
-            </form>
-
-            <div className="relative flex items-center gap-3 my-5">
-              <div className="h-[1px] flex-1 bg-gray-100"></div>
-              <span className="text-[0.65rem] font-black text-gray-300 uppercase tracking-widest px-2">OR</span>
-              <div className="h-[1px] flex-1 bg-gray-100"></div>
-            </div>
-
-            {/* Google OAuth Option */}
-            <button 
-              type="button" 
-              onClick={handleGoogleLogin}
-              className="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 py-2.5 rounded-lg font-bold text-sm text-[#334155] shadow-sm hover:bg-gray-50 transition-all group"
-            >
-              <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 48 48">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.97-6.19z" />
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-              </svg>
-              Continue with Google
-            </button>
-
-            <div className="mt-5 text-center">
-              <p className="text-[0.75rem] font-semibold text-[#334155]">
-                Don't have an account?{" "}
-                <Link href="/auth/register" className="font-bold text-primary-purple hover:underline ml-1">
-                  Create an Account
-                </Link>
+              <h1 className="text-[1.8rem] lg:text-[2.1rem] font-black mb-1 font-heading tracking-tight leading-tight" style={{ color: '#0F172A' }}>Welcome to MSSquare</h1>
+              <p className="font-medium text-[0.85rem] leading-relaxed" style={{ color: '#334155' }}>
+                Select your destination and sign in to continue.
               </p>
+            </div>
+
+            {/* Portal Selection Dropdown */}
+            <div className="relative mb-2 z-30">
+              <label className="text-[0.7rem] font-bold text-[#334155] ml-1 mb-1.5 block">Select Destination</label>
+              <button
+                type="button"
+                onClick={() => setShowPortalDropdown(!showPortalDropdown)}
+                className="w-full flex items-center justify-between p-3.5 rounded-xl border-2 border-gray-100 bg-white hover:border-primary-purple/30 transition-all group shadow-sm"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-primary-purple/10 flex items-center justify-center text-primary-purple group-hover:scale-110 transition-transform">
+                    <selectedPortal.icon size={18} />
+                  </div>
+                  <div className="flex flex-col items-start text-left">
+                    <span className="text-[0.8rem] font-bold text-[#0F172A] leading-tight">{selectedPortal.name}</span>
+                    <span className="text-[0.65rem] text-[#94A3B8] font-medium">{selectedPortal.description}</span>
+                  </div>
+                </div>
+                <ChevronDown size={18} className={`text-[#94A3B8] transition-transform duration-300 ${showPortalDropdown ? 'rotate-180' : ''}`} />
+              </button>
+
+              <AnimatePresence>
+                {showPortalDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 5, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 5, scale: 0.98 }}
+                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl p-2 z-50 max-h-[280px] overflow-y-auto"
+                  >
+                    {PORTALS.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedPortal(p);
+                          setShowPortalDropdown(false);
+                        }}
+                        className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all group ${
+                          selectedPortal.id === p.id ? 'bg-primary-purple/5' : 'hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                          selectedPortal.id === p.id ? 'bg-primary-purple text-white' : 'bg-gray-50 text-gray-400 group-hover:text-primary-purple'
+                        }`}>
+                          <p.icon size={16} />
+                        </div>
+                        <div className="flex flex-col items-start text-left">
+                          <span className={`text-[0.75rem] font-bold ${selectedPortal.id === p.id ? 'text-primary-purple' : 'text-gray-700'}`}>{p.name}</span>
+                          <span className="text-[0.6rem] text-gray-400 font-medium">{p.description}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Login Form Card */}
+            <div className="bg-white p-4 lg:p-5 rounded-2xl border border-light-border shadow-[0_20px_60px_rgba(0,0,0,0.035)]">
+              <form onSubmit={handleAuth} className="space-y-3">
+                {error && (
+                  <div className="bg-red-50 text-red-500 text-xs font-bold p-3 rounded-lg border border-red-100">
+                    {error}
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                  <label className="text-[0.7rem] font-bold text-[#334155] ml-1">Email address</label>
+                  <div className="relative group">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary-purple transition-colors">
+                      <Mail size={16} />
+                    </span>
+                    <input 
+                      required
+                      type="email" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="name@company.com"
+                      className="w-full bg-gray-50/50 border border-gray-100 rounded-lg py-2 pl-11 pr-4 text-sm focus:ring-4 focus:ring-primary-purple/5 focus:border-primary-purple outline-none transition-all placeholder:text-gray-300 font-medium text-[#0F172A]"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center ml-1">
+                    <label className="text-[0.7rem] font-bold text-[#334155]">Password</label>
+                    <button type="button" className="text-[0.65rem] font-black text-primary-purple uppercase tracking-wider hover:underline">
+                      Forgot?
+                    </button>
+                  </div>
+                  <div className="relative group">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary-purple transition-colors">
+                      <Lock size={16} />
+                    </span>
+                    <input 
+                      required
+                      type={showPassword ? "text" : "password"} 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full bg-gray-50/50 border border-gray-100 rounded-lg py-2 pl-11 pr-12 text-sm focus:ring-4 focus:ring-primary-purple/5 focus:border-primary-purple outline-none transition-all placeholder:text-gray-300 font-medium text-[#0F172A]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                <button 
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-primary-purple hover:bg-primary-purpleDark text-white py-2.5 rounded-lg font-bold shadow-lg shadow-primary-purple/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70 mt-1"
+                >
+                  {isLoading ? "Signing in..." : "Login to Dashboard"}
+                </button>
+              </form>
+
+              <div className="relative flex items-center gap-2 my-4">
+                <div className="h-[1px] flex-1 bg-gray-100"></div>
+                <span className="text-[0.65rem] font-black text-gray-300 uppercase tracking-widest px-2">OR</span>
+                <div className="h-[1px] flex-1 bg-gray-100"></div>
+              </div>
+
+              {/* Google OAuth Option */}
+              <button 
+                type="button" 
+                onClick={handleGoogleLogin}
+                className="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 py-2 rounded-lg font-bold text-sm text-[#334155] shadow-sm hover:bg-gray-50 transition-all group"
+              >
+                <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 48 48">
+                  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                  <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                  <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.97-6.19z" />
+                  <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                </svg>
+                Continue with Google
+              </button>
+
+              <div className="mt-3 text-center">
+                <p className="text-[0.75rem] font-semibold text-[#334155]">
+                  Don't have an account?{" "}
+                  <Link href="/auth/register" className="font-bold text-primary-purple hover:underline ml-1">
+                    Create an Account
+                  </Link>
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Footer links */}
-          <div className="flex items-center justify-center gap-4 lg:gap-6 text-[0.6rem] font-bold text-gray-400 uppercase tracking-[0.15em] shrink-0 pb-4">
+          <div className="flex items-center justify-center gap-4 lg:gap-6 text-[0.6rem] font-bold text-gray-400 uppercase tracking-[0.15em] shrink-0 pt-2 pb-0">
             <Link href="/privacy" className="hover:text-gray-600 transition-colors">Privacy Policy</Link>
             <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
             <Link href="/terms" className="hover:text-gray-600 transition-colors">Terms of Service</Link>
