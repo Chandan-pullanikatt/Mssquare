@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, ArrowLeft, Plus, Trash2, Globe, Rocket, Zap, Code2, Layout, Database, Smartphone, Cloud, Github, Terminal, PenTool, Image as ImageIcon } from "lucide-react";
+import { Save, ArrowLeft, Plus, Trash2, Globe, Rocket, Zap, Code2, Layout, Database, Smartphone, Cloud, Github, Terminal, PenTool, Image as ImageIcon, Upload } from "lucide-react";
 import Link from "next/link";
 import { websiteApi } from "@/lib/api/website";
+import { storageApi } from "@/lib/api/storage";
 
 export default function WebServicesPageEditor() {
   const [loading, setLoading] = useState(true);
@@ -62,6 +63,40 @@ export default function WebServicesPageEditor() {
       alert("Failed to save changes.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'services' | 'projects', index: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 1MB limit check
+    const MAX_SIZE = 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+        alert("File size exceeds 1MB. Please upload a smaller image.");
+        return;
+    }
+
+    try {
+      const fileName = `${type}-${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+      const publicUrl = await storageApi.uploadWebsiteMedia(file, fileName);
+      
+      const newContent = { ...content };
+      if (type === 'services') {
+        const newServices = [...newContent.services];
+        newServices[index].image = publicUrl;
+        newContent.services = newServices;
+      } else {
+        const newProjects = [...newContent.projects];
+        newProjects[index].image = publicUrl;
+        newContent.projects = newProjects;
+      }
+      
+      setContent(newContent);
+      alert("Image uploaded successfully!");
+    } catch (err) {
+      console.error("Failed to upload image", err);
+      alert("Failed to upload image.");
     }
   };
 
@@ -193,17 +228,28 @@ export default function WebServicesPageEditor() {
                     <div className="w-12 h-12 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-gray-300">
                         {service.image ? <img src={service.image} className="w-full h-full object-cover" /> : <ImageIcon size={20} />}
                     </div>
-                    <input
-                        type="text"
-                        value={service.image}
-                        onChange={(e) => {
-                            const newServices = [...content.services];
-                            newServices[index].image = e.target.value;
-                            setContent({ ...content, services: newServices });
-                        }}
-                        className="flex-1 bg-white/50 border-none rounded-xl py-2 px-4 text-xs font-medium text-gray-500 outline-none"
-                        placeholder="Image URL (e.g. /assets/services/name.png)"
-                    />
+                    <div className="flex gap-2 flex-1">
+                        <input
+                            type="text"
+                            value={service.image}
+                            onChange={(e) => {
+                                const newServices = [...content.services];
+                                newServices[index].image = e.target.value;
+                                setContent({ ...content, services: newServices });
+                            }}
+                            className="flex-1 bg-white/50 border-none rounded-xl py-2 px-4 text-xs font-medium text-gray-500 outline-none"
+                            placeholder="Image URL or upload..."
+                        />
+                        <label className="p-2 rounded-xl bg-white border border-gray-100 text-gray-400 hover:text-violet-600 cursor-pointer transition-all shadow-sm">
+                            <Upload size={14} />
+                            <input 
+                                type="file" 
+                                className="hidden" 
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload(e, 'services', index)}
+                            />
+                        </label>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -275,17 +321,28 @@ export default function WebServicesPageEditor() {
                             placeholder="Project description"
                         />
                         <div className="grid grid-cols-2 gap-4">
-                            <input
-                                type="text"
-                                value={project.image}
-                                onChange={(e) => {
-                                    const newProjects = [...content.projects];
-                                    newProjects[index].image = e.target.value;
-                                    setContent({ ...content, projects: newProjects });
-                                }}
-                                className="bg-white border-none rounded-xl py-2 px-4 text-xs font-medium text-gray-500 outline-none"
-                                placeholder="Image URL"
-                            />
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={project.image}
+                                    onChange={(e) => {
+                                        const newProjects = [...content.projects];
+                                        newProjects[index].image = e.target.value;
+                                        setContent({ ...content, projects: newProjects });
+                                    }}
+                                    className="flex-1 bg-white border-none rounded-xl py-2 px-4 text-xs font-medium text-gray-500 outline-none"
+                                    placeholder="Image URL or upload..."
+                                />
+                                <label className="p-2 rounded-xl bg-white text-gray-400 hover:text-violet-600 cursor-pointer transition-all shadow-sm border border-gray-100">
+                                    <Upload size={14} />
+                                    <input 
+                                        type="file" 
+                                        className="hidden" 
+                                        accept="image/*"
+                                        onChange={(e) => handleImageUpload(e, 'projects', index)}
+                                    />
+                                </label>
+                            </div>
                             <input
                                 type="text"
                                 value={project.link}
