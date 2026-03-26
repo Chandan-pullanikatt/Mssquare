@@ -61,9 +61,11 @@ export function Solutions() {
 
   return (
     <section id="solutions" className="bg-[#F5F5F7] py-12 px-[5%] relative border-b border-gray-100" ref={revealRef as React.RefObject<HTMLElement>}>
-      <div className="mb-10 max-w-4xl mx-auto">
-        <div className="rev inline-flex items-center gap-2 text-[0.75rem] font-bold tracking-[0.14em] uppercase text-[#7C3AED] mb-4">
+      <div className="mb-10 max-w-4xl mx-auto text-center flex flex-col items-center">
+        <div className="rev inline-flex items-center gap-2 text-[0.8rem] font-bold tracking-[0.14em] uppercase text-[#7C3AED] mb-4 justify-center">
+          <span className="w-5 h-[2px] bg-[#7C3AED]"></span>
           {data.badge}
+          <span className="w-5 h-[2px] bg-[#7C3AED]"></span>
         </div>
         <h2 className="rev text-[clamp(2rem,5vw,3.2rem)] font-extrabold tracking-[-0.03em] leading-[1.1] mb-6 font-heading text-gray-900">
           {data.title}

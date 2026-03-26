@@ -61,7 +61,11 @@ export function ProductsBuilt() {
     <section id="portfolio" className="py-12 bg-white relative z-10">
       <Container>
         <div className="flex flex-col items-center text-center mb-10">
-          <span className="text-[#7C3AED] font-bold text-xs uppercase tracking-[0.2em] mb-4">{data.badge}</span>
+          <div className="inline-flex items-center gap-2 text-[0.8rem] font-bold tracking-[0.14em] uppercase text-[#7C3AED] mb-4 justify-center">
+            <span className="w-5 h-[2px] bg-[#7C3AED]"></span>
+            {data.badge}
+            <span className="w-5 h-[2px] bg-[#7C3AED]"></span>
+          </div>
           <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-6 font-heading">{data.title}</h2>
           <p className="max-w-[600px] text-gray-500 font-medium">
             {data.description}

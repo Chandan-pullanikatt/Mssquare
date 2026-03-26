@@ -68,18 +68,18 @@ export function Programs() {
 
   return (
     <section id="courses" className="bg-[#F5F5F7] py-12 px-[5%] relative border-b border-gray-100" ref={revealRef as React.RefObject<HTMLElement>}>
-      <div className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
-        <div className="max-w-2xl">
-          <div className="rev inline-flex items-center gap-2 text-[0.75rem] font-bold tracking-[0.14em] uppercase text-[#7C3AED] mb-4">
-            {data.badge}
-          </div>
-          <h2 className="rev text-[clamp(2rem,5vw,3.2rem)] font-extrabold tracking-[-0.03em] leading-[1.1] mb-6 font-heading text-gray-900">
-            {data.title}
-          </h2>
-          <p className="rev text-gray-500 leading-[1.6] font-medium text-[1.1rem]">
-            {data.description}
-          </p>
+      <div className="max-w-7xl mx-auto mb-10 text-center flex flex-col items-center">
+        <div className="rev inline-flex items-center gap-2 text-[0.8rem] font-bold tracking-[0.14em] uppercase text-[#7C3AED] mb-4 justify-center">
+          <span className="w-5 h-[2px] bg-[#7C3AED]"></span>
+          {data.badge}
+          <span className="w-5 h-[2px] bg-[#7C3AED]"></span>
         </div>
+        <h2 className="rev text-[clamp(2rem,5vw,3.2rem)] font-extrabold tracking-[-0.03em] leading-[1.1] mb-6 font-heading text-gray-900 mx-auto">
+          {data.title}
+        </h2>
+        <p className="rev text-gray-500 leading-[1.6] font-medium text-[1.1rem] max-w-2xl mx-auto mb-8">
+          {data.description}
+        </p>
         <Link 
           href="/courses" 
           className="rev font-bold text-gray-900 underline underline-offset-8 hover:text-[#7C3AED] transition-colors"

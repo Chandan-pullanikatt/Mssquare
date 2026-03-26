@@ -53,10 +53,11 @@ export function FAQ() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 text-[0.78rem] font-bold tracking-[0.12em] uppercase text-[#7C3AED] mb-4 justify-center"
+            className="inline-flex items-center gap-2 text-[0.8rem] font-bold tracking-[0.14em] uppercase text-[#7C3AED] mb-4 justify-center"
           >
-            <span className="w-5 h-[1px] bg-[#7C3AED]"></span>
+            <span className="w-5 h-[2px] bg-[#7C3AED]"></span>
             {data.badge}
+            <span className="w-5 h-[2px] bg-[#7C3AED]"></span>
           </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
