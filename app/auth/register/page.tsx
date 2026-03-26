@@ -400,11 +400,11 @@ export default function RegisterPage() {
 
           {/* Footer links */}
           <div className="flex items-center justify-center gap-4 lg:gap-6 text-[0.6rem] font-bold text-gray-400 uppercase tracking-[0.15em] shrink-0 pb-4">
-            <Link href="/" className="hover:text-gray-600 transition-colors">Privacy Policy</Link>
+            <Link href="/privacy" className="hover:text-gray-600 transition-colors">Privacy Policy</Link>
             <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
-            <Link href="/" className="hover:text-gray-600 transition-colors">Terms of Service</Link>
+            <Link href="/terms" className="hover:text-gray-600 transition-colors">Terms of Service</Link>
             <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
-            <Link href="/" className="hover:text-gray-600 transition-colors">Help Center</Link>
+            <Link href="/auth/admin" className="hover:text-gray-600 transition-colors">Admin</Link>
           </div>
 
         </div>

@@ -91,21 +91,22 @@ export default function TermsAndConditionsPage() {
                 />
               </div>
             ))}
-            
-            <div className="mt-16 p-8 bg-slate-50 rounded-3xl border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
-              <div>
-                <h4 className="text-xl font-bold text-slate-900 mb-2">Have questions about our terms?</h4>
-                <p className="text-slate-600">Our legal team is here to help you understand your rights and responsibilities.</p>
-              </div>
-              <Link 
-                href="mailto:support@mssquaretechnologies.com"
-                className="whitespace-nowrap bg-primary-purple text-white px-8 py-3 rounded-xl font-bold hover:bg-primary-purpleDark transition-colors flex items-center gap-2"
-              >
-                Contact Support
-                <ArrowRight size={18} />
-              </Link>
-            </div>
           </div>
+            
+          <div className="mt-16 p-8 bg-slate-50 rounded-3xl border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+              <h4 className="text-xl font-bold text-slate-900 mb-2">Have questions about our terms?</h4>
+              <p className="text-slate-600">Our legal team is here to help you understand your rights and responsibilities.</p>
+            </div>
+            <Link 
+              href="mailto:support@mssquaretechnologies.com"
+              className="whitespace-nowrap bg-primary-purple text-white px-8 py-3 rounded-xl font-bold hover:bg-primary-purpleDark transition-colors flex items-center gap-2"
+            >
+              Contact Support
+              <ArrowRight size={18} />
+            </Link>
+          </div>
+
         </div>
       </section>
     </div>
