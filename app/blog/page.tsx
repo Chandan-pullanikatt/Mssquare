@@ -30,7 +30,18 @@ function BlogPageContent() {
     const fetchBlogs = async () => {
       try {
         const data = await blogsApi.getBlogs();
-        setBlogs(data);
+        // Enrich database blogs with static metadata if missing
+        const enrichedBlogs = data.map(blog => {
+          const staticPost = BLOG_POSTS.find(p => p.slug === blog.slug);
+          return {
+            ...blog,
+            category: blog.category || staticPost?.category || "Uncategorized",
+            excerpt: blog.excerpt || staticPost?.excerpt || "",
+            author: blog.author || staticPost?.author || "MSsquare Team",
+            read_time: blog.read_time || staticPost?.readTime || 5
+          };
+        });
+        setBlogs(enrichedBlogs);
         hasFetched.current = true;
       } catch (err) {
         console.error("Failed to fetch blogs", err);
