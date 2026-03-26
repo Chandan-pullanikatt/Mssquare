@@ -35,9 +35,10 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 flex flex-col transition-all duration-500 border-b ${shouldUseLightStyling
-        ? "bg-light-background/95 backdrop-blur-md border-light-border shadow-sm"
-        : "bg-transparent border-transparent"
+      className={`fixed top-0 left-0 right-0 z-50 flex flex-col transition-all duration-500 border-b ${
+        isLandingPage && !isScrolled && !isMobileMenuOpen
+          ? "bg-transparent border-transparent"
+          : "bg-white border-gray-100 shadow-sm"
         }`}
     >
       <div className="px-[5%] h-[70px] flex items-center justify-between w-full">
@@ -50,7 +51,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
               fill
               priority
               className={`object-contain object-left transition-all duration-500 ${
-                shouldUseLightStyling ? "brightness-0" : ""
+                (isLandingPage && !isScrolled && !isMobileMenuOpen) ? "" : "brightness-0"
               }`}
               sizes="(max-width: 768px) 192px, 192px"
             />
@@ -69,7 +70,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
               key={item.href}
               href={item.href} 
               className={`text-[0.8rem] font-bold tracking-[0.1em] uppercase transition-colors ${
-                shouldUseLightStyling ? "text-[#334155] hover:text-primary-purple" : "text-white/90 hover:text-white"
+                (isLandingPage && !isScrolled && !isMobileMenuOpen) ? "text-white/90 hover:text-white" : "text-[#334155] hover:text-primary-purple"
               }`}
             >
               {item.name}
@@ -87,7 +88,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
               <Link 
                 href="/auth" 
                 className={`text-[0.85rem] font-bold tracking-wide transition-colors ${
-                  shouldUseLightStyling ? "text-[#334155] hover:text-primary-purple" : "text-white/90 hover:text-white"
+                  (isLandingPage && !isScrolled && !isMobileMenuOpen) ? "text-white/90 hover:text-white" : "text-[#334155] hover:text-primary-purple"
                 }`}
               >
                 Login
@@ -105,7 +106,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
 
         {/* Mobile Menu Toggle */}
         <button
-          className={`md:hidden transition-colors ${shouldUseLightStyling ? "text-[#334155]" : "text-white/90 hover:text-white"}`}
+          className={`md:hidden transition-colors ${(isLandingPage && !isScrolled && !isMobileMenuOpen) ? "text-white/90 hover:text-white" : "text-[#334155]"}`}
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
@@ -114,9 +115,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
 
       {/* Mobile Nav */}
       {isMobileMenuOpen && (
-        <div className={`absolute top-full left-0 right-0 md:hidden backdrop-blur-xl border-b px-[5%] py-8 z-[100] transition-all duration-300 h-[calc(100vh-70px)] overflow-y-auto ${
-          shouldUseLightStyling ? "bg-light-background/95 border-light-border shadow-lg" : "bg-background/95 border-border"
-        }`}>
+        <div className="absolute top-full left-0 right-0 md:hidden bg-white border-b border-gray-100 px-[5%] py-8 z-[100] transition-all duration-300 h-[calc(100vh-70px)] overflow-y-auto shadow-2xl">
           <nav className="flex flex-col gap-6">
             {[
               { name: "Home", href: "/" },
@@ -126,9 +125,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`text-lg transition-colors uppercase tracking-wider font-bold ${
-                  shouldUseLightStyling ? "text-light-foreground/60 hover:text-primary-purple" : "text-light-foreground/50 hover:text-light-foreground"
-                }`}
+                className="text-lg transition-colors uppercase tracking-wider font-bold text-[#334155] hover:text-primary-purple"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {item.name}
@@ -136,32 +133,26 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
             ))}
             <Link
               href="/courses"
-              className={`text-lg transition-colors uppercase tracking-wider font-bold ${
-                shouldUseLightStyling ? "text-light-foreground/60 hover:text-primary-purple" : "text-light-foreground/50 hover:text-light-foreground"
-              }`}
+              className="text-lg transition-colors uppercase tracking-wider font-bold text-[#334155] hover:text-primary-purple"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Programs
             </Link>
             <Link
               href="/courses"
-              className={`text-lg transition-colors uppercase tracking-wider font-bold ${
-                shouldUseLightStyling ? "text-light-foreground/60 hover:text-primary-purple" : "text-light-foreground/50 hover:text-light-foreground"
-              }`}
+              className="text-lg transition-colors uppercase tracking-wider font-bold text-[#334155] hover:text-primary-purple"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Mentorship
             </Link>
             <Link
               href="/courses"
-              className={`text-lg transition-colors uppercase tracking-wider font-bold ${
-                isScrolled ? "text-light-foreground/60 hover:text-primary-purple" : "text-light-foreground/50 hover:text-light-foreground"
-              }`}
+              className="text-lg transition-colors uppercase tracking-wider font-bold text-[#334155] hover:text-primary-purple"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Placements
             </Link>
-            <div className={`flex flex-col gap-4 pt-4 border-t ${isScrolled ? "border-light-border" : "border-border"}`}>
+            <div className="flex flex-col gap-4 pt-4 border-t border-gray-100">
               {user && !isPublicPage ? (
                 <div className="flex flex-col gap-4">
 
@@ -180,9 +171,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
                 <>
                   <Link
                     href="/auth"
-                    className={`text-center px-4 py-3 rounded-xl border font-bold transition-colors ${
-                      isScrolled ? "text-light-foreground border-light-border" : "text-light-foreground border-border"
-                    }`}
+                    className="text-center px-4 py-3 rounded-xl border border-gray-200 font-bold transition-colors text-[#334155] hover:bg-gray-50"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Login

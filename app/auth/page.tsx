@@ -167,8 +167,8 @@ function AuthForm() {
         <div className="relative z-10 p-8 lg:p-10 flex flex-col justify-between h-full w-full">
           <div>
             <Link href="/" className="flex items-center gap-3 mb-10 lg:mb-16 group">
-              <div className="w-9 h-9 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white border border-white/20 shadow-lg transition-transform group-hover:scale-105">
-                <Rocket size={18} fill="white" />
+              <div className="w-14 h-14 flex items-center justify-center transition-transform group-hover:scale-105">
+                <img src="/assets/nobglogo.png" alt="MSSquare Logo" className="w-full h-full object-contain brightness-0 invert" />
               </div>
               <span className="text-xl font-black tracking-tight font-heading text-white">MSSquare</span>
             </Link>
@@ -226,6 +226,11 @@ function AuthForm() {
         <div className="w-full max-w-[400px] flex flex-col h-full justify-between py-2">
           
           <div className="text-center mt-4 mb-3">
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 flex items-center justify-center">
+                <img src="/assets/nobglogo.png" alt="MSSquare Logo" className="w-full h-full object-contain" />
+              </div>
+            </div>
             <h1 className="text-[1.8rem] lg:text-[2.1rem] font-black mb-1 font-heading tracking-tight leading-tight" style={{ color: '#0F172A' }}>Welcome to MSSquare</h1>
             <p className="font-medium text-[0.85rem] leading-relaxed" style={{ color: '#334155' }}>
               Select your destination and sign in to continue.
