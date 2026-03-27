@@ -5,7 +5,7 @@ export const coursesApi = {
   async getCourses(limit = 20, offset = 0) {
     const { data, error } = await supabase
       .from('courses')
-      .select('id, title, description, thumbnail, price, level, category, created_at')
+      .select('id, title, description, thumbnail, syllabus_url, price, level, category, created_at')
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
     
@@ -16,7 +16,7 @@ export const coursesApi = {
   async getCourseById(id: string) {
     const { data, error } = await supabase
       .from('courses')
-      .select('id, title, description, thumbnail, price, level, category, created_at')
+      .select('id, title, description, thumbnail, syllabus_url, price, level, category, created_at')
       .eq('id', id)
       .single();
     

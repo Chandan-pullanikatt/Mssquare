@@ -3,24 +3,42 @@
 import { UserCheck, Search, Filter, ArrowUpRight, GraduationCap } from "lucide-react";
 import DataTable from "@/components/cms-admin/DataTable";
 
+import { useState, useEffect } from "react";
+import { adminApi } from "@/lib/api/admin";
+
 export default function EnrollmentManagement() {
-  const enrollments = [
-    { id: 1, student: "Alex Rivera", course: "UI/UX Masterclass", date: "Oct 12, 2025", progress: 85, status: "Active" },
-    { id: 2, student: "Sarah Connor", course: "Fullstack Web Dev", date: "Oct 10, 2025", progress: 42, status: "Active" },
-    { id: 3, student: "John Doe", course: "AI Fundamentals", date: "Oct 08, 2025", progress: 12, status: "Pending" },
-    { id: 4, student: "Emily Blunt", course: "UI/UX Masterclass", date: "Oct 05, 2025", progress: 100, status: "Completed" },
-  ];
+  const [enrollments, setEnrollments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchEnrollments = async () => {
+    try {
+      setLoading(true);
+      const data = await adminApi.getEnrollments();
+      setEnrollments(data);
+    } catch (err) {
+      console.error("Failed to fetch enrollments:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEnrollments();
+  }, []);
 
   const columns = [
     {
       header: "Student",
       accessor: "student",
-      render: (val: string) => (
+      render: (val: string, row: any) => (
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-orange-50 flex items-center justify-center text-xs font-bold text-orange-600 border border-orange-100">
-            {val.charAt(0)}
+            {val?.charAt(0) || "S"}
           </div>
-          <span className="font-bold text-gray-900">{val}</span>
+          <div>
+            <span className="font-bold text-gray-900 block leading-none mb-1">{val}</span>
+            <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">{row.studentEmail}</span>
+          </div>
         </div>
       ),
     },
@@ -74,17 +92,36 @@ export default function EnrollmentManagement() {
         </button>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={enrollments}
-        searchPlaceholder="Filter enrollments..."
-        actions={
-          <button className="p-2.5 rounded-xl bg-gray-50 text-gray-500 hover:text-gray-900 transition-all flex items-center gap-2 font-bold text-xs uppercase tracking-widest">
-            <Filter size={16} />
-            Filter by Course
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-24 bg-gray-50/50 rounded-[2rem] border-2 border-dashed border-gray-100 italic">
+          <div className="w-8 h-8 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mb-4" />
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Accessing Student Directory...</p>
+        </div>
+      ) : enrollments.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-24 bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-100 text-center">
+          <GraduationCap size={48} className="text-gray-200 mb-4" />
+          <h3 className="text-lg font-bold text-gray-900 mb-1">No enrollments yet</h3>
+          <p className="text-gray-500 text-sm mb-6">When students enroll in courses, they will appear here.</p>
+          <button 
+            onClick={fetchEnrollments}
+            className="px-6 py-2 bg-white border border-gray-200 text-gray-600 font-bold rounded-xl text-sm hover:bg-gray-50 transition-all"
+          >
+            Refresh Data
           </button>
-        }
-      />
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={enrollments}
+          searchPlaceholder="Filter enrollments..."
+          actions={
+            <button className="p-2.5 rounded-xl bg-gray-50 text-gray-500 hover:text-gray-900 transition-all flex items-center gap-2 font-bold text-xs uppercase tracking-widest">
+              <Filter size={16} />
+              Filter by Course
+            </button>
+          }
+        />
+      )}
     </div>
   );
 }

@@ -15,12 +15,15 @@ import {
   Sparkles,
   Award,
   Target,
-  Rocket
+  Rocket,
+  Upload,
+  CheckCircle2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { coursesApi } from "@/lib/api/courses";
 import { modulesApi } from "@/lib/api/modules";
 import { lessonsApi } from "@/lib/api/lessons";
+import { storageApi } from "@/lib/api/storage";
 
 type ModuleInput = {
   title: string;
@@ -30,6 +33,7 @@ type ModuleInput = {
 export default function CreateCoursePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [uploadingSyllabus, setUploadingSyllabus] = useState(false);
   const [courseData, setCourseData] = useState({
     title: "",
     description: "",
@@ -40,7 +44,8 @@ export default function CreateCoursePage() {
     overview: "",
     skills: [""],
     outcomes: [""],
-    duration: ""
+    duration: "",
+    syllabus_url: ""
   });
 
   const [modules, setModules] = useState<ModuleInput[]>([]);
@@ -95,6 +100,24 @@ export default function CreateCoursePage() {
       console.error("Error creating course:", error);
     } finally {
       setLoading(false);
+    }
+  };
+  
+  const handleSyllabusUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingSyllabus(true);
+    try {
+      const fileName = `${Date.now()}-syllabus-${file.name.replace(/\s+/g, '-')}`;
+      const publicUrl = await storageApi.uploadCourseSyllabus(file, fileName);
+      setCourseData(prev => ({ ...prev, syllabus_url: publicUrl }));
+      alert("Syllabus uploaded successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to upload syllabus PDF.");
+    } finally {
+      setUploadingSyllabus(false);
     }
   };
 
@@ -310,7 +333,35 @@ export default function CreateCoursePage() {
                 </div>
               </div>
 
-              <div className="h-px bg-gray-50" />
+                <div className="h-px bg-gray-50" />
+                
+                <div className="space-y-6">
+                   <h3 className="text-sm font-black uppercase tracking-widest text-gray-900 flex items-center gap-2">
+                     <FileText size={18} className="text-yellow-500" />
+                     Syllabus PDF
+                  </h3>
+                  <div className="flex gap-4">
+                    <input 
+                      type="text" 
+                      value={courseData.syllabus_url}
+                      onChange={(e) => setCourseData({...courseData, syllabus_url: e.target.value})}
+                      placeholder="Public URL or Upload ->"
+                      className="flex-1 bg-gray-50 border border-transparent rounded-xl px-4 py-3 text-sm outline-none focus:border-[#8b5cf6] font-medium"
+                    />
+                    <label className="shrink-0 px-4 py-3 rounded-xl bg-gray-900 text-white font-bold text-xs hover:bg-gray-800 transition-all flex items-center gap-2 cursor-pointer shadow-lg shadow-black/10">
+                      {uploadingSyllabus ? <div className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <Upload size={14} />}
+                      <span>{uploadingSyllabus ? "Uploading..." : "Upload PDF"}</span>
+                      <input type="file" accept=".pdf" className="hidden" onChange={handleSyllabusUpload} disabled={uploadingSyllabus} />
+                    </label>
+                  </div>
+                  {courseData.syllabus_url && (
+                    <p className="text-[10px] text-green-600 font-bold flex items-center gap-1 ml-2">
+                      <CheckCircle2 size={12} /> Syllabus linked correctly
+                    </p>
+                  )}
+                </div>
+
+                <div className="h-px bg-gray-50" />
 
               <div className="space-y-6">
                  <h3 className="text-sm font-black uppercase tracking-widest text-gray-900 flex items-center gap-2">

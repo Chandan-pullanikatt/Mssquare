@@ -312,7 +312,16 @@ export default function CourseDetailPage() {
                     </div>
                   </div>
 
-                  <button className="w-full py-4 md:py-5 rounded-xl md:rounded-2xl border-2 border-slate-100 hover:border-[#8b5cf6] hover:bg-slate-50 text-gray-900 text-[10px] font-[900] uppercase tracking-[0.2em] transition-all">
+                  <button 
+                    onClick={() => {
+                      if (course.syllabus_url) {
+                        window.open(course.syllabus_url, '_blank');
+                      } else {
+                        alert("Syllabus not available yet.");
+                      }
+                    }}
+                    className="w-full py-4 md:py-5 rounded-xl md:rounded-2xl border-2 border-slate-100 hover:border-[#8b5cf6] hover:bg-slate-50 text-gray-900 text-[10px] font-[900] uppercase tracking-[0.2em] transition-all"
+                  >
                     Access Syllabus PDF
                   </button>
                </div>

@@ -30,11 +30,11 @@ export const blogsApi = {
     const { data, error } = await supabase
       .from('blogs')
       .select('*')
-      .eq('id', id)
-      .single();
+      .eq('id', id);
     
     if (error) throw error;
-    return data as Blog;
+    if (!data || data.length === 0) throw new Error("Blog post not found");
+    return data[0] as Blog;
   },
 
   async createBlog(blog: Omit<Blog, 'id' | 'created_at'>) {
@@ -52,11 +52,11 @@ export const blogsApi = {
     const { data, error } = await (supabase.from('blogs') as any)
       .update(updates)
       .eq('id', id)
-      .select()
-      .single();
+      .select();
     
     if (error) throw error;
-    return data as Blog;
+    if (!data || data.length === 0) throw new Error("Could not update blog: Row not found or permission denied");
+    return data[0] as Blog;
   },
 
   async deleteBlog(id: string) {

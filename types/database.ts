@@ -23,6 +23,7 @@ export interface Course {
   outcomes?: string[];
   audience?: string;
   duration?: string;
+  syllabus_url?: string | null;
   created_at: string;
 }
 
@@ -265,7 +266,7 @@ export interface Database {
       };
       courses: {
         Row: Course;
-        Insert: Omit<Course, 'id' | 'created_at'> & { id?: string; created_at?: string };
+        Insert: Omit<Course, 'id' | 'created_at' | 'syllabus_url'> & { id?: string; created_at?: string; syllabus_url?: string | null };
         Update: Partial<Omit<Course, 'id' | 'created_at'>>;
       };
       lessons: {

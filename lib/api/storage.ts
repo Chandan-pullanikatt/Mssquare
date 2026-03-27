@@ -40,5 +40,9 @@ export const storageApi = {
 
   async uploadCertificateTemplate(file: File, fileName: string) {
     return this.uploadFile('certificates', fileName, file);
+  },
+
+  async uploadCourseSyllabus(file: File, fileName: string) {
+    return this.uploadFile('lesson-resources', fileName, file);
   }
 };

@@ -475,5 +475,37 @@ export const adminApi = {
       leads: leads || [],
       enquiries: enquiries || []
     };
+  },
+
+  async getEnrollments() {
+    const { data: enrollments, error } = await supabase
+      .from('enrollments')
+      .select(`
+        id,
+        progress,
+        status,
+        created_at,
+        course_id,
+        user_id,
+        course:courses(title),
+        student:profiles!user_id(email)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error("Fetch enrollments error:", error);
+      throw error;
+    }
+
+    // Adapt to UI format
+    return (enrollments as any[] || []).map(e => ({
+      id: e.id,
+      student: e.student?.email?.split('@')[0] || 'Unknown Student',
+      studentEmail: e.student?.email,
+      course: e.course?.title || 'Unknown Course',
+      progress: e.progress || 0,
+      status: e.status === 'active' ? 'Active' : e.status === 'Completed' ? 'Completed' : 'Pending',
+      date: e.created_at ? new Date(e.created_at).toLocaleDateString() : 'N/A'
+    }));
   }
 };
