@@ -27,9 +27,9 @@ export default function LeadsManagement() {
     try {
       const { data, error } = await supabase
         .from('leads')
-        .select('id, name, email, company, message, created_at')
+        .select('id, name, email, source, created_at')
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(100);
       
       if (error) throw error;
       setLeads(data || []);
@@ -91,20 +91,15 @@ export default function LeadsManagement() {
       ),
     },
     {
-      header: "Company",
-      accessor: "company",
+      header: "Source",
+      accessor: "source",
       render: (val: string) => (
-        <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-          <Building2 size={14} className="text-gray-400" />
-          {val || "N/A"}
-        </div>
-      )
-    },
-    {
-      header: "Message",
-      accessor: "message",
-      render: (val: string) => (
-        <p className="text-xs text-gray-500 line-clamp-1 max-w-[200px]">{val || "No message"}</p>
+        <span className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${
+          val?.includes('Signup') ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 
+          'bg-rose-50 text-rose-600 border-rose-100'
+        }`}>
+          {val || "Direct Lead"}
+        </span>
       )
     },
     { 
@@ -113,7 +108,7 @@ export default function LeadsManagement() {
       render: (val: string) => (
         <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
           <Calendar size={14} />
-          {new Date(val).toLocaleDateString()}
+          {val ? new Date(val).toLocaleDateString() : 'N/A'}
         </div>
       )
     },

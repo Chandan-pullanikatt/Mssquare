@@ -1,7 +1,7 @@
 import { supabase } from '../supabase/client';
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'error';
-export type NotificationTarget = 'student' | 'business_client' | 'all';
+export type NotificationTarget = 'student' | 'business_client' | 'cms_admin' | 'lms_admin' | 'business_admin' | 'all';
 
 export interface Notification {
   id: string;

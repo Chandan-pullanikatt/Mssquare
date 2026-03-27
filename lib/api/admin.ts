@@ -430,5 +430,50 @@ export const adminApi = {
       instructors: instructors || [],
       courses: courses || []
     };
+  },
+
+  async cmsGlobalSearch(query: string) {
+    if (!query || query.length < 2) return { users: [], courses: [], blogs: [], leads: [], enquiries: [] };
+
+    const [
+      { data: users },
+      { data: courses },
+      { data: blogs },
+      { data: leads },
+      { data: enquiries }
+    ] = await Promise.all([
+      supabase.from('profiles')
+        .select('id, email, role')
+        .ilike('email', `%${query}%`)
+        .limit(5),
+      
+      supabase.from('courses')
+        .select('id, title, category')
+        .ilike('title', `%${query}%`)
+        .limit(5),
+
+      supabase.from('blogs')
+        .select('id, title, category, slug')
+        .ilike('title', `%${query}%`)
+        .limit(5),
+
+      supabase.from('leads')
+        .select('id, name, email, source')
+        .or(`name.ilike.%${query}%,email.ilike.%${query}%`)
+        .limit(5),
+
+      supabase.from('webservice_enquiries')
+        .select('id, subject, status')
+        .ilike('subject', `%${query}%`)
+        .limit(5)
+    ]);
+
+    return {
+      users: users || [],
+      courses: courses || [],
+      blogs: blogs || [],
+      leads: leads || [],
+      enquiries: enquiries || []
+    };
   }
 };

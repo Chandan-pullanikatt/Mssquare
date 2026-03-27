@@ -22,7 +22,13 @@ export default function UserManagement() {
     try {
       const data = await usersApi.listUsersByRole(activeTab === "students" ? "student" : "cms_admin");
       if (mounted) {
-        setUsers(data);
+        // Adapt profiles to the expected view format
+        const adaptedUsers = (data || []).map(u => ({
+          ...u,
+          name: u.email?.split('@')[0] || 'Unknown User',
+          status: 'active' // Profiles don't have a status, default to active
+        }));
+        setUsers(adaptedUsers);
         hasFetched.current[activeTab] = true;
       }
     } catch (err) {
@@ -91,9 +97,13 @@ export default function UserManagement() {
       ),
     },
     { 
+      header: "Email", 
+      accessor: "email"
+    },
+    { 
       header: "Joined", 
       accessor: "created_at",
-      render: (val: string) => new Date(val).toLocaleDateString()
+      render: (val: string) => val ? new Date(val).toLocaleDateString() : 'N/A'
     },
     {
       header: "Current Role",
@@ -101,30 +111,14 @@ export default function UserManagement() {
       render: (val: string) => (
         <span
           className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-            val === "ceo" || val === "admin"
+            val === "ceo" || val === "admin" || val?.includes('admin')
               ? "bg-purple-50 text-purple-600 border border-purple-100"
               : "bg-blue-50 text-blue-600 border border-blue-100"
           }`}
         >
-          {val.replace("_", " ")}
+          {val?.replace("_", " ") || "User"}
         </span>
       ),
-    },
-    {
-      header: "Status",
-      accessor: "status",
-      render: (val: string, row: any) => (
-        <button
-          onClick={() => handleStatusChange(row.id, val)}
-          className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
-            val === 'suspended'
-              ? "bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100"
-              : "bg-green-50 text-green-600 border border-green-100 hover:bg-green-100"
-          }`}
-        >
-          {val === 'suspended' ? 'Suspended' : 'Active'}
-        </button>
-      )
     },
     {
       header: "Actions",
@@ -139,6 +133,7 @@ export default function UserManagement() {
             <option value="student">Student</option>
             <option value="cms_admin">CMS Admin</option>
             <option value="lms_admin">LMS Admin</option>
+            <option value="instructor">Instructor</option>
             <option value="business_admin">Business Admin</option>
             <option value="business_client">Business Client</option>
           </select>

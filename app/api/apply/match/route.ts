@@ -12,14 +12,30 @@ export async function POST(request: Request) {
 
     const supabase = await createClient();
 
-    // 1. Save Lead to Database
+    // 1. Save Lead to Database (Unified Table)
     const { error: dbError } = await supabase
-      .from('program_match_leads')
-      .insert({ email } as any);
+      .from('leads')
+      .insert({ 
+        email, 
+        name: 'Website Lead', 
+        source: 'Program Match Form' 
+      } as any);
 
     if (dbError) throw dbError;
 
-    // 2. Send Welcome Email
+    // 2. Notify Admin
+    try {
+      await supabase.from('notifications').insert({
+        title: 'New Program Match Lead',
+        message: `New interest from ${email} via Start Today form.`,
+        target_role: 'cms_admin',
+        type: 'success'
+      } as any);
+    } catch (notifErr) {
+      console.warn('Silent failure on admin notification:', notifErr);
+    }
+
+    // 3. Send Welcome Email
     await sendMatchWelcome({ email });
 
     return NextResponse.json({ success: true });

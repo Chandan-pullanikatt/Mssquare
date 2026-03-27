@@ -112,6 +112,25 @@ export const authHelpers = {
             role: role,
           });
       }
+
+      // Record as Lead for Admin visibility
+      try {
+        await supabase.from('leads').insert({
+          name: fullName,
+          email: email,
+          source: role === 'business_admin' ? 'Business Signup' : 'Student Signup',
+        } as any);
+
+        // Notify Admins
+        await supabase.from('notifications').insert({
+          title: `New ${role === 'business_admin' ? 'Business' : 'Student'} Registered`,
+          message: `${fullName} (${email}) has joined the platform.`,
+          target_role: 'cms_admin',
+          type: 'info'
+        } as any);
+      } catch (leadError) {
+        console.warn("Failed to record lead/notification during signup:", leadError);
+      }
     }
 
     return authData;

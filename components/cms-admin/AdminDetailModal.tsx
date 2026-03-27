@@ -2,153 +2,124 @@
 
 import { 
   X, 
-  User, 
-  BookOpen, 
   Mail, 
   Calendar, 
-  ShieldCheck, 
-  Clock,
-  ArrowRight
+  Shield, 
+  BookOpen, 
+  ExternalLink,
+  User,
+  GraduationCap,
+  MessageSquare,
+  FileText
 } from "lucide-react";
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { format } from "date-fns";
 
 interface AdminDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  type: "student" | "instructor" | "course";
   data: any;
+  type: 'student' | 'instructor' | 'course' | 'blog' | 'lead' | 'enquiry';
 }
 
-export default function AdminDetailModal({ isOpen, onClose, type, data }: AdminDetailModalProps) {
+export function AdminDetailModal({ isOpen, onClose, data, type }: AdminDetailModalProps) {
   if (!isOpen || !data) return null;
 
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      {/* Overlay */}
-      <div 
-        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
+  const getPortalLink = () => {
+    switch (type) {
+      case 'student': return `/admin/cms/users?search=${data.email}`;
+      case 'instructor': return `/admin/lms/instructors`;
+      case 'course': return `/admin/cms/courses`;
+      case 'blog': return `/admin/cms/blog`;
+      case 'lead': return `/admin/cms/leads`;
+      case 'enquiry': return `/admin/business/enquiries`;
+      default: return '#';
+    }
+  };
 
-      {/* Modal Content */}
-      <div className="relative bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-white w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border border-gray-100">
         {/* Header */}
-        <div className="bg-[#8b5cf6] p-8 text-white relative">
-          <button 
-            onClick={onClose}
-            className="absolute top-6 right-6 p-2 rounded-xl bg-white/20 hover:bg-white/30 transition-all text-white"
-          >
-            <X size={20} />
-          </button>
-          
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-md">
-              {type === "student" && <User size={28} />}
-              {type === "instructor" && <ShieldCheck size={28} />}
-              {type === "course" && <BookOpen size={28} />}
+        <div className="p-8 pb-4 flex justify-between items-start">
+          <div className="flex items-center gap-4">
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg ${
+              type === 'student' ? 'bg-blue-500' : 
+              type === 'instructor' ? 'bg-indigo-500' : 
+              type === 'course' ? 'bg-amber-500' : 
+              type === 'blog' ? 'bg-rose-500' :
+              type === 'lead' ? 'bg-emerald-500' : 'bg-[#8b5cf6]'
+            }`}>
+              {type === 'student' && <GraduationCap size={28} />}
+              {type === 'instructor' && <Shield size={28} />}
+              {type === 'course' && <BookOpen size={28} />}
+              {type === 'blog' && <FileText size={28} />}
+              {type === 'lead' && <User size={28} />}
+              {type === 'enquiry' && <MessageSquare size={28} />}
             </div>
             <div>
-              <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{type}</p>
-              <h2 className="text-2xl font-bold tracking-tight truncate max-w-[300px]">
-                {type === "course" ? data.title : data.email}
+              <h2 className="text-xl font-black text-gray-900 italic leading-none">
+                {type === 'course' || type === 'blog' || type === 'enquiry' ? (data.title || data.subject) : (data.name || data.email?.split('@')[0])}
               </h2>
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] mt-2">
+                {type} Information
+              </p>
             </div>
           </div>
+          <button onClick={onClose} className="p-2 hover:bg-gray-50 rounded-full transition-colors group">
+            <X size={20} className="text-gray-400 group-hover:text-gray-900" />
+          </button>
         </div>
 
-        {/* Body */}
-        <div className="p-8 space-y-6">
+        {/* Content */}
+        <div className="p-8 pt-4 space-y-6">
           <div className="grid grid-cols-1 gap-4">
-            {type === "student" && (
-              <>
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50">
-                  <Mail className="text-[#8b5cf6]" size={20} />
-                  <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email Address</p>
-                    <p className="font-bold text-gray-900">{data.email}</p>
-                  </div>
+            {(data.email || data.user_email) && (
+              <div className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 border border-gray-100 group">
+                <Mail size={18} className="text-gray-400 group-hover:text-[#8b5cf6] transition-colors" />
+                <div>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email Address</p>
+                  <p className="text-sm font-bold text-gray-900">{data.email || data.user_email}</p>
                 </div>
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50">
-                  < ShieldCheck className="text-[#8b5cf6]" size={20} />
-                  <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">User Role</p>
-                    <p className="font-bold text-gray-900 capitalize">{data.role}</p>
-                  </div>
-                </div>
-              </>
+              </div>
             )}
 
-            {type === "instructor" && (
-              <>
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50">
-                  <Mail className="text-[#8b5cf6]" size={20} />
-                  <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email Address</p>
-                    <p className="font-bold text-gray-900">{data.email}</p>
-                  </div>
+            {data.category && (
+              <div className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                <Shield size={18} className="text-gray-400" />
+                <div>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Category</p>
+                  <p className="text-sm font-bold text-gray-900">{data.category}</p>
                 </div>
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50">
-                  <Clock className="text-[#8b5cf6]" size={20} />
-                  <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</p>
-                    <p className="font-bold text-gray-900 capitalize">{data.status || "Active"}</p>
-                  </div>
-                </div>
-              </>
+              </div>
             )}
 
-            {type === "course" && (
-              <>
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50">
-                  <BookOpen className="text-[#8b5cf6]" size={20} />
-                  <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Course Title</p>
-                    <p className="font-bold text-gray-900">{data.title}</p>
-                  </div>
+            {data.created_at && (
+              <div className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                <Calendar size={18} className="text-gray-400" />
+                <div>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Added On</p>
+                  <p className="text-sm font-bold text-gray-900">{format(new Date(data.created_at), 'MMMM dd, yyyy')}</p>
                 </div>
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50">
-                  <ShieldCheck className="text-[#8b5cf6]" size={20} />
-                  <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Category</p>
-                    <p className="font-bold text-gray-900">{data.category || "General"}</p>
-                  </div>
-                </div>
-              </>
+              </div>
             )}
           </div>
 
-          <div className="pt-4 border-t border-gray-100 flex gap-4">
-            {type === "student" && (
-              <Link
-                href={`/admin/lms/students?email=${data.email}`}
-                onClick={onClose}
-                className="flex-1 px-6 py-4 rounded-2xl bg-[#8b5cf6] text-white font-bold text-center shadow-lg shadow-[#8b5cf6]/20 hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
-              >
-                Go to Students
-                <ArrowRight size={18} />
-              </Link>
-            )}
-            {type === "instructor" && (
-              <Link
-                href={`/admin/lms/instructors`}
-                onClick={onClose}
-                className="flex-1 px-6 py-4 rounded-2xl bg-[#8b5cf6] text-white font-bold text-center shadow-lg shadow-[#8b5cf6]/20 hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
-              >
-                Go to Instructors
-                <ArrowRight size={18} />
-              </Link>
-            )}
-            {type === "course" && (
-              <Link
-                href={`/admin/lms/courses`}
-                onClick={onClose}
-                className="flex-1 px-6 py-4 rounded-2xl bg-[#8b5cf6] text-white font-bold text-center shadow-lg shadow-[#8b5cf6]/20 hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
-              >
-                Edit Course
-                <ArrowRight size={18} />
-              </Link>
-            )}
+          <div className="pt-4 flex flex-col gap-3">
+            <Link 
+              href={getPortalLink()} 
+              onClick={onClose}
+              className="w-full bg-[#8b5cf6] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-lg shadow-[#8b5cf6]/20 hover:-translate-y-1 transition-all active:scale-95"
+            >
+              Go to Management
+              <ExternalLink size={18} />
+            </Link>
+            <button 
+              onClick={onClose}
+              className="w-full py-4 text-gray-400 font-bold hover:text-gray-900 transition-colors"
+            >
+              Close Preview
+            </button>
           </div>
         </div>
       </div>

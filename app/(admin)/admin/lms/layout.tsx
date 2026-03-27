@@ -30,9 +30,10 @@ import { useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { UserMenu } from "@/components/layout/UserMenu";
+import { AdminDetailModal } from "@/components/cms-admin/AdminDetailModal";
+import { format } from "date-fns";
 import { useSearch } from "@/components/providers/SearchProvider";
 import { adminApi } from "@/lib/api/admin";
-import AdminDetailModal from "@/components/cms-admin/AdminDetailModal";
 import { useEffect } from "react";
 
 const adminSidebarItems = [
@@ -52,15 +53,17 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const { user, role } = useAuth();
-  const { searchQuery, setSearchQuery } = useSearch();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-
-  const [searchResults, setSearchResults] = useState<{ students: any[], instructors: any[], courses: any[] }>({ students: [], instructors: [], courses: [] });
+  
+  // Search State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedEntity, setSelectedEntity] = useState<any>(null);
-  const [detailModalType, setDetailModalType] = useState<"student" | "instructor" | "course">("student");
+  const [showResults, setShowResults] = useState(false);
+  
+  // Detail Modal State
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedType, setSelectedType] = useState<any>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   useEffect(() => {
@@ -84,13 +87,13 @@ export default function AdminLayout({
   }, [searchQuery]);
 
   const handleResultClick = (type: "student" | "instructor" | "course", data: any) => {
-    setDetailModalType(type);
-    setSelectedEntity(data);
+    setSelectedType(type);
+    setSelectedItem(data);
     setIsDetailModalOpen(true);
     setSearchQuery(""); // Clear search
   };
 
-  const hasResults = searchResults.students.length > 0 || searchResults.instructors.length > 0 || searchResults.courses.length > 0;
+  const hasResults = searchResults?.students?.length > 0 || searchResults?.instructors?.length > 0 || searchResults?.courses?.length > 0;
 
 
   return (
@@ -171,7 +174,7 @@ export default function AdminLayout({
                     {searchResults.students.length > 0 && (
                       <div className="space-y-3">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Students</p>
-                        {searchResults.students.map((student) => (
+                        {searchResults.students.map((student: any) => (
                           <button
                             key={student.id}
                             onClick={() => handleResultClick("student", student)}
@@ -195,7 +198,7 @@ export default function AdminLayout({
                     {searchResults.instructors.length > 0 && (
                       <div className="space-y-3">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Instructors</p>
-                        {searchResults.instructors.map((instructor) => (
+                        {searchResults.instructors.map((instructor: any) => (
                           <button
                             key={instructor.id}
                             onClick={() => handleResultClick("instructor", instructor)}
@@ -219,7 +222,7 @@ export default function AdminLayout({
                     {searchResults.courses.length > 0 && (
                       <div className="space-y-3">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Courses</p>
-                        {searchResults.courses.map((course) => (
+                        {searchResults.courses.map((course: any) => (
                           <button
                             key={course.id}
                             onClick={() => handleResultClick("course", course)}
@@ -262,12 +265,11 @@ export default function AdminLayout({
         </div>
       </main>
 
-      {/* Detail Modal */}
       <AdminDetailModal
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
-        type={detailModalType}
-        data={selectedEntity}
+        type={selectedType}
+        data={selectedItem}
       />
 
       {/* Mobile Overlay */}
