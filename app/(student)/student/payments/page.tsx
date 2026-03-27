@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useSearch } from "@/components/providers/SearchProvider";
 import { enrollmentsApi } from "@/lib/api/enrollments";
 
 // Skeleton Component for Loading State
@@ -47,7 +48,7 @@ export default function PaymentsPage() {
     const { user } = useAuth();
     const [enrollments, setEnrollments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState("");
+    const { searchQuery, setSearchQuery } = useSearch();
     const [filterRange, setFilterRange] = useState("all");
 
     useEffect(() => {

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useSearch } from "@/components/providers/SearchProvider";
 import { enrollmentsApi } from "@/lib/api/enrollments";
 import { projectsApi } from "@/lib/api/projects";
 import { Project } from "@/types/database";
@@ -25,7 +26,7 @@ export default function StudentProjectsPage() {
     const { user, loading: authLoading } = useAuth();
     const [projects, setProjects] = useState<(Project & { course_title: string })[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState("");
+    const { searchQuery, setSearchQuery } = useSearch();
 
     useEffect(() => {
         console.log("StudentProjectsPage: Effect triggered. user.id:", user?.id);

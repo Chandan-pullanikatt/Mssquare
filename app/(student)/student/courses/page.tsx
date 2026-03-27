@@ -17,11 +17,13 @@ import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { enrollmentsApi } from "@/lib/api/enrollments";
 
+import { useSearch } from "@/components/providers/SearchProvider";
+
 export default function MyCoursesPage() {
     const { user, loading: authLoading } = useAuth();
     const [enrollments, setEnrollments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState("");
+    const { searchQuery, setSearchQuery } = useSearch();
 
     const hasFetched = useRef<string | null>(null);
 
@@ -90,6 +92,13 @@ export default function MyCoursesPage() {
                     <p className="text-gray-500 font-medium">Continue your learning journey where you left off.</p>
                 </div>
                 <div className="flex items-center gap-3">
+                    <Link 
+                        href="/student/explore"
+                        className="flex items-center gap-2 bg-[#8b5cf6] text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all whitespace-nowrap"
+                    >
+                        <Sparkles size={16} />
+                        Enroll in New Course
+                    </Link>
                     <div className="relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                         <input

@@ -4,12 +4,14 @@ import { useState } from "react";
 import { InstructorSidebar } from "@/components/layout/InstructorSidebar";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { Menu, X, Bell, Search } from "lucide-react";
+import { useSearch } from "@/components/providers/SearchProvider";
 
 export default function InstructorLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const { searchQuery, setSearchQuery } = useSearch();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     return (
@@ -40,6 +42,8 @@ export default function InstructorLayout({
                         <input
                             type="text"
                             placeholder="Search in your courses..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full bg-gray-50 border-none rounded-full py-2.5 pl-11 pr-4 text-sm focus:ring-2 focus:ring-[#8b5cf6]/20 outline-none placeholder:text-gray-400 font-medium text-gray-700 transition-all"
                         />
                     </div>

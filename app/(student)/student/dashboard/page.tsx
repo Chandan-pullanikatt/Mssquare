@@ -157,10 +157,16 @@ export default function StudentDashboard() {
             You are enrolled in <span className="text-[#8b5cf6] font-bold">{enrollments.length}</span> courses. Keep it up!
           </p>
         </div>
-        <Link href="/student/ai-coach" className="flex items-center justify-center gap-2 bg-[#8b5cf6] text-white px-5 py-3.5 rounded-full font-bold shadow-[0_4px_20px_rgba(139,92,246,0.3)] hover:-translate-y-0.5 transition-transform">
-          <Sparkles size={18} className="fill-white" />
-          <span>Launch AI Coach</span>
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/student/explore" className="flex items-center justify-center gap-2 bg-white text-gray-900 border border-gray-200 px-5 py-3.5 rounded-full font-bold shadow-sm hover:bg-gray-50 transition-all">
+            <GraduationCap size={18} className="text-[#8b5cf6]" />
+            <span>Explore Courses</span>
+          </Link>
+          <Link href="/student/ai-coach" className="flex items-center justify-center gap-2 bg-[#8b5cf6] text-white px-5 py-3.5 rounded-full font-bold shadow-[0_4px_20px_rgba(139,92,246,0.3)] hover:-translate-y-0.5 transition-transform">
+            <Sparkles size={18} className="fill-white" />
+            <span>Launch AI Coach</span>
+          </Link>
+        </div>
       </div>
 
       {/* Top Stat Cards */}

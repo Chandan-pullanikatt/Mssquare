@@ -30,6 +30,10 @@ import { useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { UserMenu } from "@/components/layout/UserMenu";
+import { useSearch } from "@/components/providers/SearchProvider";
+import { adminApi } from "@/lib/api/admin";
+import AdminDetailModal from "@/components/cms-admin/AdminDetailModal";
+import { useEffect } from "react";
 
 const adminSidebarItems = [
   { name: "LMS Overview", href: "/admin/lms/dashboard", icon: LayoutDashboard },
@@ -48,9 +52,46 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const { user, role } = useAuth();
+  const { searchQuery, setSearchQuery } = useSearch();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  const [searchResults, setSearchResults] = useState<{ students: any[], instructors: any[], courses: any[] }>({ students: [], instructors: [], courses: [] });
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedEntity, setSelectedEntity] = useState<any>(null);
+  const [detailModalType, setDetailModalType] = useState<"student" | "instructor" | "course">("student");
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (searchQuery.length >= 2) {
+        setIsSearching(true);
+        try {
+          const results = await adminApi.globalSearch(searchQuery);
+          setSearchResults(results);
+        } catch (err) {
+          console.error("Search error:", err);
+        } finally {
+          setIsSearching(false);
+        }
+      } else {
+        setSearchResults({ students: [], instructors: [], courses: [] });
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  const handleResultClick = (type: "student" | "instructor" | "course", data: any) => {
+    setDetailModalType(type);
+    setSelectedEntity(data);
+    setIsDetailModalOpen(true);
+    setSearchQuery(""); // Clear search
+  };
+
+  const hasResults = searchResults.students.length > 0 || searchResults.instructors.length > 0 || searchResults.courses.length > 0;
+
 
   return (
     <div className="flex min-h-screen bg-white text-gray-900 border-[8px] border-[#f5f3ff] overflow-hidden">
@@ -107,13 +148,101 @@ export default function AdminLayout({
       <main className="flex-1 flex flex-col min-h-screen bg-[#fafafc] w-full overflow-hidden lg:pl-[260px]">
         {/* Top Header */}
         <header className="h-[80px] bg-white/80 backdrop-blur-md px-8 flex items-center justify-between border-b border-gray-100 z-30 sticky top-0">
-          <div className="flex-1 max-w-2xl relative">
+          <div className="flex-1 max-w-2xl relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Search users, courses, transactions..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-gray-50 border-none rounded-full py-2.5 pl-11 pr-4 text-sm focus:ring-2 focus:ring-[#8b5cf6]/20 outline-none placeholder:text-gray-400 font-medium text-gray-700 transition-all"
             />
+
+            {/* Global Search Results Dropdown */}
+            {(isSearching || hasResults) && (
+              <div className="absolute top-full left-0 right-0 mt-3 bg-white border border-gray-100 rounded-[2.5rem] shadow-2xl p-6 max-h-[500px] overflow-y-auto animate-in slide-in-from-top-2 duration-200">
+                {isSearching ? (
+                  <div className="flex items-center justify-center py-10 gap-3">
+                    <div className="w-5 h-5 border-2 border-[#8b5cf6]/20 border-t-[#8b5cf6] rounded-full animate-spin" />
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Searching records...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {searchResults.students.length > 0 && (
+                      <div className="space-y-3">
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Students</p>
+                        {searchResults.students.map((student) => (
+                          <button
+                            key={student.id}
+                            onClick={() => handleResultClick("student", student)}
+                            className="w-full flex items-center justify-between p-3.5 rounded-2xl hover:bg-gray-50 transition-all group"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                                <Users size={18} />
+                              </div>
+                              <div className="text-left">
+                                <p className="text-sm font-bold text-gray-900 group-hover:text-[#8b5cf6] transition-colors">{student.email}</p>
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Student Profile</p>
+                              </div>
+                            </div>
+                            <ChevronRight size={16} className="text-gray-300 group-hover:text-[#8b5cf6] group-hover:translate-x-1 transition-all" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {searchResults.instructors.length > 0 && (
+                      <div className="space-y-3">
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Instructors</p>
+                        {searchResults.instructors.map((instructor) => (
+                          <button
+                            key={instructor.id}
+                            onClick={() => handleResultClick("instructor", instructor)}
+                            className="w-full flex items-center justify-between p-3.5 rounded-2xl hover:bg-gray-50 transition-all group"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
+                                <UserCheck size={18} />
+                              </div>
+                              <div className="text-left">
+                                <p className="text-sm font-bold text-gray-900 group-hover:text-[#8b5cf6] transition-colors">{instructor.email}</p>
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Instructor Record</p>
+                              </div>
+                            </div>
+                            <ChevronRight size={16} className="text-gray-300 group-hover:text-[#8b5cf6] group-hover:translate-x-1 transition-all" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {searchResults.courses.length > 0 && (
+                      <div className="space-y-3">
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Courses</p>
+                        {searchResults.courses.map((course) => (
+                          <button
+                            key={course.id}
+                            onClick={() => handleResultClick("course", course)}
+                            className="w-full flex items-center justify-between p-3.5 rounded-2xl hover:bg-gray-50 transition-all group"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-[#8b5cf6]">
+                                <BookOpen size={18} />
+                              </div>
+                              <div className="text-left">
+                                <p className="text-sm font-bold text-gray-900 group-hover:text-[#8b5cf6] transition-colors">{course.title}</p>
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">{course.category}</p>
+                              </div>
+                            </div>
+                            <ChevronRight size={16} className="text-gray-300 group-hover:text-[#8b5cf6] group-hover:translate-x-1 transition-all" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-6 ml-4">
@@ -132,6 +261,14 @@ export default function AdminLayout({
           </div>
         </div>
       </main>
+
+      {/* Detail Modal */}
+      <AdminDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        type={detailModalType}
+        data={selectedEntity}
+      />
 
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (

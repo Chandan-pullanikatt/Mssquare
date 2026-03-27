@@ -2,6 +2,8 @@
 
 import { Search, Filter, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
 import { COLORS } from "@/lib/design-tokens";
+import { useSearch } from "@/components/providers/SearchProvider";
+import { useState, useMemo } from "react";
 
 interface Column {
   header: string;
@@ -26,6 +28,23 @@ export default function DataTable({
   actions,
   isLoading = false,
 }: DataTableProps) {
+  const { searchQuery, setSearchQuery } = useSearch();
+
+  const filteredData = useMemo(() => {
+    if (!searchQuery) return data;
+    const query = searchQuery.toLowerCase();
+    return data.filter((row) => {
+      return columns.some((col) => {
+        const value = row[col.accessor];
+        if (value == null) return false;
+        
+        // Handle nested objects or simple values
+        const stringValue = typeof value === 'object' ? JSON.stringify(value).toLowerCase() : String(value).toLowerCase();
+        return stringValue.includes(query);
+      });
+    });
+  }, [data, searchQuery, columns]);
+
   return (
     <div className="bg-white border border-gray-100 rounded-[2rem] shadow-[0_2px_10px_rgba(0,0,0,0.02)] overflow-hidden">
       {(title || searchPlaceholder || actions) && (
@@ -37,6 +56,8 @@ export default function DataTable({
               <input
                 type="text"
                 placeholder={searchPlaceholder}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-gray-50 border-none rounded-2xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary-purple/20 outline-none placeholder:text-gray-400 font-medium text-gray-700 transition-all"
               />
             </div>
@@ -75,8 +96,8 @@ export default function DataTable({
                   <td className="px-6 py-8"></td>
                 </tr>
               ))
-            ) : data.length > 0 ? (
-              data.map((row, rowIndex) => (
+            ) : filteredData.length > 0 ? (
+              filteredData.map((row, rowIndex) => (
                 <tr key={rowIndex} className="hover:bg-gray-50/50 transition-colors group">
                   {columns.map((column, colIndex) => (
                     <td key={colIndex} className="px-6 py-4 text-sm font-medium text-gray-700">
@@ -103,7 +124,7 @@ export default function DataTable({
 
       <div className="p-6 border-t border-gray-50 flex items-center justify-between">
         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-          Showing <span className="text-gray-900">{data.length}</span> results
+          Showing <span className="text-gray-900">{filteredData.length}</span> results
         </p>
         <div className="flex items-center gap-2">
           <button className="p-2 rounded-xl border border-gray-100 text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all disabled:opacity-50">

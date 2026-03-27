@@ -18,12 +18,22 @@ import { storageApi } from "@/lib/api/storage";
 import { supabase } from "@/lib/supabase/client";
 
 
+import { useSearch } from "@/components/providers/SearchProvider";
+import { useMemo } from "react";
+
 export default function MediaManager() {
+  const { searchQuery, setSearchQuery } = useSearch();
   const [files, setFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  const filteredFiles = useMemo(() => {
+    if (!searchQuery) return files;
+    const query = searchQuery.toLowerCase();
+    return files.filter(f => f.name.toLowerCase().includes(query));
+  }, [files, searchQuery]);
 
   const buckets = ["blog-images", "course-thumbnails", "website-media"];
   const [selectedBucket, setSelectedBucket] = useState(buckets[0]);
@@ -157,7 +167,7 @@ export default function MediaManager() {
         <>
           {viewMode === "grid" ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {files.map((file) => (
+              {filteredFiles.map((file) => (
                 <div key={file.id} className="group relative bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all">
                   <div className="aspect-square relative bg-gray-50">
                     <img 
@@ -201,7 +211,7 @@ export default function MediaManager() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {files.map((file) => (
+                  {filteredFiles.map((file) => (
                     <tr key={file.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-8 py-4">
                         <div className="w-12 h-12 rounded-xl overflow-hidden border border-gray-100">

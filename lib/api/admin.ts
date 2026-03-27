@@ -393,5 +393,42 @@ export const adminApi = {
       .eq('id', id);
     if (error) throw error;
     return true;
+  },
+
+  async globalSearch(query: string) {
+    if (!query || query.length < 2) return { students: [], instructors: [], courses: [] };
+
+    // We search across profiles (students), instructors, and courses
+    const [
+      { data: students },
+      { data: instructors },
+      { data: courses }
+    ] = await Promise.all([
+      supabase.from('profiles')
+        .select(`
+          id, 
+          email, 
+          role
+        `)
+        .eq('role', 'student')
+        .ilike('email', `%${query}%`)
+        .limit(5),
+      
+      supabase.from('instructors')
+        .select('id, email, status')
+        .ilike('email', `%${query}%`)
+        .limit(5),
+      
+      supabase.from('courses')
+        .select('id, title, category')
+        .ilike('title', `%${query}%`)
+        .limit(5)
+    ]);
+
+    return {
+      students: students || [],
+      instructors: instructors || [],
+      courses: courses || []
+    };
   }
 };

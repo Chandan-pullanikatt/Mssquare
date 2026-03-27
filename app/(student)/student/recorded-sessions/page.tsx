@@ -17,11 +17,13 @@ import { recordedSessionsApi } from "@/lib/api/recordedSessions";
 import { RecordedSession } from "@/types/database";
 import VideoPlayer from "@/components/shared/VideoPlayer";
 
+import { useSearch } from "@/components/providers/SearchProvider";
+
 export default function StudentRecordedSessionsPage() {
     const { user, loading: authLoading } = useAuth();
     const [sessions, setSessions] = useState<(RecordedSession & { course_title: string })[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState("");
+    const { searchQuery, setSearchQuery } = useSearch();
     const [activeVideo, setActiveVideo] = useState<string | null>(null);
 
     useEffect(() => {

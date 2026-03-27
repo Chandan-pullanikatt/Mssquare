@@ -7,11 +7,13 @@ import { BookOpen, ArrowRight, ChevronDown, Search, Sparkles } from "lucide-reac
 import CourseCard from "@/components/courses/CourseCard";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { useSearch } from "@/components/providers/SearchProvider";
+
 export default function ExploreCourses() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("None");
-  const [searchQuery, setSearchQuery] = useState("");
+  const { searchQuery, setSearchQuery } = useSearch();
 
   const categories = [
     { id: "Certification", title: "Certification", count: 12, color: "bg-blue-500" },

@@ -18,12 +18,14 @@ import {
 import { useAuth } from "@/components/providers/AuthProvider";
 import { businessApi, BusinessProject } from "@/lib/api/business";
 
+import { useSearch } from "@/components/providers/SearchProvider";
+
 export default function AdminProjectsPage() {
   const { user, role, loading: authLoading } = useAuth() as any;
   const [projects, setProjects] = useState<BusinessProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const { searchQuery, setSearchQuery } = useSearch();
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const hasFetched = useRef<string | null>(null);

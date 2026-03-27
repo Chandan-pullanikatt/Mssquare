@@ -18,12 +18,14 @@ import {
 import { useAuth } from "@/components/providers/AuthProvider";
 import { businessApi } from "@/lib/api/business";
 
+import { useSearch } from "@/components/providers/SearchProvider";
+
 export default function AdminEnquiriesPage() {
   const { user, role, loading: authLoading } = useAuth() as any;
   const [enquiries, setEnquiries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const { searchQuery, setSearchQuery } = useSearch();
   const [activeFilter, setActiveFilter] = useState<'all' | 'Open' | 'In Progress' | 'Closed'>('all');
   const [processingId, setProcessingId] = useState<string | null>(null);
   

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { SearchProvider } from "@/components/providers/SearchProvider";
 
 const urbanist = localFont({
   src: [
@@ -36,7 +37,9 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <AuthProvider>
-          {children}
+          <SearchProvider>
+            {children}
+          </SearchProvider>
         </AuthProvider>
       </body>
     </html>

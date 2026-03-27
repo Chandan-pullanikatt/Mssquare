@@ -8,6 +8,7 @@ import BlogSearch from "@/components/blog/BlogSearch";
 import BlogFilter from "@/components/blog/BlogFilter";
 import { BLOG_POSTS, BlogPost } from "@/content/blogs/blogs";
 import { motion } from "framer-motion";
+import { useSearch } from "@/components/providers/SearchProvider";
 
 import { blogsApi } from "@/lib/api/blogs";
 import { Blog } from "@/types/database";
@@ -19,7 +20,7 @@ function BlogPageContent() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
     initialCategory
   );
-  const [searchQuery, setSearchQuery] = useState("");
+  const { searchQuery, setSearchQuery } = useSearch();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
 

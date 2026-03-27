@@ -16,12 +16,14 @@ import {
 import { useAuth } from "@/components/providers/AuthProvider";
 import { businessApi, ServiceRequest } from "@/lib/api/business";
 
+import { useSearch } from "@/components/providers/SearchProvider";
+
 export default function AdminRequestsPage() {
   const { user, role, loading: authLoading } = useAuth() as any;
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const { searchQuery, setSearchQuery } = useSearch();
   const [activeFilter, setActiveFilter] = useState<'all' | 'pending' | 'approved'>('all');
   const [processingId, setProcessingId] = useState<string | null>(null);
 

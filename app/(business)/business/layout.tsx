@@ -22,6 +22,7 @@ import { useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { authHelpers } from "@/utils/authHelpers";
 import { NotificationBell } from "@/components/layout/NotificationBell";
+import { useSearch } from "@/components/providers/SearchProvider";
 
 const sidebarItems = [
   { name: "Dashboard", href: "/business/dashboard", icon: LayoutDashboard },
@@ -37,6 +38,7 @@ export default function BusinessLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { user, role } = useAuth();
+  const { searchQuery, setSearchQuery } = useSearch();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -127,6 +129,8 @@ export default function BusinessLayout({
             <input
               type="text"
               placeholder="Search projects, documents, or team..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-gray-50 border border-gray-100 rounded-full py-2.5 pl-11 pr-4 text-sm focus:ring-2 focus:ring-[#8b5cf6]/20 focus:border-[#8b5cf6]/30 outline-none placeholder:text-gray-400 font-medium text-gray-700 transition-all"
             />
           </div>

@@ -77,11 +77,13 @@ import { Course } from "@/types/database";
 
 // ... images mapping remains for fallback/initial icon mapping ...
 
+import { useSearch } from "@/components/providers/SearchProvider";
+
 export default function CoursesPage() {
   const [activeProgram, setActiveProgram] = useState<string>("None");
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [activeLevel, setActiveLevel] = useState<string>("All");
-  const [searchQuery, setSearchQuery] = useState("");
+  const { searchQuery, setSearchQuery } = useSearch();
   const [liveCourses, setLiveCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();

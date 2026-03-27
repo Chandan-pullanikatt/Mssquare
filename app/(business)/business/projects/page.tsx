@@ -47,13 +47,15 @@ const ProjectSkeleton = () => (
     </div>
 );
 
+import { useSearch } from "@/components/providers/SearchProvider";
+
 export default function BusinessProjectsPage() {
   const { user, authLoading } = useAuth() as any;
   const [projects, setProjects] = useState<BusinessProject[]>([]);
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const { searchQuery, setSearchQuery } = useSearch();
   const [activeTab, setActiveTab] = useState<'all' | 'active' | 'pending'>('all');
 
   const hasFetched = useRef<string | null>(null);
