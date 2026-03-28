@@ -86,5 +86,15 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Strict role check for protected portal routes
+  if (currentPortal && user.app_metadata?.role !== currentPortal.role) {
+    // Exception: cms_admin can access everything (optional, but often helpful)
+    if (user.app_metadata?.role !== 'cms_admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/unauthorized'
+      return NextResponse.redirect(url)
+    }
+  }
+
   return supabaseResponse
 }

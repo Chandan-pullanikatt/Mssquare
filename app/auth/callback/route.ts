@@ -13,6 +13,36 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     
     if (!error) {
+      // 1. check if this is an instructor by email
+      try {
+        const { data: instructor } = await supabase
+          .from('instructors')
+          .select('id')
+          .eq('email', data.user.email!)
+          .maybeSingle();
+
+        if (instructor) {
+          console.log(`Auth Callback: Auto-promoting ${data.user.email} to instructor...`);
+          // 2. Assign role in profiles (trigger will sync to auth.users)
+          await (supabase as any).from('profiles').upsert({
+            id: data.user.id,
+            user_id: data.user.id,
+            email: data.user.email,
+            role: 'instructor',
+          }, { onConflict: 'id' });
+
+          // 3. Mark in instructors table as active
+          await (supabase as any).from('instructors').update({ status: 'active' }).eq('id', data.user.id);
+          
+          // 4. If the next path is /portal or /, redirect to instructor dashboard
+          if (next === '/portal' || next === '/') {
+            return NextResponse.redirect(new URL('/instructor/dashboard', request.url));
+          }
+        }
+      } catch (err) {
+        console.warn("Auth Callback: Failed to check/assign instructor role:", err);
+      }
+
       return NextResponse.redirect(new URL(next, request.url));
     }
     

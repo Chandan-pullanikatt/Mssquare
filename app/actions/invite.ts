@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { sendInstructorInvitation } from '@/lib/email';
 
 export async function inviteInstructor(email: string, remarks?: string) {
   const supabase = await createClient();
@@ -34,29 +35,46 @@ export async function inviteInstructor(email: string, remarks?: string) {
   if (!existingUser || !existingUser.confirmed_at) {
     console.log(`Inviting/Re-inviting user: ${email}. Existing: ${!!existingUser}, Confirmed: ${!!existingUser?.confirmed_at}`);
     
-    const { data: inviteData, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/set-password`,
-      data: {
-        role: 'instructor'
+    // Generate secure invitation link
+    const { data: inviteData, error: inviteError } = await adminClient.auth.admin.generateLink({
+      type: 'invite',
+      email: email,
+      options: {
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback?next=/auth/set-password`,
+        data: {
+          role: 'instructor'
+        }
       }
     });
 
     if (inviteError) {
-      console.error("Invite Error:", inviteError);
-      // If we failed to invite but they are an existing user, we might still proceed if they are confirmed
+      console.error("Invite Link Generation Error:", inviteError.message);
       if (!existingUser) throw inviteError;
     } else {
       userId = inviteData.user.id;
+      
+      // 3. Send custom email via Resend
+      try {
+        await sendInstructorInvitation({
+          email: email,
+          inviteLink: inviteData.properties.action_link
+        });
+        console.log(`Custom invitation email sent to ${email}`);
+      } catch (emailErr) {
+        console.error("Failed to send custom invitation email:", emailErr);
+        // We still proceed because the user is created in Supabase
+      }
     }
   }
 
-  // 3. Add to the dedicated instructors table if not already there
+  // 4. Add to the dedicated instructors table if not already there
   const { error: instructorError } = await adminClient
     .from('instructors')
     .upsert({
       id: userId,
       email: email,
-      remarks: remarks || null
+      remarks: remarks || null,
+      status: userId === existingUser?.id && existingUser?.confirmed_at ? 'active' : 'invited'
     }, { onConflict: 'email' });
 
   if (instructorError) {

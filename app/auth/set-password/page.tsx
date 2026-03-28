@@ -46,7 +46,7 @@ function ResetPasswordForm() {
       
       setSuccess(true);
       setTimeout(() => {
-        router.push("/auth");
+        router.push("/instructor/dashboard");
       }, 2000);
     } catch (err: any) {
       setError(err.message || "Failed to update password");

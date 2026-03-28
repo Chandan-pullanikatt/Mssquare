@@ -209,3 +209,52 @@ export const sendEnquiryReply = async ({
   }
   return data;
 };
+
+export const sendInstructorInvitation = async ({
+  email,
+  inviteLink,
+}: {
+  email: string;
+  inviteLink: string;
+}) => {
+  const subject = "Invitation to Join MSSquare Academy Faculty";
+  const content = `
+    <div style="font-family: 'Inter', sans-serif; line-height: 1.6; color: #1f2937; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+      <div style="text-align: center; margin-bottom: 32px;">
+        <div style="display: inline-block; background: #7C3AED; color: white; padding: 12px; border-radius: 16px; margin-bottom: 16px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4-4-4"/><path d="M3.34 7a10 10 0 1 1 17.32 10"/></svg>
+        </div>
+        <h1 style="font-size: 24px; font-weight: 800; color: #111827; margin: 0;">Welcome to MSSquare Academy</h1>
+      </div>
+
+      <p>Hello,</p>
+      <p>You've been officially invited to join the **MSSquare Academy** faculty as an instructor. We're excited to have your expertise on board!</p>
+      
+      <div style="background: #f9fafb; padding: 32px; border-radius: 24px; border: 1px solid #f3f4f6; margin: 32px 0; text-align: center;">
+        <p style="margin-bottom: 24px; font-weight: 600;">To get started, please accept your invitation and set up your secure account credentials:</p>
+        <a href="${inviteLink}" style="display: inline-block; background: #7C3AED; color: white; padding: 16px 32px; border-radius: 100px; text-decoration: none; font-weight: bold; box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.3);">Accept Invitation</a>
+      </div>
+
+      <p style="font-size: 14px; color: #6b7280;">If you have any questions before accepting, please contact our academic team.</p>
+      
+      <p style="margin-top: 40px; border-top: 1px solid #f3f4f6; padding-top: 24px; font-size: 14px; color: #9ca3af; text-align: center;">
+        Best regards,<br/>
+        **The MSSquare Academic Team**
+      </p>
+    </div>
+  `;
+
+  const resendClient = getResendClient();
+  const { data, error } = await resendClient.emails.send({
+    from: 'MSSquare Academy <academy@mssquaretechnologies.com>',
+    to: [email],
+    subject: subject,
+    html: content,
+  });
+
+  if (error) {
+    console.error('Resend Error (Instructor Invitation):', error);
+    throw new Error(error.message);
+  }
+  return data;
+};

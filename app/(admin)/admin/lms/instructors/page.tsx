@@ -154,6 +154,8 @@ export default function InstructorManagementPage() {
           className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
             status === 'active' 
               ? 'bg-green-50 text-green-600 hover:bg-green-100' 
+              : status === 'invited'
+              ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
               : 'bg-red-50 text-red-600 hover:bg-red-100'
           }`}
         >
