@@ -82,7 +82,7 @@ export function Programs() {
         </p>
         <Link 
           href="/courses" 
-          className="rev font-bold text-gray-900 underline underline-offset-8 hover:text-[#7C3AED] transition-colors"
+          className="rev font-bold text-gray-900 underline underline-offset-8 hover:text-[#7C3AED] transition-colors self-end"
         >
           Browse All Tracks
         </Link>
@@ -92,7 +92,7 @@ export function Programs() {
         {(data.items || []).map((program: any, i: number) => (
           <div
             key={i}
-            className={`rev rev-d${i + 1} flex flex-col group cursor-pointer bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500`}
+            className={`rev rev-d${i + 1} flex flex-col group cursor-pointer bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500`}
           >
             <div className="relative aspect-[16/9] rounded-2xl overflow-hidden mb-6 bg-gray-100 border border-gray-100 shadow-sm transition-all duration-500 group-hover:shadow-xl group-hover:shadow-[#7C3AED]/10 group-hover:-translate-y-1">
               <img 

@@ -177,8 +177,8 @@ export default function WebServices() {
               className="flex-1 w-full max-w-2xl"
             >
               <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#7C3AED] to-purple-600 rounded-3xl blur opacity-10 group-hover:opacity-20 transition duration-1000"></div>
-                <div className="relative bg-white rounded-3xl overflow-hidden shadow-2xl ring-1 ring-gray-200">
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#7C3AED] to-purple-600 rounded-2xl blur opacity-10 group-hover:opacity-20 transition duration-1000"></div>
+                <div className="relative bg-white rounded-2xl overflow-hidden shadow-2xl ring-1 ring-gray-200">
                   <img 
                     src="/assets/web-services-hero.png" 
                     className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-700" 
@@ -208,7 +208,7 @@ export default function WebServices() {
               const icons = [Zap, Globe, Code2, Users];
               const Icon = icons[i % icons.length];
               return (
-                <div key={i} className="group bg-white border border-gray-100 rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-violet-500/10 hover:-translate-y-2 flex flex-col">
+                <div key={i} className="group bg-white border border-gray-100 rounded-xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-violet-500/10 hover:-translate-y-2 flex flex-col">
                   <div className="relative aspect-[16/10] overflow-hidden">
                     <img src={service.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={service.title} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
@@ -277,7 +277,7 @@ export default function WebServices() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="group bg-gray-50 rounded-[2.5rem] overflow-hidden border border-gray-100 hover:shadow-2xl hover:shadow-violet-500/10 transition-all duration-500 flex flex-col"
+                className="group bg-gray-50 rounded-xl overflow-hidden border border-gray-100 hover:shadow-2xl hover:shadow-violet-500/10 transition-all duration-500 flex flex-col"
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
                    <img 
@@ -348,7 +348,7 @@ export default function WebServices() {
                 const icons = [Globe, Zap, Terminal, Code2, Code2, Database];
                 const Icon = icons[i % icons.length];
                 return (
-                  <div key={i} className="flex items-center gap-3 px-6 py-4 rounded-[1.5rem] bg-white border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group whitespace-nowrap min-w-[200px]">
+                  <div key={i} className="flex items-center gap-3 px-6 py-4 rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group whitespace-nowrap min-w-[200px]">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gray-50 group-hover:bg-violet-50 transition-colors`}>
                       <Icon size={18} className={`${tech.color} group-hover:scale-110 transition-transform`} />
                     </div>
@@ -364,7 +364,7 @@ export default function WebServices() {
                 const icons = [Database, Cloud, Smartphone, Layout, Github];
                 const Icon = icons[i % icons.length];
                 return (
-                  <div key={i} className="flex items-center gap-3 px-6 py-4 rounded-[1.5rem] bg-white border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group whitespace-nowrap min-w-[200px]">
+                  <div key={i} className="flex items-center gap-3 px-6 py-4 rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group whitespace-nowrap min-w-[200px]">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gray-50 group-hover:bg-violet-50 transition-colors`}>
                       <Icon size={18} className={`${tech.color} group-hover:scale-110 transition-transform`} />
                     </div>
@@ -384,7 +384,7 @@ export default function WebServices() {
       {/* Form Section */}
       <section id="request-form" className="py-12 md:py-20 bg-white">
         <Container>
-          <div className="flex flex-col lg:flex-row bg-[#fafafc] border border-gray-100 rounded-[3rem] shadow-2xl overflow-hidden min-h-[600px]">
+          <div className="flex flex-col lg:flex-row bg-[#fafafc] border border-gray-100 rounded-2xl shadow-2xl overflow-hidden min-h-[600px]">
             <div className="flex-[1.2] p-8 md:p-14">
               <div className="max-w-xl space-y-10">
                 <div className="space-y-4">
@@ -494,7 +494,7 @@ export default function WebServices() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                 <div className="absolute bottom-10 left-10 right-10">
-                   <div className="bg-white/95 backdrop-blur-md rounded-[2rem] p-8 space-y-5 shadow-2xl border border-white/20">
+                   <div className="bg-white/95 backdrop-blur-md rounded-2xl p-8 space-y-5 shadow-2xl border border-white/20">
                       <p className="text-gray-900 font-extrabold text-lg leading-relaxed italic">
                         &quot;MSSquare didn&apos;t just write code; they partnered with us to define our product vision.&quot;
                       </p>

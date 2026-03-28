@@ -72,7 +72,7 @@ export function ProductsBuilt() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {items.map((project: any, i: number) => (
             <motion.div
               key={i}
@@ -80,7 +80,7 @@ export function ProductsBuilt() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="group bg-[#F5F5F7] rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-[#7C3AED]/10 transition-all duration-500 border border-gray-100 flex flex-col"
+              className="group bg-[#F5F5F7] rounded-xl overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-[#7C3AED]/10 transition-all duration-500 border border-gray-100 flex flex-col"
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-white">
                 <img 
@@ -91,7 +91,7 @@ export function ProductsBuilt() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </div>
 
-              <div className="p-8 flex flex-col flex-grow">
+              <div className="p-6 flex flex-col flex-grow">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-8 h-8 bg-[#7C3AED] rounded-lg flex items-center justify-center text-white text-[0.7rem] font-bold">
                     {project.title.split(' ').map((n: string) => n[0]).join('')}

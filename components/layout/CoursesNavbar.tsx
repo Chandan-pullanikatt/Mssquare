@@ -26,9 +26,9 @@ export function CoursesNavbar() {
         <nav className="hidden md:flex items-center gap-10">
           {[
             { name: "Home", href: "/" },
-            { name: "Programs", href: "/student/explore" },
-            { name: "Mentorship", href: "/student/explore" },
-            { name: "Placements", href: "/student/explore" }
+            { name: "Programs", href: "/courses" },
+            { name: "Mentorship", href: "/courses?type=Mentorship" },
+            { name: "Placements", href: "/courses?type=Placement" }
           ].map((item) => (
             <Link
               key={item.name}
@@ -78,9 +78,9 @@ export function CoursesNavbar() {
           <nav className="flex flex-col gap-6 h-full overflow-y-auto pb-10">
             {[
               { name: "Home", href: "/" },
-              { name: "Programs", href: "/student/explore" },
-              { name: "Mentorship", href: "/student/explore" },
-              { name: "Placements", href: "/student/explore" },
+              { name: "Programs", href: "/courses" },
+              { name: "Mentorship", href: "/courses?type=Mentorship" },
+              { name: "Placements", href: "/courses?type=Placement" },
               { name: "Account Login", href: "/auth" }
             ].map((item) => (
               <Link

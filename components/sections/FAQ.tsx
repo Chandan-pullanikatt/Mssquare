@@ -81,7 +81,7 @@ export function FAQ() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`overflow-hidden transition-all duration-300 bg-gray-50 rounded-2xl ${isOpen ? 'ring-2 ring-violet-100' : ''}`}
+                className={`overflow-hidden transition-all duration-300 bg-gray-50 rounded-xl ${isOpen ? 'ring-2 ring-violet-100' : ''}`}
               >
                 <button
                   onClick={() => toggleFAQ(index)}

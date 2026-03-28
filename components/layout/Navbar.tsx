@@ -139,14 +139,14 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
               Programs
             </Link>
             <Link
-              href="/courses"
+              href="/courses?type=Mentorship"
               className="text-lg transition-colors uppercase tracking-wider font-bold text-[#334155] hover:text-primary-purple"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Mentorship
             </Link>
             <Link
-              href="/courses"
+              href="/courses?type=Placement"
               className="text-lg transition-colors uppercase tracking-wider font-bold text-[#334155] hover:text-primary-purple"
               onClick={() => setIsMobileMenuOpen(false)}
             >

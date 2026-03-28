@@ -87,7 +87,7 @@ export function CTA() {
 
           <form className="rev flex flex-col sm:flex-row gap-4 max-w-[500px] mx-auto mb-8" onSubmit={handleSubmit}>
             <input
-              className="cta-email-input flex-1 bg-white border border-light-border rounded-2xl px-6 py-4 text-[1rem] font-sans outline-none shadow-sm transition-all focus:ring-2 focus:ring-primary-purple/20 focus:border-primary-purple/50"
+              className="cta-email-input flex-1 bg-white border border-light-border rounded-xl px-6 py-4 text-[1rem] font-sans outline-none shadow-sm transition-all focus:ring-2 focus:ring-primary-purple/20 focus:border-primary-purple/50"
               style={{ color: '#0F172A' }}
               type="email"
               value={email}
@@ -99,7 +99,7 @@ export function CTA() {
             <button
               type="submit"
               disabled={isSubmitting || showSuccess}
-              className="hover-btn inline-flex items-center justify-center gap-2 bg-primary-purple hover:bg-primary-purpleDark text-white px-8 py-4 rounded-2xl text-[1rem] font-bold tracking-[0.01em] transition-all duration-300 font-heading whitespace-nowrap shadow-glow-purple disabled:opacity-70"
+              className="hover-btn inline-flex items-center justify-center gap-2 bg-primary-purple hover:bg-primary-purpleDark text-white px-8 py-4 rounded-xl text-[1rem] font-bold tracking-[0.01em] transition-all duration-300 font-heading whitespace-nowrap shadow-glow-purple disabled:opacity-70"
             >
               {isSubmitting ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

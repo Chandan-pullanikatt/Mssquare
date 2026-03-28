@@ -35,10 +35,10 @@ export function Footer() {
           <div className="flex flex-col gap-4">
             <h4 className="text-white font-semibold font-heading text-[1rem]">PROGRAMS</h4>
             <ul className="flex flex-col gap-2.5">
-              <li><Link href="#courses" className="text-muted hover:text-white text-[0.85rem] transition-colors">Mentorship Program</Link></li>
-              <li><Link href="#courses" className="text-muted hover:text-white text-[0.85rem] transition-colors">Certification Program</Link></li>
-              <li><Link href="#courses" className="text-muted hover:text-white text-[0.85rem] transition-colors">Placement Program</Link></li>
-              <li><Link href="#courses" className="text-muted hover:text-white text-[0.85rem] transition-colors">All Courses</Link></li>
+              <li><Link href="/courses?type=Mentorship" className="text-muted hover:text-white text-[0.85rem] transition-colors">Mentorship Program</Link></li>
+              <li><Link href="/courses?type=Certification" className="text-muted hover:text-white text-[0.85rem] transition-colors">Certification Program</Link></li>
+              <li><Link href="/courses?type=Placement" className="text-muted hover:text-white text-[0.85rem] transition-colors">Placement Program</Link></li>
+              <li><Link href="/courses" className="text-muted hover:text-white text-[0.85rem] transition-colors">All Courses</Link></li>
             </ul>
           </div>
 

@@ -11,8 +11,11 @@ import {
   ArrowRight,
   GraduationCap,
   Users,
-  Briefcase
+  Terminal,
+  PenTool
 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CourseCard from "@/components/courses/CourseCard";
 import { CoursesNavbar } from "@/components/layout/CoursesNavbar";
@@ -79,8 +82,10 @@ import { Course } from "@/types/database";
 
 import { useSearch } from "@/components/providers/SearchProvider";
 
-export default function CoursesPage() {
-  const [activeProgram, setActiveProgram] = useState<string>("None");
+export function CoursesContent() {
+  const searchParams = useSearchParams();
+  const typeParam = searchParams.get("type");
+  const [activeProgram, setActiveProgram] = useState<string>(typeParam || "None");
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [activeLevel, setActiveLevel] = useState<string>("All");
   const { searchQuery, setSearchQuery } = useSearch();
@@ -106,6 +111,14 @@ export default function CoursesPage() {
     }
     fetchCourses();
   }, []);
+
+  useEffect(() => {
+    if (typeParam) {
+      setActiveProgram(typeParam);
+    } else {
+      setActiveProgram("None");
+    }
+  }, [typeParam]);
 
   const filteredCourses = useMemo(() => {
     return liveCourses.filter(course => {
@@ -190,7 +203,15 @@ export default function CoursesPage() {
             {["All", "Certification", "Mentorship", "Placement"].map((type) => (
               <button
                 key={type}
-                onClick={() => setActiveProgram(type)}
+                onClick={() => {
+                  const params = new URLSearchParams(window.location.search);
+                  if (type === "All" || type === "None") {
+                    params.delete("type");
+                  } else {
+                    params.set("type", type);
+                  }
+                  router.push(`/courses${params.toString() ? `?${params.toString()}` : ""}`, { scroll: false });
+                }}
                 className={`flex-shrink-0 px-5 lg:px-6 py-2.5 rounded-full text-xs lg:text-sm font-black transition-all ${
                   activeProgram === type 
                   ? "bg-[#7C3AED] text-white shadow-lg shadow-[#7C3AED]/20" 
@@ -261,7 +282,11 @@ export default function CoursesPage() {
               <motion.div
                 key={cat.id}
                 whileHover={{ y: -10 }}
-                onClick={() => setActiveProgram(cat.id)}
+                onClick={() => {
+                  const params = new URLSearchParams(window.location.search);
+                  params.set("type", cat.id);
+                  router.push(`/courses?${params.toString()}`, { scroll: false });
+                }}
                 className="relative group cursor-pointer overflow-hidden rounded-[2.5rem] bg-white border border-gray-100 shadow-xl shadow-black/5 flex flex-col h-[500px]"
               >
                 <div className="h-2/3 relative overflow-hidden">
@@ -291,7 +316,9 @@ export default function CoursesPage() {
         <section className="py-12 lg:py-20 max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between mb-12">
             <button 
-              onClick={() => setActiveProgram("None")}
+              onClick={() => {
+                router.push("/courses", { scroll: false });
+              }}
               className="flex items-center gap-2 text-gray-500 font-bold hover:text-[#7C3AED] transition-colors"
             >
               <ChevronDown className="rotate-90" size={20} />
@@ -376,7 +403,14 @@ export default function CoursesPage() {
           </div>
         </div>
       </section>
-
     </div>
+  );
+}
+
+export default function CoursesPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#f8f9fb] flex items-center justify-center text-gray-400 font-bold">Loading Courses...</div>}>
+      <CoursesContent />
+    </Suspense>
   );
 }

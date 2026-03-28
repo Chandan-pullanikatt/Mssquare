@@ -47,7 +47,7 @@ export function Testimonials() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {(data.items || []).map((t: any, i: number) => (
-            <div key={i} className={`rev rev-d${i + 1} flex flex-col bg-[#F5F5F7] border border-gray-100 rounded-[2rem] p-10 hover:shadow-2xl hover:shadow-[#7C3AED]/10 transition-all duration-500 group hover:-translate-y-2`}>
+            <div key={i} className={`rev rev-d${i + 1} flex flex-col bg-[#F5F5F7] border border-gray-100 rounded-xl p-8 hover:shadow-2xl hover:shadow-[#7C3AED]/10 transition-all duration-500 group hover:-translate-y-2`}>
               <div className="text-[#fbbf24] text-[0.85rem] tracking-[0.05em] mb-6">{t.stars}</div>
               <p className="text-[1rem] leading-[1.75] text-gray-600 font-medium italic mb-8">
                 {t.text}

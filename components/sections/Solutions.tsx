@@ -77,7 +77,7 @@ export function Solutions() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
         {items.map((solution: any, i: number) => (
-          <div key={i} className={`rev rev-d${i + 1} group bg-white border border-gray-100 rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-[#7C3AED]/10 hover:border-[#7C3AED]/20 hover:-translate-y-2 flex flex-col`}>
+          <div key={i} className={`rev rev-d${i + 1} group bg-white border border-gray-100 rounded-xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-[#7C3AED]/10 hover:border-[#7C3AED]/20 hover:-translate-y-2 flex flex-col`}>
             
             <div className="relative aspect-[4/3] overflow-hidden">
               <img 
@@ -88,7 +88,7 @@ export function Solutions() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             </div>
 
-            <div className="p-8 flex flex-col flex-grow">
+            <div className="p-6 flex flex-col flex-grow">
               <h3 className="text-[1.4rem] font-extrabold mb-3 tracking-[-0.02em] text-gray-900 font-heading group-hover:text-[#7C3AED] transition-colors">
                 {solution.title}
               </h3>
