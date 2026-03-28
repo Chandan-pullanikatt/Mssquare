@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { LayoutGrid, ArrowLeft } from "lucide-react";
+import Image from "next/image";
 import { Footer } from "@/components/layout/Footer";
 
 import { useState, useEffect } from "react";
@@ -43,21 +44,21 @@ export default function PrivacyPolicyPage() {
             {/* Header */}
             <header className="w-full border-b border-gray-100 flex items-center justify-between px-6 py-5 bg-white sticky top-0 z-50">
                 <div className="flex items-center gap-6">
-                    <Link href="/" className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-[#8b5cf6] rounded-lg flex items-center justify-center text-white shadow-md shadow-[#8b5cf6]/20">
-                            <LayoutGrid size={16} />
-                        </div>
-                        <span className="font-extrabold text-lg text-slate-900 tracking-tight">MSSquare</span>
+                    <Link href="/" className="relative h-10 w-40 transition-transform duration-300 hover:scale-[1.02]">
+                        <Image 
+                            src="/assets/nobglogo.png" 
+                            alt="MSSquare" 
+                            fill
+                            priority
+                            className="object-contain object-left brightness-0"
+                            sizes="(max-width: 768px) 160px, 160px"
+                        />
                     </Link>
                     <div className="hidden sm:block h-6 w-px bg-slate-200"></div>
                     <Link href="/" className="hidden sm:flex text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors items-center gap-1.5">
                         <ArrowLeft size={16} />
                         Back to Home
                     </Link>
-                </div>
-                <div className="flex gap-6 text-sm font-semibold text-slate-500">
-                    <Link href="#" className="hover:text-slate-900 transition-colors">Support</Link>
-                    <Link href="#" className="hover:text-slate-900 transition-colors">Documentation</Link>
                 </div>
             </header>
 

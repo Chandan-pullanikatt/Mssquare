@@ -18,6 +18,7 @@ import {
     Scale
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useRef } from "react";
 import { COLORS, SHADOWS } from "@/lib/design-tokens";
 import { Footer } from "@/components/layout/Footer";
@@ -152,12 +153,16 @@ export default function CareersPage() {
 
             {/* Navigation Layer */}
             <nav className="fixed top-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-md z-50 border-b border-gray-50 px-8 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-primary-purple rounded-full flex items-center justify-center text-white">
-                        <Rocket size={20} />
-                    </div>
-                    <span className="text-xl font-bold tracking-tight text-gray-900">MSSquare</span>
-                </div>
+                <Link href="/" className="relative h-10 w-40 transition-transform duration-300 hover:scale-[1.02]">
+                    <Image 
+                        src="/assets/nobglogo.png" 
+                        alt="MSSquare" 
+                        fill
+                        priority
+                        className="object-contain object-left brightness-0"
+                        sizes="(max-width: 768px) 160px, 160px"
+                    />
+                </Link>
 
                 <div className="hidden md:flex items-center gap-10">
                     <Link href="/" className="text-sm font-bold text-light-foreground/60 hover:text-primary-purple transition-colors">Home</Link>
