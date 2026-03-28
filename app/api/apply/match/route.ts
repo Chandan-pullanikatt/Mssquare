@@ -36,7 +36,12 @@ export async function POST(request: Request) {
     }
 
     // 3. Send Welcome Email
-    await sendMatchWelcome({ email });
+    try {
+      await sendMatchWelcome({ email });
+    } catch (emailErr) {
+      console.error('Non-blocking: Failed to send welcome email:', emailErr);
+      // We don't throw here so the user sees a success message on the site
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

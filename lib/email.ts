@@ -50,7 +50,8 @@ export const sendApplicationConfirmation = async ({
 
   const resendClient = getResendClient();
   const { data, error } = await resendClient.emails.send({
-    from: 'MSSquare HR <hr@mssquaretechnologies.com>',
+    from: 'mssquaretechnology <hr@mssquaretechnologies.com>',
+    replyTo: 'support@mssquaretechnologies.com',
     to: [email],
     subject: subject,
     html: content,
@@ -89,7 +90,8 @@ export const sendEnquiryConfirmation = async ({
 
   const resendClient = getResendClient();
   const { data, error } = await resendClient.emails.send({
-    from: 'MSSquare Studio <hello@mssquaretechnologies.com>',
+    from: 'mssquaretechnology <hello@mssquaretechnologies.com>',
+    replyTo: 'support@mssquaretechnologies.com',
     to: [email],
     subject: subject,
     html: content,
@@ -146,7 +148,8 @@ export const sendMatchWelcome = async ({
 
   const resendClient = getResendClient();
   const { data, error } = await resendClient.emails.send({
-    from: 'MSSquare <hr@mssquaretechnologies.com>',
+    from: 'mssquaretechnology <hr@mssquaretechnologies.com>',
+    replyTo: 'support@mssquaretechnologies.com',
     to: [email],
     subject: subject,
     html: content,
@@ -197,7 +200,8 @@ export const sendEnquiryReply = async ({
 
   const resendClient = getResendClient();
   const { data, error } = await resendClient.emails.send({
-    from: 'MSSquare Support <support@mssquaretechnologies.com>',
+    from: 'mssquaretechnology <support@mssquaretechnologies.com>',
+    replyTo: 'support@mssquaretechnologies.com',
     to: [email],
     subject: subject,
     html: content,
@@ -220,33 +224,31 @@ export const sendInstructorInvitation = async ({
   const subject = "Invitation to Join MSSquare Academy Faculty";
   const content = `
     <div style="font-family: 'Inter', sans-serif; line-height: 1.6; color: #1f2937; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-      <div style="text-align: center; margin-bottom: 32px;">
-        <div style="display: inline-block; background: #7C3AED; color: white; padding: 12px; border-radius: 16px; margin-bottom: 16px;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4-4-4"/><path d="M3.34 7a10 10 0 1 1 17.32 10"/></svg>
-        </div>
-        <h1 style="font-size: 24px; font-weight: 800; color: #111827; margin: 0;">Welcome to MSSquare Academy</h1>
+      <div style="text-align: left; margin-bottom: 24px;">
+        <h1 style="font-size: 20px; font-weight: bold; color: #111827; margin: 0;">Faculty Invitation</h1>
       </div>
 
       <p>Hello,</p>
-      <p>You've been officially invited to join the **MSSquare Academy** faculty as an instructor. We're excited to have your expertise on board!</p>
+      <p>You've been invited to join the mssquaretechnology faculty as an instructor. We're excited to have you on board!</p>
       
-      <div style="background: #f9fafb; padding: 32px; border-radius: 24px; border: 1px solid #f3f4f6; margin: 32px 0; text-align: center;">
-        <p style="margin-bottom: 24px; font-weight: 600;">To get started, please accept your invitation and set up your secure account credentials:</p>
-        <a href="${inviteLink}" style="display: inline-block; background: #7C3AED; color: white; padding: 16px 32px; border-radius: 100px; text-decoration: none; font-weight: bold; box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.3);">Accept Invitation</a>
+      <div style="background: #fdfafd; padding: 24px; border-radius: 12px; border: 1px solid #7C3AED10; margin: 24px 0;">
+        <p style="margin-bottom: 20px;">Please click the button below to accept your invitation and set up your account password:</p>
+        <a href="${inviteLink}" style="display: inline-block; background: #7C3AED; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">Accept Invitation</a>
       </div>
 
-      <p style="font-size: 14px; color: #6b7280;">If you have any questions before accepting, please contact our academic team.</p>
+      <p style="font-size: 13px; color: #6b7280;">If you have any questions, please contact our academic team.</p>
       
-      <p style="margin-top: 40px; border-top: 1px solid #f3f4f6; padding-top: 24px; font-size: 14px; color: #9ca3af; text-align: center;">
+      <p style="margin-top: 32px; border-top: 1px solid #eee; padding-top: 20px; font-size: 13px; color: #9ca3af;">
         Best regards,<br/>
-        **The MSSquare Academic Team**
+        mssquaretechnology Team
       </p>
     </div>
   `;
 
   const resendClient = getResendClient();
   const { data, error } = await resendClient.emails.send({
-    from: 'MSSquare Academy <academy@mssquaretechnologies.com>',
+    from: 'mssquaretechnology <academy@mssquaretechnologies.com>',
+    replyTo: 'support@mssquaretechnologies.com',
     to: [email],
     subject: subject,
     html: content,

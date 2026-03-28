@@ -23,17 +23,32 @@ export async function inviteInstructor(email: string, remarks?: string) {
     }
   );
 
-  // 1. Check if user already exists in auth.users
+  // 1. Check if user already exists in the instructors table
+  const { data: existingInstructor, error: instructorFetchError } = await adminClient
+    .from('instructors')
+    .select('id, email, status')
+    .eq('email', email)
+    .maybeSingle();
+
+  if (instructorFetchError) {
+    console.error("Error checking existing instructor:", instructorFetchError);
+  }
+
+  if (existingInstructor && existingInstructor.status === 'active') {
+    throw new Error(`This email address (${email}) is already registered as an active instructor.`);
+  }
+
+  // 2. Check if user already exists in auth.users
   const { data: { users }, error: listError } = await adminClient.auth.admin.listUsers();
   if (listError) throw listError;
 
-  const existingUser = users.find(u => u.email === email);
-  let userId = existingUser?.id;
+  const existingAuthUser = users.find(u => u.email === email);
+  let userId = existingAuthUser?.id;
 
-  // 2. Decide whether to invite or re-invite
+  // 3. Decide whether to invite or re-invite
   // If user doesn't exist OR user has not confirmed their email yet
-  if (!existingUser || !existingUser.confirmed_at) {
-    console.log(`Inviting/Re-inviting user: ${email}. Existing: ${!!existingUser}, Confirmed: ${!!existingUser?.confirmed_at}`);
+  if (!existingAuthUser || !existingAuthUser.confirmed_at) {
+    console.log(`Inviting/Re-inviting user: ${email}. Existing: ${!!existingAuthUser}, Confirmed: ${!!existingAuthUser?.confirmed_at}`);
     
     // Generate secure invitation link
     const { data: inviteData, error: inviteError } = await adminClient.auth.admin.generateLink({
@@ -49,7 +64,7 @@ export async function inviteInstructor(email: string, remarks?: string) {
 
     if (inviteError) {
       console.error("Invite Link Generation Error:", inviteError.message);
-      if (!existingUser) throw inviteError;
+      if (!existingAuthUser) throw inviteError;
     } else {
       userId = inviteData.user.id;
       
@@ -60,9 +75,9 @@ export async function inviteInstructor(email: string, remarks?: string) {
           inviteLink: inviteData.properties.action_link
         });
         console.log(`Custom invitation email sent to ${email}`);
-      } catch (emailErr) {
+      } catch (emailErr: any) {
         console.error("Failed to send custom invitation email:", emailErr);
-        // We still proceed because the user is created in Supabase
+        throw new Error(`User was invited, but the email failed to send: ${emailErr.message || "Unknown Error"}`);
       }
     }
   }
@@ -74,7 +89,7 @@ export async function inviteInstructor(email: string, remarks?: string) {
       id: userId,
       email: email,
       remarks: remarks || null,
-      status: userId === existingUser?.id && existingUser?.confirmed_at ? 'active' : 'invited'
+      status: userId === existingAuthUser?.id && existingAuthUser?.confirmed_at ? 'active' : 'invited'
     }, { onConflict: 'email' });
 
   if (instructorError) {
@@ -82,5 +97,5 @@ export async function inviteInstructor(email: string, remarks?: string) {
     throw new Error("User was found/invited but could not be added to the instructors list.");
   }
 
-  return { success: true, userId, isNew: !existingUser };
+  return { success: true, userId, isNew: !existingAuthUser };
 }

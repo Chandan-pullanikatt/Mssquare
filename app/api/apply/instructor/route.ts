@@ -42,7 +42,11 @@ export async function POST(request: Request) {
     if (dbError) throw dbError;
 
     // 3. Send Confirmation Email
-    await sendApplicationConfirmation({ email, name: fullName, type: 'instructor' });
+    try {
+      await sendApplicationConfirmation({ email, name: fullName, type: 'instructor' });
+    } catch (emailErr) {
+      console.error('Non-blocking: Failed to send confirmation email:', emailErr);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
