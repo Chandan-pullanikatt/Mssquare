@@ -5,12 +5,10 @@ import { Lead } from '../../types/database';
 export const leadsApi = {
   async submitLead(lead: Omit<Lead, 'id' | 'created_at'>) {
     const { data, error } = await (supabase.from('leads') as any)
-      .insert([lead])
-      .select()
-      .single();
+      .insert([lead]);
     
     if (error) throw error;
-    return data as Lead;
+    return data;
   },
 
   async getLeads(limit = 20, offset = 0) {

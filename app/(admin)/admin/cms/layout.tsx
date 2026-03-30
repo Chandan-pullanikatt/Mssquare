@@ -77,8 +77,13 @@ export default function AdminLayout({
     const fetchNotifications = async () => {
       try {
         const data = await notificationsApi.getNotifications();
-        // Filter for CMS admin related notifications
-        const adminNotifs = data.filter(n => n.target_role === 'all' || n.target_role === 'cms_admin');
+        // Filter for CMS/Admin related notifications
+        const adminNotifs = data.filter(n => 
+          n.target_role === 'all' || 
+          n.target_role === 'cms_admin' || 
+          n.target_role === 'lms_admin' ||
+          n.target_role === 'business_admin'
+        );
         setNotifications(adminNotifs);
       } catch (err) {
         console.error("Failed to fetch admin notifications:", err);
@@ -87,8 +92,8 @@ export default function AdminLayout({
 
     fetchNotifications();
 
-    // Set up polling or real-time subscription here if needed
-    const interval = setInterval(fetchNotifications, 30000); // Poll every 30s
+    // Poll for new notifications
+    const interval = setInterval(fetchNotifications, 15000); // 15s for smoother experience
     return () => clearInterval(interval);
   }, []);
 

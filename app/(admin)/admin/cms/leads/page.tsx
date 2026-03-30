@@ -12,22 +12,24 @@ import {
   Mail,
   Building2,
   Calendar,
-  Trash2
+  Trash2,
+  X,
+  Eye
 } from "lucide-react";
 import DataTable from "@/components/cms-admin/DataTable";
 import { supabase } from "@/lib/supabase/client";
 
-
 export default function LeadsManagement() {
   const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedLead, setSelectedLead] = useState<any | null>(null);
 
   const fetchLeads = async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from('leads')
-        .select('id, name, email, source, created_at')
+        .select('id, name, email, company, message, source, created_at')
         .order('created_at', { ascending: false })
         .limit(100);
       
@@ -91,10 +93,32 @@ export default function LeadsManagement() {
       ),
     },
     {
+      header: "Company",
+      accessor: "company",
+      render: (val: string) => (
+        <div className="flex items-center gap-2 text-gray-600 italic">
+          <Building2 size={14} className="text-gray-400" />
+          {val || "Not provided"}
+        </div>
+      )
+    },
+    {
+      header: "Enquiry",
+      accessor: "message",
+      render: (val: string, row: any) => (
+        <div 
+          className="max-w-[200px] truncate text-gray-500 cursor-pointer hover:text-purple-600 transition-colors"
+          onClick={() => setSelectedLead(row)}
+        >
+          {val || "No message"}
+        </div>
+      )
+    },
+    {
       header: "Source",
       accessor: "source",
       render: (val: string) => (
-        <span className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${
+        <span className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border whitespace-nowrap ${
           val?.includes('Signup') ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 
           'bg-rose-50 text-rose-600 border-rose-100'
         }`}>
@@ -113,18 +137,22 @@ export default function LeadsManagement() {
       )
     },
     {
-      header: "Status",
+      header: "Details",
       accessor: "id",
-      render: () => (
-        <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100">
-          New Lead
-        </span>
+      render: (_: any, row: any) => (
+        <button 
+          onClick={() => setSelectedLead(row)}
+          className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gray-50 text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-all text-[10px] font-bold uppercase tracking-wider"
+        >
+          <Eye size={14} />
+          View
+        </button>
       )
     }
   ];
 
   return (
-    <div className="space-y-8 pb-20">
+    <div className="space-y-8 pb-20 relative">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -182,21 +210,97 @@ export default function LeadsManagement() {
         <DataTable
           columns={columns}
           data={leads}
+          showRowActions={false}
           searchPlaceholder="Search leads by name, email or company..."
           actions={
             <div className="flex items-center gap-2">
-              <button className="p-2.5 rounded-xl bg-gray-50 text-gray-400 hover:text-green-600 hover:bg-green-50 transition-all">
-                <CheckCircle2 size={18} />
-              </button>
-              <button className="p-2.5 rounded-xl bg-gray-50 text-gray-400 hover:text-rose-500 hover:bg-rose-50 transition-all">
-                <Trash2 size={18} />
+              <button 
+                onClick={fetchLeads}
+                className="p-2.5 rounded-xl bg-gray-50 text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-all"
+                title="Refresh"
+              >
+                <Clock size={18} />
               </button>
             </div>
           }
         />
       )}
+
+      {/* Enquiry Detail Modal */}
+      {selectedLead && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+            onClick={() => setSelectedLead(null)}
+          />
+          <div className="relative bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+            <div className="p-8 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center">
+                  <MessageSquare size={24} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-gray-900 tracking-tight italic">Enquiry Details</h3>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-[0.2em]">{selectedLead.source || "Direct Lead"}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedLead(null)}
+                className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-8 space-y-8">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Name</span>
+                  <p className="font-bold text-gray-900">{selectedLead.name}</p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email</span>
+                  <p className="font-bold text-gray-900">{selectedLead.email}</p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Company</span>
+                  <p className="font-bold text-gray-900">{selectedLead.company || "Not provided"}</p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Date</span>
+                  <p className="font-bold text-gray-900">{new Date(selectedLead.created_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Message Content</span>
+                <div className="bg-gray-50 rounded-2xl p-6 text-gray-700 font-medium leading-relaxed whitespace-pre-wrap border border-gray-100 min-h-[150px]">
+                  {selectedLead.message || "No message content provided."}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-gray-50/50 flex justify-end gap-3">
+              <button 
+                onClick={() => {
+                  handleDelete(selectedLead.id);
+                  setSelectedLead(null);
+                }}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl hover:bg-rose-50 text-rose-500 font-bold transition-all"
+              >
+                <Trash2 size={18} />
+                Delete Enquiry
+              </button>
+              <button 
+                onClick={() => setSelectedLead(null)}
+                className="px-8 py-3 rounded-xl bg-gray-900 text-white font-bold hover:shadow-lg transition-all active:scale-95"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-

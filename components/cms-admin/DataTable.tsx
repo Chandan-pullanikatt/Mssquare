@@ -18,6 +18,7 @@ interface DataTableProps {
   searchPlaceholder?: string;
   actions?: React.ReactNode;
   isLoading?: boolean;
+  showRowActions?: boolean;
 }
 
 export default function DataTable({
@@ -27,6 +28,7 @@ export default function DataTable({
   searchPlaceholder = "Search...",
   actions,
   isLoading = false,
+  showRowActions = true,
 }: DataTableProps) {
   const { searchQuery, setSearchQuery } = useSearch();
 
@@ -81,7 +83,7 @@ export default function DataTable({
                   {column.header}
                 </th>
               ))}
-              <th className="px-6 py-4 border-b border-gray-50"></th>
+              {showRowActions && <th className="px-6 py-4 border-b border-gray-50"></th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
@@ -104,16 +106,18 @@ export default function DataTable({
                       {column.render ? column.render(row[column.accessor], row) : row[column.accessor]}
                     </td>
                   ))}
-                  <td className="px-6 py-4 text-right">
-                    <button className="p-2 rounded-xl text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-all">
-                      <MoreVertical size={18} />
-                    </button>
-                  </td>
+                  {showRowActions && (
+                    <td className="px-6 py-4 text-right">
+                      <button className="p-2 rounded-xl text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-all">
+                        <MoreVertical size={18} />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length + 1} className="px-6 py-20 text-center">
+                <td colSpan={columns.length + (showRowActions ? 1 : 0)} className="px-6 py-20 text-center">
                   <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">No records found</p>
                 </td>
               </tr>
