@@ -76,7 +76,41 @@ function AuthForm() {
         setSelectedPortal(portal);
       }
     }
-  }, [searchParams]);
+
+    // FAIL-SAFE: If a 'code' is present in the URL, process it here in case the callback route was bypassed
+    const oauthCode = searchParams.get('code');
+    if (oauthCode && !submitting.current && !user) {
+      handleOAuthCode(oauthCode);
+    }
+  }, [searchParams, user]);
+
+  const handleOAuthCode = async (code: string) => {
+    submitting.current = true;
+    setIsLoading(true);
+    try {
+      console.log("AuthPage: Bypassed callback detected, exchanging code...");
+      const { data, error: authError } = await authHelpers.supabase.auth.exchangeCodeForSession(code);
+      if (authError) throw authError;
+
+      if (data.user) {
+        // Ensure profile exists (same logic as callback)
+        const next = searchParams.get('next') || selectedPortal.href;
+        let roleToAssign: any = 'student';
+        
+        if (next.includes('/business')) roleToAssign = 'business_client';
+        else if (next.includes('/instructor')) roleToAssign = 'instructor';
+        
+        await authHelpers.ensureUserProfile(data.user, roleToAssign);
+        
+        // Final redirect
+        window.location.href = next;
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to complete Social Login");
+      setIsLoading(false);
+      submitting.current = false;
+    }
+  };
 
   // Auto-redirect if already logged in – only if they are not in the middle of an explicit selection
   useEffect(() => {
