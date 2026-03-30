@@ -63,13 +63,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               if (!userRole) {
                 userRole = await authHelpers.getUserRole(session.user.id);
                 
-                // If still no role and we are on a portal route, try to ensure a profile
+                // If still no role, check if we are on a portal route or redirected to unauthorized
                 if (!userRole && mounted) {
-                  const portalMatch = pathname.match(/^\/(student|business|instructor|admin\/lms|admin\/business|admin\/cms)/);
-                  if (portalMatch) {
-                    const detectedRole = portalMatch[1].replace('/', '_');
-                    console.log(`AuthProvider: No role found on portal route ${pathname}, ensuring ${detectedRole} profile...`);
-                    userRole = await authHelpers.ensureUserProfile(session.user, detectedRole);
+                  const searchParams = new URLSearchParams(window.location.search);
+                  const nextParam = searchParams.get('next') || '';
+                  const pathToCheck = pathname === '/unauthorized' ? nextParam : pathname;
+
+                  const portalRoutes = [
+                    { prefix: '/student', role: 'student' as UserRole },
+                    { prefix: '/business', role: 'business_client' as UserRole },
+                    { prefix: '/instructor', role: 'instructor' as UserRole },
+                    { prefix: '/admin/lms', role: 'lms_admin' as UserRole },
+                    { prefix: '/admin/business', role: 'business_admin' as UserRole },
+                    { prefix: '/admin/cms', role: 'cms_admin' as UserRole },
+                  ];
+
+                  const match = portalRoutes.find(r => pathToCheck.startsWith(r.prefix));
+                  if (match) {
+                    console.log(`AuthProvider: No role found, but user is at ${pathToCheck}. Ensuring ${match.role} profile...`);
+                    userRole = await authHelpers.ensureUserProfile(session.user, match.role);
                   }
                 }
               }

@@ -53,20 +53,23 @@ function UnauthorizedContent() {
       </p>
 
       <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xs">
+        <button 
+          onClick={() => {
+            // Force a reload which will trigger AuthProvider to re-check role
+            window.location.reload();
+          }}
+          className="flex-1 px-6 py-3.5 rounded-2xl bg-primary-purple text-white font-bold text-sm shadow-lg shadow-primary-purple/20 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+        >
+          <Loader2 size={18} className="animate-spin-slow" />
+          <span>Try Again</span>
+        </button>
         <Link 
           href="/" 
-          className="flex-1 px-6 py-3.5 rounded-2xl bg-[#8b5cf6] text-white font-bold text-sm shadow-lg shadow-[#8b5cf6]/20 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+          className="flex-1 px-6 py-3.5 rounded-2xl bg-white border border-gray-100 text-gray-600 font-bold text-sm hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
         >
           <Home size={18} />
           <span>Back to Home</span>
         </Link>
-        <button 
-          onClick={() => window.history.back()}
-          className="flex-1 px-6 py-3.5 rounded-2xl bg-white border border-gray-100 text-gray-600 font-bold text-sm hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
-        >
-          <ArrowLeft size={18} />
-          <span>Go Back</span>
-        </button>
       </div>
     </div>
   );

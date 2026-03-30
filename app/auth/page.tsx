@@ -88,31 +88,20 @@ function AuthForm() {
     submitting.current = true;
     setIsLoading(true);
     try {
-      console.log("AuthPage: Bypassed callback detected, exchanging code...");
-      const { data, error: authError } = await authHelpers.supabase.auth.exchangeCodeForSession(code);
-      if (authError) throw authError;
-
-      if (data.user) {
-        // Ensure profile exists (same logic as callback)
-        const next = searchParams.get('next') || selectedPortal.href;
-        let roleToAssign: any = 'student';
-        
-        if (next.includes('/business')) roleToAssign = 'business_client';
-        else if (next.includes('/instructor')) roleToAssign = 'instructor';
-        
-        await authHelpers.ensureUserProfile(data.user, roleToAssign);
-        
-        // Final redirect
-        window.location.href = next;
-      }
+      // FORCED SERVER-SIDE REDIRECT:
+      // We must not exchange the code on the client side because PKCE verifier cookies 
+      // are often HttpOnly and inaccessible to JavaScript. 
+      // Moving the exchange to the server resolves the "Domain Security Error".
+      console.log("AuthPage: Redirecting to server-side callback to complete login...");
+      const next = searchParams.get('next') || selectedPortal.href;
+      const callbackUrl = new URL('/auth/callback', window.location.origin);
+      callbackUrl.searchParams.set('code', code);
+      if (next) callbackUrl.searchParams.set('next', next);
+      
+      window.location.href = callbackUrl.toString();
     } catch (err: any) {
-      console.error("AuthPage: Social login exchange failed:", err);
-      // Give a helpful message specifically for the common Netlify/PKCE issue
-      if (err.message?.toLowerCase().includes('code verifier not found')) {
-        setError("Domain Security Error: Your login session was lost during redirect. Please try again on this page. If this persists, ensure your Supabase redirect URLs include this current domain.");
-      } else {
-        setError(err.message || "Failed to complete Social Login");
-      }
+      console.error("AuthPage: Redirect to callback failed:", err);
+      setError("Login error: Failed to reach the security callback.");
       setIsLoading(false);
       submitting.current = false;
     }

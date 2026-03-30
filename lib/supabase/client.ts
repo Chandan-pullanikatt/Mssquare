@@ -10,7 +10,6 @@ export function createClient() {
         path: '/',
         secure: true,
         sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7, // 1 week
       }
     }
   )
