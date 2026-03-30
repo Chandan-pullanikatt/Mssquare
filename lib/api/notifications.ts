@@ -11,6 +11,7 @@ export interface Notification {
   sender_id?: string;
   type: NotificationType;
   course_id?: string;
+  redirect_url?: string;
   created_at: string;
 }
 

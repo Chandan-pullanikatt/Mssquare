@@ -119,7 +119,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
           <nav className="flex flex-col gap-6">
             {[
               { name: "Home", href: "/" },
-              { name: "Services", href: "#solutions" },
+              { name: "Services", href: "/web-services" },
               { name: "Careers", href: "/careers" }
             ].filter(item => !(item.name === "Home" && isLandingPage)).map((item) => (
               <Link

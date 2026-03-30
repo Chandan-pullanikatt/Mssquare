@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { 
   FileUser, 
   Search, 
@@ -25,10 +26,23 @@ import { supabase } from "@/lib/supabase/client";
 
 type ApplicationType = 'career' | 'instructor';
 
-export default function ApplicationsManagement() {
-  const [activeTab, setActiveTab] = useState<ApplicationType>('career');
+function ApplicationsContent() {
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get('tab') as ApplicationType || 'career';
+  
+  const [activeTab, setActiveTab] = useState<ApplicationType>(
+    ['career', 'instructor'].includes(initialTab) ? initialTab : 'career'
+  );
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Update tab if URL changes
+  useEffect(() => {
+    const tab = searchParams.get('tab') as ApplicationType;
+    if (tab && ['career', 'instructor'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const fetchApplications = async () => {
     setLoading(true);
@@ -362,5 +376,17 @@ export default function ApplicationsManagement() {
         />
       )}
     </div>
+  );
+}
+
+export default function ApplicationsManagement() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-20">
+        <div className="w-12 h-12 border-4 border-[#8b5cf6]/20 border-t-[#8b5cf6] rounded-full animate-spin"></div>
+      </div>
+    }>
+      <ApplicationsContent />
+    </Suspense>
   );
 }

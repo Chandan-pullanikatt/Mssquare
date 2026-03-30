@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/service';
 import { NextResponse } from 'next/server';
 import { sendEnquiryConfirmation } from '@/lib/email';
 
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     // 1. Save Enquiry to Database
     const { error: dbError } = await supabase
@@ -24,14 +24,21 @@ export async function POST(request: Request) {
         message,
       } as any);
 
-    if (dbError) throw dbError;
+    if (dbError) {
+      console.error('Supabase Database Insert Error (Enquiry):', dbError);
+      return NextResponse.json({ error: `Database insert failed: ${dbError.message}` }, { status: 500 });
+    }
 
     // 2. Send Confirmation Email
-    await sendEnquiryConfirmation({ email, name: fullName });
+    try {
+      await sendEnquiryConfirmation({ email, name: fullName });
+    } catch (emailErr: any) {
+      console.error('Non-blocking: Failed to send enquiry confirmation:', emailErr);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Error submitting enquiry:', error);
+    console.error('Unexpected error in enquiry application:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }

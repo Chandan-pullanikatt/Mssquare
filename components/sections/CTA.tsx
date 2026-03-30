@@ -36,15 +36,19 @@ export function CTA() {
         body: JSON.stringify({ email }),
       });
 
-      if (!response.ok) throw new Error("Submission failed");
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Submission failed");
+      }
 
       setIsSubmitting(false);
       setShowSuccess(true);
       setEmail("");
       setTimeout(() => setShowSuccess(false), 5000);
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong. Please try again.");
+    } catch (error: any) {
+      console.error("Match Lead Submission Error:", error);
+      alert(`Error: ${error.message || "Something went wrong. Please try again."}`);
       setIsSubmitting(false);
     }
   };

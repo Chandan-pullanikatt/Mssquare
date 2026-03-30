@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/service';
 import { NextResponse } from 'next/server';
 import { sendMatchWelcome } from '@/lib/email';
 
@@ -10,7 +10,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     // 1. Save Lead to Database (Unified Table)
     const { error: dbError } = await supabase
@@ -21,7 +21,10 @@ export async function POST(request: Request) {
         source: 'Program Match Form' 
       } as any);
 
-    if (dbError) throw dbError;
+    if (dbError) {
+      console.error('Supabase Database Insert Error (Match Lead):', dbError);
+      return NextResponse.json({ error: `Database insert failed: ${dbError.message}` }, { status: 500 });
+    }
 
     // 2. Notify Admin
     try {
@@ -32,20 +35,20 @@ export async function POST(request: Request) {
         type: 'success'
       } as any);
     } catch (notifErr) {
-      console.warn('Silent failure on admin notification:', notifErr);
+      console.warn('Silent failure on admin notification (Match Lead):', notifErr);
     }
 
     // 3. Send Welcome Email
     try {
       await sendMatchWelcome({ email });
     } catch (emailErr) {
-      console.error('Non-blocking: Failed to send welcome email:', emailErr);
+      console.error('Non-blocking: Failed to send welcome email (Match Lead):', emailErr);
       // We don't throw here so the user sees a success message on the site
     }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Error submitting match lead:', error);
+    console.error('Unexpected error in match lead application:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }

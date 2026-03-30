@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Bell, X, Clock, Info, CheckCircle, AlertTriangle, AlertCircle, ChevronRight } from "lucide-react";
 import { notificationsApi, Notification, NotificationTarget } from "@/lib/api/notifications";
 import Link from "next/link";
@@ -10,6 +11,7 @@ interface NotificationBellProps {
 }
 
 export function NotificationBell({ targetRole }: NotificationBellProps) {
+  const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -85,7 +87,16 @@ export function NotificationBell({ targetRole }: NotificationBellProps) {
               ) : (
                 <div className="divide-y divide-gray-50">
                   {notifications.map((n) => (
-                    <div key={n.id} className="p-5 hover:bg-gray-50 transition-colors group cursor-default">
+                    <div 
+                      key={n.id} 
+                      onClick={() => {
+                        if (n.redirect_url) {
+                          router.push(n.redirect_url);
+                          setIsOpen(false);
+                        }
+                      }}
+                      className={`p-5 hover:bg-gray-50 transition-colors group ${n.redirect_url ? 'cursor-pointer' : 'cursor-default'}`}
+                    >
                       <div className="flex gap-3">
                         <div className="mt-0.5">{getTypeIcon(n.type)}</div>
                         <div className="flex-1">

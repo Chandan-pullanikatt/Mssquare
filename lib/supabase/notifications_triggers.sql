@@ -7,6 +7,9 @@ ALTER TABLE public.notifications
 ADD CONSTRAINT notifications_target_role_check 
 CHECK (target_role IN ('student', 'business_client', 'cms_admin', 'lms_admin', 'business_admin', 'all'));
 
+-- Add redirect_url column for deep linking
+ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS redirect_url TEXT;
+
 -- 2. Create the Trigger Function
 CREATE OR REPLACE FUNCTION public.handle_new_admin_notification()
 RETURNS TRIGGER AS $$
@@ -15,37 +18,43 @@ DECLARE
     notif_message TEXT;
     notif_target TEXT := 'cms_admin'; -- Default target for CEO/CMS Admin
     notif_type TEXT := 'info';
+    notif_link TEXT;
 BEGIN
-    -- Determine Title and Message based on the source table
+    -- Determine Title, Message, and Link based on the source table
     IF TG_TABLE_NAME = 'leads' THEN
         notif_title := 'New Website Lead';
         notif_message := 'Received a new lead from ' || COALESCE(NEW.name, 'Anonymous') || ' (' || COALESCE(NEW.source, 'Inquiry') || ')';
         notif_type := 'success';
+        notif_link := '/admin/cms/leads';
         
     ELSIF TG_TABLE_NAME = 'webservice_enquiries' THEN
         notif_title := 'New Business Enquiry';
         notif_message := 'New enquiry from ' || COALESCE(NEW.full_name, 'Anonymous') || ' regarding ' || COALESCE(NEW.project_type, 'Project');
         notif_type := 'info';
+        notif_link := '/admin/cms/leads';
 
     ELSIF TG_TABLE_NAME = 'career_applications' THEN
         notif_title := 'New Career Application';
         notif_message := COALESCE(NEW.full_name, 'Someone') || ' applied for ' || COALESCE(NEW.position, 'a position');
         notif_type := 'warning';
+        notif_link := '/admin/cms/applications?tab=career';
 
     ELSIF TG_TABLE_NAME = 'instructor_applications' THEN
         notif_title := 'New Instructor Application';
         notif_message := COALESCE(NEW.full_name, 'Someone') || ' applied as an Instructor';
         notif_type := 'warning';
+        notif_link := '/admin/cms/applications?tab=instructor';
 
     ELSIF TG_TABLE_NAME = 'enrollments' OR TG_TABLE_NAME = 'student_enrollments' THEN
         notif_title := 'New Student Enrollment';
         notif_message := 'A new student has enrolled in a course.';
         notif_type := 'success';
+        notif_link := '/admin/cms/enrollments';
     END IF;
 
     -- Insert the notification
-    INSERT INTO public.notifications (title, message, target_role, type, created_at)
-    VALUES (notif_title, notif_message, notif_target, notif_type, NOW());
+    INSERT INTO public.notifications (title, message, target_role, type, redirect_url, created_at)
+    VALUES (notif_title, notif_message, notif_target, notif_type, notif_link, NOW());
 
     RETURN NEW;
 END;
