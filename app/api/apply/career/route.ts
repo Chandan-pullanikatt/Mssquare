@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/service';
 import { NextResponse } from 'next/server';
 import { sendApplicationConfirmation } from '@/lib/email';
 
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Resume is required' }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     // 1. Upload Resume to Supabase Storage
     const fileExt = resumeFile.name.split('.').pop();
@@ -29,7 +29,10 @@ export async function POST(request: Request) {
       .from('applications')
       .upload(filePath, resumeFile);
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error('Supabase Storage Upload Error:', uploadError);
+      return NextResponse.json({ error: `Upload failed: ${uploadError.message}` }, { status: 500 });
+    }
 
     // 2. Save Data to Database
     const { error: dbError } = await supabase
@@ -45,14 +48,22 @@ export async function POST(request: Request) {
         cover_letter: coverLetter,
       } as any);
 
-    if (dbError) throw dbError;
+    if (dbError) {
+      console.error('Supabase Database Insert Error:', dbError);
+      return NextResponse.json({ error: `Database insert failed: ${dbError.message}` }, { status: 500 });
+    }
 
     // 3. Send Confirmation Email
-    await sendApplicationConfirmation({ email, name: fullName, type: 'career' });
+    try {
+      await sendApplicationConfirmation({ email, name: fullName, type: 'career' });
+    } catch (emailError: any) {
+      console.error('Email sending failed (non-blocking):', emailError);
+      // We don't fail the whole request if email fails, but we log it
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Error submitting application:', error);
+    console.error('Unexpected error in career application:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
