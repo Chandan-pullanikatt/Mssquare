@@ -106,7 +106,13 @@ function AuthForm() {
         window.location.href = next;
       }
     } catch (err: any) {
-      setError(err.message || "Failed to complete Social Login");
+      console.error("AuthPage: Social login exchange failed:", err);
+      // Give a helpful message specifically for the common Netlify/PKCE issue
+      if (err.message?.toLowerCase().includes('code verifier not found')) {
+        setError("Domain Security Error: Your login session was lost during redirect. Please try again on this page. If this persists, ensure your Supabase redirect URLs include this current domain.");
+      } else {
+        setError(err.message || "Failed to complete Social Login");
+      }
       setIsLoading(false);
       submitting.current = false;
     }
