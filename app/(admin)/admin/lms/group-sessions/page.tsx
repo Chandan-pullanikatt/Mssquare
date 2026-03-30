@@ -137,11 +137,16 @@ export default function GroupSessionsPage() {
       accessor: "instructors",
       render: (sessionInstructors: any[]) => (
         <div className="flex flex-wrap gap-1 max-w-[200px]">
-          {sessionInstructors?.map((si: any, i: number) => (
-            <span key={i} className="px-2 py-0.5 rounded-full bg-purple-50 text-[#8b5cf6] text-[10px] font-bold border border-purple-100">
-              Instructor {si.instructor_id.slice(0,4)}
-            </span>
-          ))}
+          {sessionInstructors?.map((si: any, i: number) => {
+            const displayName = si.profile?.email 
+              ? si.profile.email.split('@')[0] 
+              : `Instructor ${si.instructor_id.slice(0,4)}`;
+            return (
+              <span key={i} className="px-2 py-0.5 rounded-full bg-purple-50 text-[#8b5cf6] text-[10px] font-bold border border-purple-100 capitalize">
+                {displayName}
+              </span>
+            );
+          })}
         </div>
       )
     },

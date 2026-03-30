@@ -277,7 +277,8 @@ export const adminApi = {
         *,
         course:courses(title),
         instructors:group_session_instructors(
-          instructor_id
+          instructor_id,
+          profile:profiles(email)
         )
       `)
       .order('scheduled_at', { ascending: false });
@@ -323,13 +324,13 @@ export const adminApi = {
       .select(`
         *,
         course:courses(title),
-        instructor:profiles!instructor_id(email),
+        instructor:profiles(email),
         instructors:timetable_instructors(
           instructor_id,
-          profile:profiles!instructor_id(email)
+          profile:profiles(email)
         )
       `)
-      .order('created_at', { ascending: false });
+      .order('scheduled_at', { ascending: false });
 
     if (error) throw error;
     return data;

@@ -50,7 +50,7 @@ export const sendApplicationConfirmation = async ({
 
   const resendClient = getResendClient();
   const { data, error } = await resendClient.emails.send({
-    from: 'mssquaretechnology <hr@mssquaretechnologies.com>',
+    from: 'Pagidipalli Sai Santosh from MSSquare <hr@mssquaretechnologies.com>',
     replyTo: 'support@mssquaretechnologies.com',
     to: [email],
     subject: subject,
@@ -90,7 +90,7 @@ export const sendEnquiryConfirmation = async ({
 
   const resendClient = getResendClient();
   const { data, error } = await resendClient.emails.send({
-    from: 'mssquaretechnology <hello@mssquaretechnologies.com>',
+    from: 'Pagidipalli Sai Santosh from MSSquare <hello@mssquaretechnologies.com>',
     replyTo: 'support@mssquaretechnologies.com',
     to: [email],
     subject: subject,
@@ -109,49 +109,57 @@ export const sendMatchWelcome = async ({
 }: {
   email: string;
 }) => {
-  const subject = "Welcome to MSSquare - Let's find your perfect match!";
+  const subject = "Welcome to MSSquare";
   const content = `
-    <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px;">
+    <div style="font-family: sans-serif; line-height: 1.6; color: #1a1a1a; max-width: 600px; margin: 0 auto;">
       <p>Hello,</p>
-      <p>Welcome to **MSSquare**! We're excited to help you find the right path in our ecosystem.</p>
+      <p>Welcome to **MSSquare**! I'm glad you've joined our community.</p>
       
-      <p>Based on your interest, here are the main ways you can grow with us:</p>
+      <p>Whether you're looking for industry-standard training, career opportunities, or technical consultancy, we're here to help you grow.</p>
 
-      <div style="margin: 20px 0;">
-        <strong>🎓 Training & Learning</strong><br/>
-        Master industry-standard skills with our curated courses.<br/>
-        <a href="https://mssquaretechnologies.com/courses" style="color: #7C3AED; font-weight: bold; text-decoration: none;">Explore Courses &rarr;</a>
-      </div>
-
-      <div style="margin: 20px 0;">
-        <strong>💼 Careers & Internships</strong><br/>
-        Looking to join our team or start your journey? Check out our open roles.<br/>
-        <a href="https://mssquaretechnologies.com/careers" style="color: #7C3AED; font-weight: bold; text-decoration: none;">View Open Roles &rarr;</a>
-      </div>
-
-      <div style="margin: 20px 0;">
-        <strong>🚀 Business Consultancy</strong><br/>
-        Have a product idea? Our software studio helps startups build digital products.<br/>
-        <a href="https://mssquaretechnologies.com/web-services" style="color: #7C3AED; font-weight: bold; text-decoration: none;">Start a Project &rarr;</a>
-      </div>
-
-      <p style="margin-top: 30px;">
-        Not sure where to start? Our experts will reach out to you shortly for a free consultation.
+      <p style="margin: 24px 0;">
+        <strong>Quick Links to Get Started:</strong><br/>
+        • <a href="https://mssquaretechnologies.com/courses" style="color: #7C3AED; text-decoration: none;">Explore Our Courses</a><br/>
+        • <a href="https://mssquaretechnologies.com/careers" style="color: #7C3AED; text-decoration: none;">View Open Career Roles</a><br/>
+        • <a href="https://mssquaretechnologies.com/web-services" style="color: #7C3AED; text-decoration: none;">Start a Business Project</a>
       </p>
 
-      <p style="margin-top: 30px; font-size: 0.9em; color: #999;">
+      <p>If you're not sure where to start, just reply to this email! One of our experts will reach out to you shortly for a free consultation.</p>
+
+      <p style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
         Best regards,<br/>
-        **The MSSquare Team**
+        <strong>Pagidipalli Sai Santosh</strong><br/>
+        <span style="color: #666; font-size: 0.9em;">MSSquare Team</span>
       </p>
     </div>
   `;
 
+  const textContent = `
+Hello,
+
+Welcome to MSSquare! I'm glad you've joined our community.
+
+Whether you're looking for industry-standard training, career opportunities, or technical consultancy, we're here to help you grow.
+
+Quick Links to Get Started:
+- Explore Our Courses: https://mssquaretechnologies.com/courses
+- View Open Career Roles: https://mssquaretechnologies.com/careers
+- Start a Business Project: https://mssquaretechnologies.com/web-services
+
+If you're not sure where to start, just reply to this email! One of our experts will reach out to you shortly for a free consultation.
+
+Best regards,
+Pagidipalli Sai Santosh
+MSSquare Team
+  `.trim();
+
   const resendClient = getResendClient();
   const { data, error } = await resendClient.emails.send({
-    from: 'mssquaretechnology <hr@mssquaretechnologies.com>',
+    from: 'Pagidipalli Sai Santosh from MSSquare <hr@mssquaretechnologies.com>',
     replyTo: 'support@mssquaretechnologies.com',
     to: [email],
     subject: subject,
+    text: textContent,
     html: content,
   });
 
@@ -200,7 +208,7 @@ export const sendEnquiryReply = async ({
 
   const resendClient = getResendClient();
   const { data, error } = await resendClient.emails.send({
-    from: 'mssquaretechnology <support@mssquaretechnologies.com>',
+    from: 'Pagidipalli Sai Santosh from MSSquare <support@mssquaretechnologies.com>',
     replyTo: 'support@mssquaretechnologies.com',
     to: [email],
     subject: subject,
@@ -247,7 +255,7 @@ export const sendInstructorInvitation = async ({
 
   const resendClient = getResendClient();
   const { data, error } = await resendClient.emails.send({
-    from: 'mssquaretechnology <academy@mssquaretechnologies.com>',
+    from: 'Pagidipalli Sai Santosh from MSSquare <academy@mssquaretechnologies.com>',
     replyTo: 'support@mssquaretechnologies.com',
     to: [email],
     subject: subject,
