@@ -15,32 +15,55 @@ export async function GET(request: Request) {
     if (!error) {
       // 1. check if this is an instructor by email
       try {
-        const { data: instructor } = await supabase
-          .from('instructors')
-          .select('id')
-          .eq('email', data.user.email!)
+        const { data: profile } = await (supabase as any)
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
           .maybeSingle();
 
-        if (instructor) {
-          console.log(`Auth Callback: Auto-promoting ${data.user.email} to instructor...`);
-          // 2. Assign role in profiles (trigger will sync to auth.users)
+        let userRole = profile?.role;
+
+        if (!userRole) {
+          // If no role found, check if they are an instructor by email first
+          const { data: instructor } = await (supabase as any)
+            .from('instructors')
+            .select('id')
+            .eq('email', data.user.email!)
+            .maybeSingle();
+
+          if (instructor) {
+            userRole = 'instructor';
+            // Mark in instructors table as active
+            await (supabase as any).from('instructors').update({ status: 'active', id: data.user.id }).eq('email', data.user.email!);
+          } else {
+            // Default based on 'next' path
+            if (next.includes('/student')) userRole = 'student';
+            else if (next.includes('/business')) userRole = 'business_client';
+            else if (next.includes('/instructor')) userRole = 'instructor';
+            else userRole = 'student'; // Fallback for general newcomers
+          }
+
+          console.log(`Auth Callback: Assigning ${userRole} role to new user ${data.user.email}...`);
+          
+          // Create/Update profile (trigger will sync metadata)
           await (supabase as any).from('profiles').upsert({
             id: data.user.id,
             user_id: data.user.id,
             email: data.user.email,
-            role: 'instructor',
+            role: userRole,
           }, { onConflict: 'id' });
+        }
 
-          // 3. Mark in instructors table as active
-          await (supabase as any).from('instructors').update({ status: 'active' }).eq('id', data.user.id);
-          
-          // 4. If the next path is /portal or /, redirect to instructor dashboard
-          if (next === '/portal' || next === '/') {
-            return NextResponse.redirect(new URL('/instructor/dashboard', request.url));
-          }
+        // Special case: if intended 'next' is generic /portal or /, redirect to their dashboard
+        if (next === '/portal' || next === '/') {
+          const dashboardPath = userRole === 'student' ? '/student/dashboard' :
+                              userRole === 'business_client' ? '/business/dashboard' :
+                              userRole === 'instructor' ? '/instructor/dashboard' :
+                              '/';
+          return NextResponse.redirect(new URL(dashboardPath, request.url));
         }
       } catch (err) {
-        console.warn("Auth Callback: Failed to check/assign instructor role:", err);
+        console.warn("Auth Callback: Failed to check/assign roles:", err);
       }
 
       return NextResponse.redirect(new URL(next, request.url));
@@ -61,3 +84,4 @@ export async function GET(request: Request) {
   errorUrl.searchParams.set('error', errorMessage);
   return NextResponse.redirect(errorUrl);
 }
+
