@@ -244,7 +244,7 @@ export default function CareersPage() {
                                 title: "Innovation-led",
                                 description: "We push the boundaries of what's possible in tech and learning.",
                                 icon: Lightbulb,
-                                image: "/assets/careers/innovation.png",
+                                image: "/assets/careers/INNOVATION-LED.jpg",
                                 color: "text-violet-500",
                                 bg: "bg-violet-50"
                             },
@@ -252,7 +252,7 @@ export default function CareersPage() {
                                 title: "Continuous Learning",
                                 description: "Regular workshops, mentors, and professional growth budgets for all.",
                                 icon: GraduationCap,
-                                image: "/assets/careers/learning.png",
+                                image: "/assets/careers/CONTINUOUS LEARNING.jpg",
                                 color: "text-blue-500",
                                 bg: "bg-blue-50"
                             },
@@ -260,7 +260,7 @@ export default function CareersPage() {
                                 title: "Work-Life Balance",
                                 description: "Flexible hours and remote-first culture to keep you refreshed.",
                                 icon: Scale,
-                                image: "/assets/careers/balance.png",
+                                image: "/assets/careers/WORK-LIFE BALANCE.jpg",
                                 color: "text-emerald-500",
                                 bg: "bg-emerald-50"
                             },
@@ -268,7 +268,7 @@ export default function CareersPage() {
                                 title: "Impactful Projects",
                                 description: "Build solutions that directly touch and improve millions of lives.",
                                 icon: Globe,
-                                image: "/assets/careers/impact.png",
+                                image: "/assets/careers/IMPACTFUL PROJECTS.jpg",
                                 color: "text-indigo-500",
                                 bg: "bg-indigo-50"
                             }

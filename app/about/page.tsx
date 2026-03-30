@@ -9,24 +9,46 @@ export default function AboutPage() {
   return (
     <div className="bg-white min-h-screen">
       {/* Hero Section */}
-      <section className="pt-32 pb-20 bg-gradient-to-b from-purple-50 to-white">
+      <section className="min-h-[85vh] flex items-center pt-20 pb-12 bg-gradient-to-b from-purple-50 to-white overflow-hidden">
         <Container>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight text-gray-900">
-              Building Skills.
-              <br />
-              <span className="text-purple-600">Creating Technology.</span>
-              <br />
-              Empowering Careers.
-            </h1>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              MSSquare Technologies is at the forefront of EdTech and Tech Consulting, dedicated to shaping the next generation of tech leaders.
-            </p>
-          </motion.div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="text-left"
+            >
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight text-gray-900">
+                Building Skills.
+                <br />
+                <span className="text-purple-600">Creating Technology.</span>
+                <br />
+                Empowering Careers.
+              </h1>
+              <p className="text-lg text-gray-600 mb-6 leading-relaxed max-w-xl">
+                MSSquare Technologies is at the forefront of EdTech and Tech Consulting, dedicated to shaping the next generation of tech leaders.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+              className="relative flex justify-center lg:justify-end"
+            >
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-square w-full max-w-md group">
+                <img
+                  src="/assets/aboutus.jpg"
+                  alt="About MSSquare Team"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/10 to-transparent pointer-events-none" />
+              </div>
+              {/* Decorative background blur elements */}
+              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-purple-200 rounded-full blur-3xl opacity-40 -z-10" />
+              <div className="absolute -top-6 -left-6 w-32 h-32 bg-blue-200 rounded-full blur-3xl opacity-40 -z-10" />
+            </motion.div>
+          </div>
         </Container>
       </section>
 
