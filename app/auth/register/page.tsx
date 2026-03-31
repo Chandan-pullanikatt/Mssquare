@@ -21,6 +21,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { authHelpers } from "@/utils/authHelpers";
 import { useRouter } from "next/navigation";
+import NextImage from "next/image";
 
 type PortalType = {
   id: string;
@@ -146,11 +147,15 @@ export default function RegisterPage() {
 
         <div className="relative z-10 p-8 lg:p-10 flex flex-col justify-between h-full w-full">
           <div>
-            <Link href="/" className="flex items-center gap-3 mb-10 lg:mb-16 group">
-              <div className="w-9 h-9 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white border border-white/20 shadow-lg transition-transform group-hover:scale-105">
-                <Rocket size={18} fill="white" />
-              </div>
-              <span className="text-xl font-black tracking-tight font-heading text-white">MSSquare</span>
+            <Link href="/" className="relative h-12 w-48 mb-10 lg:mb-16 block transition-transform hover:scale-[1.02]">
+              <NextImage 
+                src="/assets/nobglogo.png" 
+                alt="MSSquare" 
+                fill
+                priority
+                className="object-contain object-left"
+                sizes="(max-width: 768px) 192px, 192px"
+              />
             </Link>
 
             <motion.div
