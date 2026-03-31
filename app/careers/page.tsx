@@ -19,61 +19,36 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { COLORS, SHADOWS } from "@/lib/design-tokens";
 import { Footer } from "@/components/layout/Footer";
+import { websiteApi } from "@/lib/api/website";
 
-const culture = [
-    {
-        title: "Innovation First",
-        description: "We push boundaries and embrace new technologies. Your wildest ideas have a home here.",
-        icon: Lightbulb,
-        color: "text-primary-purple",
-        bg: "bg-primary-purple/10"
-    },
-    {
-        title: "Learning & Growth",
-        description: "Continuous mentorship and annual professional development budgets for every single team member.",
-        icon: TrendingUp,
-        color: "text-primary-purple",
-        bg: "bg-primary-purple/10"
-    },
-    {
-        title: "Flexible Culture",
-        description: "Work-life balance that empowers your best performance. Remote-first with beautiful hub offices.",
-        icon: Users,
-        color: "text-primary-purple",
-        bg: "bg-primary-purple/10"
-    }
-];
-
-const jobs = [
-    {
-        title: "Senior React Developer",
-        department: "Engineering",
-        location: "Remote / London",
-        type: "Full-time",
-        icon: Monitor
-    },
-    {
-        title: "UI/UX Designer",
-        department: "Product Design",
-        location: "Amsterdam",
-        type: "Full-time",
-        icon: Briefcase
-    },
-    {
-        title: "Growth Marketing Manager",
-        department: "Marketing",
-        location: "New York / Remote",
-        type: "Full-time",
-        icon: TrendingUp
-    }
+const defaultBenefitsMeta = [
+    { icon: Lightbulb, image: "/assets/careers/INNOVATION-LED.jpg", color: "text-violet-500", bg: "bg-violet-50" },
+    { icon: GraduationCap, image: "/assets/careers/CONTINUOUS LEARNING.jpg", color: "text-blue-500", bg: "bg-blue-50" },
+    { icon: Scale, image: "/assets/careers/WORK-LIFE BALANCE.jpg", color: "text-emerald-500", bg: "bg-emerald-50" },
+    { icon: Globe, image: "/assets/careers/IMPACTFUL PROJECTS.jpg", color: "text-indigo-500", bg: "bg-indigo-50" }
 ];
 
 export default function CareersPage() {
+    const [content, setContent] = useState<any>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+
+    useEffect(() => {
+        const fetchContent = async () => {
+            try {
+                const data = await websiteApi.getSection("careers_content");
+                if (data?.content_json) {
+                    setContent(data.content_json);
+                }
+            } catch (error) {
+                console.error("Failed to fetch careers content:", error);
+            }
+        };
+        fetchContent();
+    }, []);
     const [activeFilter, setActiveFilter] = useState("All Roles");
     const [formData, setFormData] = useState({
         fullName: "",
@@ -191,16 +166,13 @@ export default function CareersPage() {
                     <div className="flex-1 space-y-6 animate-in fade-in slide-in-from-left-8 duration-700">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-purple/10 text-primary-purple rounded-full text-xs font-bold uppercase tracking-widest">
                             <Rocket size={14} />
-                            We are hiring
+                            {content?.hero?.badge || "We are hiring"}
                         </div>
 
-                        <h1 className="text-6xl md:text-7xl font-extrabold text-gray-900 font-heading leading-tight italic">
-                            Join the <br />
-                            <span className="text-primary-purple">MSSquare</span> Team
-                        </h1>
+                        <h1 className="text-6xl md:text-7xl font-extrabold text-gray-900 font-heading leading-tight italic" dangerouslySetInnerHTML={{ __html: content?.hero?.title || 'Join the <br /> <span className="text-primary-purple">MSSquare</span> Team' }} />
 
                         <p className="text-lg font-medium text-gray-600 max-w-lg leading-relaxed">
-                            Shape the future of innovation with a global team dedicated to excellence, creative freedom, and sustainable growth. We're building tools for the next generation.
+                            {content?.hero?.subtitle || "Shape the future of innovation with a global team dedicated to excellence, creative freedom, and sustainable growth. We're building tools for the next generation."}
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
@@ -243,62 +215,32 @@ export default function CareersPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {[
-                            {
-                                title: "Innovation-led",
-                                description: "We push the boundaries of what's possible in tech and learning.",
-                                icon: Lightbulb,
-                                image: "/assets/careers/INNOVATION-LED.jpg",
-                                color: "text-violet-500",
-                                bg: "bg-violet-50"
-                            },
-                            {
-                                title: "Continuous Learning",
-                                description: "Regular workshops, mentors, and professional growth budgets for all.",
-                                icon: GraduationCap,
-                                image: "/assets/careers/CONTINUOUS LEARNING.jpg",
-                                color: "text-blue-500",
-                                bg: "bg-blue-50"
-                            },
-                            {
-                                title: "Work-Life Balance",
-                                description: "Flexible hours and remote-first culture to keep you refreshed.",
-                                icon: Scale,
-                                image: "/assets/careers/WORK-LIFE BALANCE.jpg",
-                                color: "text-emerald-500",
-                                bg: "bg-emerald-50"
-                            },
-                            {
-                                title: "Impactful Projects",
-                                description: "Build solutions that directly touch and improve millions of lives.",
-                                icon: Globe,
-                                image: "/assets/careers/IMPACTFUL PROJECTS.jpg",
-                                color: "text-indigo-500",
-                                bg: "bg-indigo-50"
-                            }
-                        ].map((item, i) => (
+                        {defaultBenefitsMeta.map((meta, i) => {
+                            const title = content?.benefits?.[i]?.title || "Benefit Title";
+                            const description = content?.benefits?.[i]?.desc || "Benefit description details";
+                            return (
                             <div key={i} className="group bg-white border border-gray-100 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-violet-500/10 hover:-translate-y-2 flex flex-col">
                                 <div className="relative aspect-[16/11] overflow-hidden">
                                     <img 
-                                        src={item.image} 
+                                        src={meta.image} 
                                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                                        alt={item.title} 
+                                        alt={title} 
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent group-hover:opacity-0 transition-opacity"></div>
-                                    <div className={`absolute top-4 left-4 p-3 ${item.bg} rounded-2xl border border-white/50 shadow-sm transition-transform group-hover:scale-110`}>
-                                        <item.icon size={20} className={item.color} />
+                                    <div className={`absolute top-4 left-4 p-3 ${meta.bg} rounded-2xl border border-white/50 shadow-sm transition-transform group-hover:scale-110`}>
+                                        <meta.icon size={20} className={meta.color} />
                                     </div>
                                 </div>
                                 <div className="p-8 flex flex-col flex-grow text-left">
                                     <h3 className="font-extrabold text-lg text-gray-900 mb-3 font-heading group-hover:text-[#7C3AED] transition-colors uppercase tracking-tight">
-                                        {item.title}
+                                        {title}
                                     </h3>
                                     <p className="text-gray-500 text-sm font-medium leading-relaxed">
-                                        {item.description}
+                                        {description}
                                     </p>
                                 </div>
                             </div>
-                        ))}
+                        )})}
                     </div>
                 </div>
             </section>
@@ -309,54 +251,80 @@ export default function CareersPage() {
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                         <div>
                             <h2 className="text-4xl font-extrabold text-gray-900 font-heading mb-4 italic">Open Positions</h2>
-                            <p className="text-gray-500 font-medium">Join 150+ talented individuals across the globe.</p>
+                            <p className="text-gray-500 font-medium">
+                                {content?.showOpenings === false 
+                                    ? "We don't have any immediate openings, but we're always looking for talent." 
+                                    : "Join 150+ talented individuals across the globe."}
+                            </p>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-3">
-                            {["All Roles", "Engineering", "Design"].map((filter) => (
-                                <button
-                                    key={filter}
-                                    onClick={() => setActiveFilter(filter)}
-                                    className={`px-6 py-2.5 rounded-full text-xs font-bold transition-all uppercase tracking-widest ${activeFilter === filter
-                                            ? "bg-primary-purple text-white shadow-xl shadow-primary-purple/20"
-                                            : "bg-white text-light-foreground/60 border border-light-border hover:border-light-border/50"
-                                        }`}
-                                >
-                                    {filter}
-                                </button>
-                            ))}
-                        </div>
+                        {content?.showOpenings !== false && (
+                            <div className="flex flex-wrap items-center gap-3">
+                                {["All Roles", "Engineering", "Design"].map((filter) => (
+                                    <button
+                                        key={filter}
+                                        onClick={() => setActiveFilter(filter)}
+                                        className={`px-6 py-2.5 rounded-full text-xs font-bold transition-all uppercase tracking-widest ${activeFilter === filter
+                                                ? "bg-primary-purple text-white shadow-xl shadow-primary-purple/20"
+                                                : "bg-white text-light-foreground/60 border border-light-border hover:border-light-border/50"
+                                            }`}
+                                    >
+                                        {filter}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
-                    <div className="space-y-4">
-                        {jobs.filter(job => activeFilter === "All Roles" || job.department.includes(activeFilter)).map((job, i) => (
-                            <div key={i} className="flex flex-col md:flex-row md:items-center justify-between p-8 bg-white border border-gray-50 rounded-[2rem] hover:shadow-xl hover:border-primary-purple/10 transition-all duration-300 group">
-                                <div className="space-y-3">
-                                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-primary-purple transition-colors">{job.title}</h3>
-                                    <div className="flex flex-wrap items-center gap-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-                                        <div className="flex items-center gap-2">
-                                            <Briefcase size={14} className="text-primary-purple" />
-                                            {job.department}
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <MapPin size={14} className="text-primary-purple" />
-                                            {job.location}
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <Clock size={14} className="text-primary-purple" />
-                                            {job.type}
+                    {content?.showOpenings === false ? (
+                        <div className="bg-white border border-dashed border-gray-200 rounded-[3rem] p-16 text-center space-y-6">
+                            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto text-gray-300">
+                                <Briefcase size={40} />
+                            </div>
+                            <div className="space-y-2">
+                                <h3 className="text-2xl font-bold text-gray-900">No Current Openings</h3>
+                                <p className="text-gray-500 max-w-md mx-auto">
+                                    We don't have any open positions at the moment. However, you can still submit your application below and we'll keep you in mind for future roles!
+                                </p>
+                            </div>
+                            <button
+                                onClick={scrollToForm}
+                                className="bg-primary-purple/10 text-primary-purple px-10 py-4 rounded-2xl font-bold hover:bg-primary-purple hover:text-white transition-all shadow-sm"
+                            >
+                                Submit Your Resume
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {(content?.jobs || []).filter((job: any) => activeFilter === "All Roles" || job.department?.includes(activeFilter)).map((job: any, i: number) => (
+                                <div key={i} className="flex flex-col md:flex-row md:items-center justify-between p-8 bg-white border border-gray-50 rounded-[2rem] hover:shadow-xl hover:border-primary-purple/10 transition-all duration-300 group">
+                                    <div className="space-y-3">
+                                        <h3 className="text-xl font-bold text-gray-900 group-hover:text-primary-purple transition-colors">{job.role}</h3>
+                                        <div className="flex flex-wrap items-center gap-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                                            <div className="flex items-center gap-2">
+                                                <Briefcase size={14} className="text-primary-purple" />
+                                                {job.department}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <MapPin size={14} className="text-primary-purple" />
+                                                {job.location}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Clock size={14} className="text-primary-purple" />
+                                                {job.type}
+                                            </div>
                                         </div>
                                     </div>
+                                    <button
+                                        onClick={scrollToForm}
+                                        className="mt-6 md:mt-0 bg-primary-purple/10 text-primary-purple px-8 py-3.5 rounded-2xl font-bold text-sm hover:bg-primary-purple hover:text-white transition-all active:scale-95"
+                                    >
+                                        Apply Now
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={scrollToForm}
-                                    className="mt-6 md:mt-0 bg-primary-purple/10 text-primary-purple px-8 py-3.5 rounded-2xl font-bold text-sm hover:bg-primary-purple hover:text-white transition-all active:scale-95"
-                                >
-                                    Apply Now
-                                </button>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </section>
 
@@ -425,9 +393,9 @@ export default function CareersPage() {
                                         className="w-full bg-gray-50/50 border border-transparent focus:border-primary-purple/20 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 outline-none transition-all appearance-none cursor-pointer"
                                     >
                                         <option disabled>Select a role</option>
-                                        <option>Senior React Developer</option>
-                                        <option>UI/UX Designer</option>
-                                        <option>Growth Marketing Manager</option>
+                                        {(content?.jobs || []).map((job: any, i: number) => (
+                                            <option key={i}>{job.role}</option>
+                                        ))}
                                     </select>
                                     <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
                                 </div>

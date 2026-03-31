@@ -11,20 +11,21 @@ export default function CareersPageEditor() {
   const [content, setContent] = useState<any>({
     hero: {
       badge: "We are hiring",
-      title: "Build the Future of Tech With Us",
-      subtitle: "Join a team of passionate educators, builders, and innovators dedicated to bridging the gap between learning and building.",
+      title: "Join the MSSquare Team",
+      subtitle: "Shape the future of innovation with a global team dedicated to excellence, creative freedom, and sustainable growth. We're building tools for the next generation.",
     },
     benefits: [
-      { title: "High Impact Work", desc: "Build products that scale and train developers who will shape the future." },
-      { title: "Incredible Culture", desc: "A flat hierarchy where best ideas win. No bureaucracy, just pure building." },
-      { title: "Continuous Growth", desc: "Unlimited access to our courses, mentorship, and a generous learning stipend." },
+      { title: "Innovation-led", desc: "We push the boundaries of what's possible in tech and learning." },
+      { title: "Continuous Learning", desc: "Regular workshops, mentors, and professional growth budgets for all." },
+      { title: "Work-Life Balance", desc: "Flexible hours and remote-first culture to keep you refreshed." },
+      { title: "Impactful Projects", desc: "Build solutions that directly touch and improve millions of lives." },
     ],
     jobs: [
-      { id: 1, role: "Senior Frontend Engineer", department: "Engineering", location: "Remote", type: "Full-Time" },
-      { id: 2, role: "UI/UX Product Designer", department: "Design", location: "Hybrid / New York", type: "Full-Time" },
-      { id: 3, role: "Full-Stack Instructor", department: "Education", location: "Remote", type: "Contract" },
-      { id: 4, role: "Developer Advocate", department: "Marketing", location: "Remote", type: "Full-Time" },
-    ]
+      { id: 1, role: "Senior React Developer", department: "Engineering", location: "Remote / London", type: "Full-time" },
+      { id: 2, role: "UI/UX Designer", department: "Product Design", location: "Amsterdam", type: "Full-time" },
+      { id: 3, role: "Growth Marketing Manager", department: "Marketing", location: "New York / Remote", type: "Full-time" },
+    ],
+    showOpenings: true
   });
 
   useEffect(() => {
@@ -138,12 +139,23 @@ export default function CareersPageEditor() {
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">Job Openings</h2>
               </div>
-              <button
-                onClick={() => setContent({ ...content, jobs: [...content.jobs, { id: Date.now(), role: "New Role", department: "Engineering", location: "Remote", type: "Full-Time" }] })}
-                className="p-2 rounded-xl bg-gray-50 text-gray-400 hover:text-[#8b5cf6] transition-all"
-              >
-                <Plus size={20} />
-              </button>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 pr-4 border-r border-gray-100">
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Show Openings</span>
+                  <button
+                    onClick={() => setContent({ ...content, showOpenings: !content.showOpenings })}
+                    className={`w-10 h-5 rounded-full transition-all relative ${content.showOpenings ? 'bg-primary-purple' : 'bg-gray-200'}`}
+                  >
+                    <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${content.showOpenings ? 'left-6' : 'left-1'}`} />
+                  </button>
+                </div>
+                <button
+                  onClick={() => setContent({ ...content, jobs: [...content.jobs, { id: Date.now(), role: "New Role", department: "Engineering", location: "Remote", type: "Full-Time" }] })}
+                  className="p-2 rounded-xl bg-gray-50 text-gray-400 hover:text-[#8b5cf6] transition-all"
+                >
+                  <Plus size={20} />
+                </button>
+              </div>
             </div>
 
             <div className="space-y-4">
