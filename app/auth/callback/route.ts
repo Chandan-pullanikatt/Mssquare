@@ -22,43 +22,45 @@ export async function GET(request: Request) {
           .eq('id', data.user.id)
           .maybeSingle();
 
-        let userRole = profile?.role;
+        let currentUserRole = profile?.role;
+        let intendedRole = currentUserRole;
 
-        // Detect if this is a newly created Google login (within last 30 seconds)
-        // This bypasses triggers that auto-assign 'student' to new Google accounts
-        const isNewUser = data?.user?.created_at && (new Date().getTime() - new Date(data.user.created_at).getTime() < 30000);
+        // Determine intended role from 'next' path (what the user selected in the dropdown)
+        if (next.includes('/student')) intendedRole = 'student';
+        else if (next.includes('/business')) intendedRole = 'business_client';
+        else if (next.includes('/instructor')) intendedRole = 'instructor';
+        else if (!currentUserRole) intendedRole = 'student'; // Fallback for brand newcomers without a specific path
 
-        if (!userRole || (isNewUser && userRole === 'student')) {
-          // If no role found, or if they are a brand new user (meaning a DB trigger might have assigned a default role)
-          
-          // Check if they are an instructor by email first
-          const { data: instructor } = await (supabase as any)
-            .from('instructors')
-            .select('id')
-            .eq('email', data.user.email!)
-            .maybeSingle();
+        // Check if they are an instructor by email first
+        const { data: instructor } = await (supabase as any)
+          .from('instructors')
+          .select('id')
+          .eq('email', data.user.email!)
+          .maybeSingle();
 
-          if (instructor) {
-            userRole = 'instructor';
-            // Mark in instructors table as active
-            await (supabase as any).from('instructors').update({ status: 'active', id: data.user.id }).eq('email', data.user.email!);
-          } else {
-            // Default based on 'next' path
-            if (next.includes('/student')) userRole = 'student';
-            else if (next.includes('/business')) userRole = 'business_client';
-            else if (next.includes('/instructor')) userRole = 'instructor';
-            else userRole = 'student'; // Fallback for general newcomers
+        if (instructor) {
+          intendedRole = 'instructor';
+          // Mark in instructors table as active if just logging in
+          if (data.user?.id) {
+             await (supabase as any).from('instructors').update({ status: 'active', id: data.user.id }).eq('email', data.user.email!);
           }
+        }
 
+        // Safe-guards: Do NOT downgrade an admin's role!
+        const isAdmin = currentUserRole && ['cms_admin', 'lms_admin', 'business_admin'].includes(currentUserRole);
+
+        // If they are not an admin, and their current role doesn't match the intended role (the portal they chose), 
+        // we forcefully UPDATE their role context so they don't get 'Access Restricted'.
+        if (!isAdmin && currentUserRole !== intendedRole) {
           const adminSupabase = createAdminClient();
-          console.log(`Auth Callback: Assigning ${userRole} role to new user ${data.user.email}...`);
+          console.log(`Auth Callback: Dynamically switching ${data.user.email} from ${currentUserRole || 'none'} to ${intendedRole} based on portal selection.`);
           
           // Create/Update profile (bypass RLS with ADMIN CLIENT)
           await (adminSupabase as any).from('profiles').upsert({
             id: data.user.id,
             user_id: data.user.id,
             email: data.user.email,
-            role: userRole,
+            role: intendedRole,
           }, { onConflict: 'id' });
 
           // Also update the users table for consistency
@@ -66,10 +68,14 @@ export async function GET(request: Request) {
           await (adminSupabase as any).from('users').upsert({
             id: data.user.id,
             name: fullName,
-            role: userRole,
+            role: intendedRole,
           }, { onConflict: 'id' }).select().maybeSingle();
 
+          // Reflect the change in our local variable for the final redirect
+          currentUserRole = intendedRole;
         }
+
+        let userRole = currentUserRole;
 
         // Special case: if intended 'next' is generic /portal or /, redirect to their dashboard
         if (next === '/portal' || next === '/') {
