@@ -24,8 +24,14 @@ export async function GET(request: Request) {
 
         let userRole = profile?.role;
 
-        if (!userRole) {
-          // If no role found, check if they are an instructor by email first
+        // Detect if this is a newly created Google login (within last 30 seconds)
+        // This bypasses triggers that auto-assign 'student' to new Google accounts
+        const isNewUser = data?.user?.created_at && (new Date().getTime() - new Date(data.user.created_at).getTime() < 30000);
+
+        if (!userRole || (isNewUser && userRole === 'student')) {
+          // If no role found, or if they are a brand new user (meaning a DB trigger might have assigned a default role)
+          
+          // Check if they are an instructor by email first
           const { data: instructor } = await (supabase as any)
             .from('instructors')
             .select('id')
@@ -54,6 +60,14 @@ export async function GET(request: Request) {
             email: data.user.email,
             role: userRole,
           }, { onConflict: 'id' });
+
+          // Also update the users table for consistency
+          const fullName = data.user.user_metadata?.full_name || data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'User';
+          await (adminSupabase as any).from('users').upsert({
+            id: data.user.id,
+            name: fullName,
+            role: userRole,
+          }, { onConflict: 'id' }).select().maybeSingle();
 
         }
 
