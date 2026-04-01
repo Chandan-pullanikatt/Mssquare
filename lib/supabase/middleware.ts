@@ -100,13 +100,15 @@ export async function updateSession(request: NextRequest) {
 
   // Strict role check for protected portal routes
   if (currentPortal && userRole !== currentPortal.role) {
-    // Determine if the current user and the target portal belong to the basic "end-user" group
+    // Determine if the target portal is a basic end-user portal
     const isEndUserPortal = currentPortal.role === 'student' || currentPortal.role === 'business_client';
-    const isEndUserRole = userRole === 'student' || userRole === 'business_client';
+    
+    // Determine if the user holds any standard (non-malicious) role that should be allowed into end-user areas
+    const isStandardRole = userRole === 'student' || userRole === 'business_client' || userRole === 'instructor';
 
     // Exception: cms_admin can access everything
-    // Exception: Any end-user (student or business_client) can seamlessly use either end-user portal!
-    if (userRole !== 'cms_admin' && !(isEndUserPortal && isEndUserRole)) {
+    // Exception: Instructors, students, and business clients can ALL freely use the basic end-user portals
+    if (userRole !== 'cms_admin' && !(isEndUserPortal && isStandardRole)) {
       const url = request.nextUrl.clone()
       url.pathname = '/unauthorized'
       url.search = '' // IMPORTANT: Clear search params to prevent carrying over OAuth code
