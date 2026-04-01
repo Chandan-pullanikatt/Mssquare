@@ -107,18 +107,16 @@ function AuthForm() {
     }
   };
 
-  // Auto-redirect if already logged in – only if they are not in the middle of an explicit selection
+  // Auto-redirect if already logged in
   useEffect(() => {
     // Only auto-redirect if session exists and we are NOT loading and not currently submitting
     if (!authLoading && user && role && !isLoading && !submitting.current) {
-      // Check if current role matches what's selected to avoid fighting the user
-      if (role === selectedPortal.id) {
-        authHelpers.getRedirectPath(role).then(p => {
-          if (pathname !== p) window.location.href = p;
-        });
-      }
+      // Regardless of which portal tab is selected, if they are logged in, send them to their dashboard
+      authHelpers.getRedirectPath(role).then(p => {
+        if (pathname !== p) window.location.href = p;
+      });
     }
-  }, [user, role, authLoading, pathname, isLoading, selectedPortal.id]);
+  }, [user, role, authLoading, pathname, isLoading]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
