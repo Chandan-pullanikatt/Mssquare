@@ -45,5 +45,19 @@ export const usersApi = {
     
     if (error) throw error;
     return data as any[];
+  },
+
+  async listAllUsers(limit = 1000) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, email, role, created_at')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    
+    if (error) throw error;
+    return (data as any[] || []).map((u: any) => ({
+      ...u,
+      name: u.email?.split('@')[0] || 'Unknown User'
+    }));
   }
 };

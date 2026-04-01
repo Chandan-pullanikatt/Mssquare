@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Plus, Mail, Shield, UserX, CheckCircle, Search, User as UserIcon, ShieldCheck, LifeBuoy, MoreVertical } from "lucide-react";
+import { Plus, Mail, Shield, UserX, CheckCircle, Search, User as UserIcon, ShieldCheck, LifeBuoy, MoreVertical, Download } from "lucide-react";
 import DataTable from "@/components/cms-admin/DataTable";
 import { usersApi } from "@/lib/api/users";
 import { User, UserRole } from "@/types/database";
@@ -67,6 +67,34 @@ export default function UserManagement() {
         console.error(err);
         alert("Failed to update status.");
       }
+    }
+  };
+
+  const handleExportCSV = async () => {
+    try {
+      const allUsers = await usersApi.listAllUsers();
+      
+      const headers = ["ID", "Email", "Name", "Role", "Joined Date"];
+      const csvRows = allUsers.map((u: any) => [
+        u.id,
+        u.email,
+        u.name,
+        u.role,
+        u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'
+      ].map(field => `"${String(field).replace(/"/g, '""')}"`).join(","));
+
+      const csvString = [headers.join(","), ...csvRows].join("\n");
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `mssquare_users_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to export users.");
     }
   };
 
@@ -150,9 +178,12 @@ export default function UserManagement() {
           <h1 className="text-3xl font-extrabold text-gray-900 mb-2 font-heading">User Management</h1>
           <p className="text-gray-500 font-medium">Manage students, administrators, and assigned roles.</p>
         </div>
-        <button className="px-5 py-3 rounded-2xl bg-[#8b5cf6] text-white font-bold text-sm shadow-lg shadow-[#8b5cf6]/20 hover:-translate-y-0.5 transition-all flex items-center gap-2">
-          <Plus size={18} />
-          <span>Invite Administrator</span>
+        <button 
+          onClick={handleExportCSV}
+          className="px-5 py-3 rounded-2xl bg-[#8b5cf6] text-white font-bold text-sm shadow-lg shadow-[#8b5cf6]/20 hover:-translate-y-0.5 transition-all flex items-center gap-2"
+        >
+          <Download size={18} />
+          <span>Export CSV</span>
         </button>
       </div>
 
@@ -222,5 +253,3 @@ export default function UserManagement() {
     </div>
   );
 }
-
-
