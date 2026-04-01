@@ -78,18 +78,24 @@ export async function GET(request: Request) {
         let userRole = currentUserRole;
 
         // Special case: if intended 'next' is generic /portal or /, redirect to their dashboard
-        if (next === '/portal' || next === '/') {
-          const dashboardPath = userRole === 'student' ? '/student/dashboard' :
-                              userRole === 'business_client' ? '/business/dashboard' :
-                              userRole === 'instructor' ? '/instructor/dashboard' :
-                              '/';
-          return NextResponse.redirect(new URL(dashboardPath, request.url));
-        }
+      if (next === '/portal' || next === '/') {
+        const userRole = currentUserRole;
+        const dashboardPath = userRole === 'student' ? '/student/dashboard' :
+                            userRole === 'business_client' ? '/business/dashboard' :
+                            userRole === 'instructor' ? '/instructor/dashboard' :
+                            userRole === 'cms_admin' ? '/admin/cms/dashboard' :
+                            userRole === 'lms_admin' ? '/admin/lms/dashboard' :
+                            userRole === 'business_admin' ? '/admin/business/dashboard' :
+                            '/';
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || requestUrl.origin;
+        return NextResponse.redirect(new URL(dashboardPath, baseUrl));
+      }
       } catch (err) {
         console.warn("Auth Callback: Failed to check/assign roles:", err);
       }
 
-      return NextResponse.redirect(new URL(next, request.url));
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || requestUrl.origin;
+      return NextResponse.redirect(new URL(next, baseUrl));
     }
     
     if (data?.user) {
@@ -97,7 +103,8 @@ export async function GET(request: Request) {
     }
 
     console.error('Auth Callback: Code exchange failed:', error?.message);
-    const errorUrl = new URL('/auth', request.url);
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || requestUrl.origin;
+    const errorUrl = new URL('/auth', baseUrl);
     errorUrl.searchParams.set('error', error?.message || 'Authentication failed.');
     return NextResponse.redirect(errorUrl);
   }

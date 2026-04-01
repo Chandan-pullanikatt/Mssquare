@@ -68,10 +68,10 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (!user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/auth'
-    url.search = '' // Clear all codes/params to prevent leakage
-    return NextResponse.redirect(url)
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin;
+    const url = new URL('/auth', baseUrl);
+    url.search = ''; // Clear all codes/params to prevent leakage
+    return NextResponse.redirect(url);
   }
 
   // 5. Role based redirection for landings
@@ -87,15 +87,18 @@ export async function updateSession(request: NextRequest) {
 
 
   if (pathname === '/dashboard' || pathname === '/portal') {
-    const url = request.nextUrl.clone()
-    if (userRole === 'student') url.pathname = '/student/dashboard';
-    else if (userRole === 'business_client') url.pathname = '/business/dashboard';
-    else if (userRole === 'lms_admin') url.pathname = '/admin/lms/dashboard';
-    else if (userRole === 'business_admin') url.pathname = '/admin/business/dashboard';
-    else if (userRole === 'cms_admin') url.pathname = '/admin/cms/dashboard';
-    else if (userRole === 'instructor') url.pathname = '/instructor/dashboard';
-    else url.pathname = '/';
-    return NextResponse.redirect(url)
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin;
+    let targetPath = '/';
+    
+    if (userRole === 'student') targetPath = '/student/dashboard';
+    else if (userRole === 'business_client') targetPath = '/business/dashboard';
+    else if (userRole === 'lms_admin') targetPath = '/admin/lms/dashboard';
+    else if (userRole === 'business_admin') targetPath = '/admin/business/dashboard';
+    else if (userRole === 'cms_admin') targetPath = '/admin/cms/dashboard';
+    else if (userRole === 'instructor') targetPath = '/instructor/dashboard';
+
+    const redirectUrl = new URL(targetPath, baseUrl);
+    return NextResponse.redirect(redirectUrl);
   }
 
   // Strict role check for protected portal routes
@@ -109,10 +112,10 @@ export async function updateSession(request: NextRequest) {
     // Exception: cms_admin can access everything
     // Exception: Instructors, students, and business clients can ALL freely use the basic end-user portals
     if (userRole !== 'cms_admin' && !(isEndUserPortal && isStandardRole)) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/unauthorized'
-      url.search = '' // IMPORTANT: Clear search params to prevent carrying over OAuth code
-      return NextResponse.redirect(url)
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin;
+      const url = new URL('/unauthorized', baseUrl);
+      url.search = ''; // Clear search params to prevent carrying over OAuth code
+      return NextResponse.redirect(url);
     }
   }
 

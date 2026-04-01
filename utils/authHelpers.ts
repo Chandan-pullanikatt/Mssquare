@@ -139,7 +139,8 @@ export const authHelpers = {
   },
 
   async signInWithGoogle(nextPath?: string) {
-    const redirectUrl = new URL(`${window.location.origin}/auth/callback`);
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+    const redirectUrl = new URL(`${baseUrl}/auth/callback`);
     if (nextPath) {
       redirectUrl.searchParams.set('next', nextPath);
     }
