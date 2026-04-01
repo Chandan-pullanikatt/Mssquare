@@ -100,15 +100,19 @@ export async function updateSession(request: NextRequest) {
 
   // Strict role check for protected portal routes
   if (currentPortal && userRole !== currentPortal.role) {
-    // Exception: cms_admin can access everything (optional, but often helpful)
-    if (userRole !== 'cms_admin') {
+    // Determine if the current user and the target portal belong to the basic "end-user" group
+    const isEndUserPortal = currentPortal.role === 'student' || currentPortal.role === 'business_client';
+    const isEndUserRole = userRole === 'student' || userRole === 'business_client';
+
+    // Exception: cms_admin can access everything
+    // Exception: Any end-user (student or business_client) can seamlessly use either end-user portal!
+    if (userRole !== 'cms_admin' && !(isEndUserPortal && isEndUserRole)) {
       const url = request.nextUrl.clone()
       url.pathname = '/unauthorized'
       url.search = '' // IMPORTANT: Clear search params to prevent carrying over OAuth code
       return NextResponse.redirect(url)
     }
   }
-
 
   return supabaseResponse
 }
