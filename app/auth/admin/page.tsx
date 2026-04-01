@@ -34,6 +34,7 @@ const PORTALS: PortalType[] = [
   { id: 'lms_admin', name: 'LMS Admin', href: '/admin/lms/dashboard', icon: Settings, description: 'Course management' },
   { id: 'business_admin', name: 'Business Admin', href: '/admin/business/dashboard', icon: ShieldCheck, description: 'Client request management' },
   { id: 'cms_admin', name: 'CMS Admin', href: '/admin/cms/dashboard', icon: Grid3X3, description: 'CEO content control' },
+  { id: 'instructor', name: 'Instructor Portal', href: '/instructor/dashboard', icon: GraduationCap, description: 'Manage your assigned courses' },
 ];
 
 function AuthForm() {

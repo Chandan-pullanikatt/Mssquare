@@ -33,7 +33,6 @@ type PortalType = {
 const PORTALS: PortalType[] = [
   { id: 'student', name: 'Student LMS', href: '/student/dashboard', icon: GraduationCap, description: 'Your learning journey' },
   { id: 'business_client', name: 'Business Login', href: '/business/dashboard', icon: Briefcase, description: 'Track your projects' },
-  { id: 'instructor', name: 'Instructor Portal', href: '/instructor/dashboard', icon: GraduationCap, description: 'Manage your assigned courses' },
 ];
 
 function AuthForm() {
@@ -132,18 +131,10 @@ function AuthForm() {
       
       if (data.user) {
         // Fetch real role from DB to compare with selection
-        // Parallelize role checks for speed
-        const [userRole, isInstructor] = await Promise.all([
-          authHelpers.getUserRole(data.user.id),
-          authHelpers.isInstructor(data.user.id)
-        ]);
+        const userRole = await authHelpers.getUserRole(data.user.id);
         
-        const effectiveRole = (selectedPortal.id === 'instructor' && isInstructor) 
-          ? 'instructor' 
-          : userRole;
-
-        if (effectiveRole !== selectedPortal.id) {
-          console.warn(`Role mismatch detected: DB profile says ${userRole}, isInstructor: ${isInstructor}, user chose ${selectedPortal.id}. Proceeding anyway for stability.`);
+        if (userRole !== selectedPortal.id) {
+          console.warn(`Role mismatch detected: DB profile says ${userRole}, user chose ${selectedPortal.id}. Proceeding anyway for stability.`);
         }
 
         // Use window.location.href for a forceful full-page reload to the dashboard
