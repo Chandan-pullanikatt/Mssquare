@@ -88,21 +88,21 @@ export default function AdminDashboard() {
   const enrollmentColumns = [
     {
       header: "Student",
-      accessor: "users.name",
+      accessor: "student_name",
       render: (val: string) => (
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-            {val?.charAt(0) || "U"}
+            {val?.charAt(0) || "S"}
           </div>
-          <span className="font-bold text-gray-900">{val || "Unknown"}</span>
+          <span className="font-bold text-gray-900">{val || "Student"}</span>
         </div>
       ),
     },
-    { header: "Course", accessor: "courses.title" },
+    { header: "Course", accessor: "course_title" },
     { 
       header: "Date", 
-      accessor: "enrolled_at",
-      render: (val: string) => new Date(val).toLocaleDateString()
+      accessor: "date",
+      render: (val: string) => val ? new Date(val).toLocaleDateString() : 'N/A'
     },
   ];
 

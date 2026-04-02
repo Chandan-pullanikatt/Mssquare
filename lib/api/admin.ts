@@ -22,6 +22,10 @@ export const adminApi = {
           ...statsData,
           recentActivity: (statsData.recentActivity || []).map((a: any) => ({
             ...a,
+            course_title: a.course_title || 'Unknown Course',
+            student_name: a.student_email ? a.student_email.split('@')[0] : 'Student',
+            date: a.created_at,
+            // Keep nested for compatibility
             courses: { title: a.course_title },
             users: { name: a.student_email ? a.student_email.split('@')[0] : 'Student' } 
           })),
@@ -71,15 +75,19 @@ export const adminApi = {
       supabase.from('student_enrollments').select('*', { count: 'exact', head: true }),
       supabase.from('leads').select('*', { count: 'exact', head: true }),
       supabase.from('webservice_enquiries').select('*', { count: 'exact', head: true }),
-      supabase.from('student_enrollments').select(`id, created_at, course_id, student_id`).order('created_at', { ascending: false }).limit(5),
+      supabase.from('student_enrollments').select(`id, created_at, course:courses(title), student:profiles!student_id(email)`).order('created_at', { ascending: false }).limit(5),
       supabase.from('profiles').select('id, email, created_at, role').order('created_at', { ascending: false }).limit(5)
     ]);
 
     // Simple enrichment
     const enrichedActivity = (recentActivity as any[] || []).map(a => ({
       ...a,
-      courses: { title: 'Loading...' }, // Component will handle empty/unknown
-      users: { name: 'Student' }
+      course_title: a.course?.title || 'Unknown Course',
+      student_name: a.student?.email ? a.student.email.split('@')[0] : 'Student',
+      date: a.created_at,
+      // Compatibility
+      courses: { title: a.course?.title || 'Unknown Course' },
+      users: { name: a.student?.email ? a.student.email.split('@')[0] : 'Student' }
     }));
 
     return {
