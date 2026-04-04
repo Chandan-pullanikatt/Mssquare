@@ -79,15 +79,27 @@ export const adminApi = {
       supabase.from('profiles').select('id, email, created_at, role').order('created_at', { ascending: false }).limit(5)
     ]);
 
-    // Simple enrichment
-    const enrichedActivity = (recentActivity as any[] || []).map(a => ({
+    // Manual join for Recent Activity (student_enrollments -> profiles, courses)
+    const enrollmentsArr = (recentActivity as any[] || []);
+    const studentIds = enrollmentsArr.map(e => e.student_id).filter(id => !!id);
+    const courseIds = enrollmentsArr.map(e => e.course_id).filter(id => !!id);
+
+    const [profilesRes, coursesRes] = await Promise.all([
+      studentIds.length > 0 ? supabase.from('profiles').select('id, email').in('id', studentIds) : { data: [] },
+      courseIds.length > 0 ? supabase.from('courses').select('id, title').in('id', courseIds) : { data: [] }
+    ]);
+
+    const profileMap = (profilesRes.data || []).reduce((acc: any, p: any) => ({ ...acc, [p.id]: p.email }), {});
+    const courseMap = (coursesRes.data || []).reduce((acc: any, c: any) => ({ ...acc, [c.id]: c.title }), {});
+
+    const enrichedActivity = enrollmentsArr.map(a => ({
       ...a,
-      course_title: a.course?.title || 'Unknown Course',
-      student_name: a.student?.email ? a.student.email.split('@')[0] : 'Student',
+      course_title: courseMap[a.course_id] || 'Unknown Course',
+      student_name: profileMap[a.student_id] ? profileMap[a.student_id].split('@')[0] : 'Student',
+      student_email: profileMap[a.student_id],
       date: a.created_at,
-      // Compatibility
-      courses: { title: a.course?.title || 'Unknown Course' },
-      users: { name: a.student?.email ? a.student.email.split('@')[0] : 'Student' }
+      courses: { title: courseMap[a.course_id] || 'Unknown Course' },
+      users: { name: profileMap[a.student_id] ? profileMap[a.student_id].split('@')[0] : 'Student' }
     }));
 
     return {
@@ -487,17 +499,15 @@ export const adminApi = {
   },
 
   async getEnrollments() {
+    // 1. Fetch raw enrollments
     const { data: enrollments, error } = await supabase
-      .from('enrollments')
+      .from('student_enrollments')
       .select(`
         id,
-        progress,
-        status,
         created_at,
         course_id,
-        user_id,
-        course:courses(title),
-        student:profiles!user_id(email)
+        student_id,
+        payment_status
       `)
       .order('created_at', { ascending: false });
 
@@ -506,14 +516,30 @@ export const adminApi = {
       throw error;
     }
 
-    // Adapt to UI format
-    return (enrollments as any[] || []).map(e => ({
+    if (!enrollments || enrollments.length === 0) return [];
+
+    // 2. Extract IDs for manual join
+    const enrollmentsArr = enrollments as any[];
+    const studentIds = enrollmentsArr.map(e => e.student_id).filter(id => !!id);
+    const courseIds = enrollmentsArr.map(e => e.course_id).filter(id => !!id);
+
+    // 3. Fetch related data in parallel
+    const [profilesRes, coursesRes] = await Promise.all([
+      studentIds.length > 0 ? supabase.from('profiles').select('id, email').in('id', studentIds) : { data: [] },
+      courseIds.length > 0 ? supabase.from('courses').select('id, title').in('id', courseIds) : { data: [] }
+    ]);
+
+    const profileMap = (profilesRes.data || []).reduce((acc: any, p: any) => ({ ...acc, [p.id]: p.email }), {});
+    const courseMap = (coursesRes.data || []).reduce((acc: any, c: any) => ({ ...acc, [c.id]: c.title }), {});
+
+    // 4. Map together for UI format
+    return enrollmentsArr.map(e => ({
       id: e.id,
-      student: e.student?.email?.split('@')[0] || 'Unknown Student',
-      studentEmail: e.student?.email,
-      course: e.course?.title || 'Unknown Course',
-      progress: e.progress || 0,
-      status: e.status === 'active' ? 'Active' : e.status === 'Completed' ? 'Completed' : 'Pending',
+      student: profileMap[e.student_id] ? profileMap[e.student_id].split('@')[0] : 'Unknown Student',
+      studentEmail: profileMap[e.student_id] || 'Unknown',
+      course: courseMap[e.course_id] || 'Unknown Course',
+      progress: 0, 
+      status: e.payment_status === 'success' || e.payment_status === 'Active' ? 'Active' : 'Pending',
       date: e.created_at ? new Date(e.created_at).toLocaleDateString() : 'N/A'
     }));
   }

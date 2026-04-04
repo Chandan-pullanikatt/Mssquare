@@ -1,9 +1,47 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Container } from "@/components/ui/Container";
-import { motion } from "framer-motion";
+import { motion, useInView, animate } from "framer-motion";
 import { websiteApi } from "@/lib/api/website";
+
+function CountUp({ value }: { value: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  useEffect(() => {
+    if (isInView && ref.current) {
+      // Better regex to separate prefix, numeric part, and suffix
+      // Captures anything NOT a digit/comma/dot at start, then the number, then the rest
+      const match = value.match(/^([^\d,.]*)([\d,.]+)([^\d,.]*)$/);
+      
+      if (!match) {
+        ref.current.textContent = value;
+        return;
+      }
+
+      const prefix = match[1];
+      const numericPart = match[2];
+      const suffix = match[3];
+      const endValue = parseFloat(numericPart.replace(/,/g, ""));
+
+      const controls = animate(0, endValue, {
+        duration: 1,
+        ease: "easeOut",
+        onUpdate(latest) {
+          if (ref.current) {
+            const formatted = Math.floor(latest).toLocaleString();
+            ref.current.textContent = `${prefix}${formatted}${suffix}`;
+          }
+        },
+      });
+
+      return () => controls.stop();
+    }
+  }, [isInView, value]);
+
+  return <span ref={ref}>0</span>;
+}
 
 export function Stats() {
   const [stats, setStats] = useState<any[]>([]);
@@ -16,13 +54,23 @@ export function Stats() {
           const statsArray = Array.isArray(data.content_json) 
             ? data.content_json 
             : (data.content_json.stats || []);
-          setStats(statsArray);
+          
+          // Apply requested overrides: Change 1200 to 1,000+ and ensure no prefix plus
+          const finalStats = statsArray.map((s: any) => {
+            const label = s.label || s.name || "";
+            if (label.toLowerCase().includes("active students")) {
+              return { ...s, value: "1,000+" };
+            }
+            return s;
+          });
+          setStats(finalStats);
         } else {
+          // Updated fallbacks based on user request
           setStats([
-            { id: 1, name: "Developers Trained", value: "500+" },
-            { id: 2, name: "Startups Supported", value: "40+" },
-            { id: 3, name: "Placement Support", value: "100%" },
-            { id: 4, name: "Learning Tracks", value: "3" },
+            { id: 1, label: "Active Students", value: "1,000+" },
+            { id: 2, label: "Courses Offered", value: "45+" },
+            { id: 3, label: "Successful Placements", value: "95%" },
+            { id: 4, label: "Years of Excellence", value: "5+" },
           ]);
         }
       } catch (err) {
@@ -33,19 +81,19 @@ export function Stats() {
   }, []);
 
   const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
     },
-  },
-};
+  };
 
   const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-};
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
 
   return (
     <section className="py-12 bg-white relative z-10 border-b border-gray-100">
@@ -64,7 +112,7 @@ export function Stats() {
               className="flex flex-col items-center justify-center text-center"
             >
               <span className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2 tracking-tight">
-                {stat.value}
+                <CountUp value={stat.value} />
               </span>
               <span className="text-xs md:text-sm text-gray-400 font-bold uppercase tracking-[0.1em]">
                 {stat.label || stat.name}
