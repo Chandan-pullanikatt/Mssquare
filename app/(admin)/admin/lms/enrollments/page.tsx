@@ -11,34 +11,39 @@ import {
   Calendar,
   Loader2,
   Mail,
-  GraduationCap
+  GraduationCap,
+  Plus
 } from "lucide-react";
 import DataTable from "@/components/cms-admin/DataTable";
+import { EnrollStudentModal } from "@/components/cms-admin/EnrollStudentModal";
 
 export default function EnrollmentLogsPage() {
   const [enrollments, setEnrollments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fetchEnrollments = async () => {
+    setLoading(true);
+    try {
+      const data = await adminApi.getStudents(); // Reusing students data which includes enrollments
+      // Flatten enrollments from students
+      const allEnrollments = data.flatMap((student: any) => 
+        (student.student_enrollments || []).map((e: any) => ({
+          ...e,
+          student_email: student.email,
+          created_at: student.created_at // Fallback if enrollment date is missing
+        }))
+      ).sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      
+      setEnrollments(allEnrollments);
+    } catch (err) {
+      console.error("Failed to fetch enrollments", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchEnrollments = async () => {
-      try {
-        const data = await adminApi.getStudents(); // Reusing students data which includes enrollments
-        // Flatten enrollments from students
-        const allEnrollments = data.flatMap((student: any) => 
-          (student.student_enrollments || []).map((e: any) => ({
-            ...e,
-            student_email: student.email,
-            created_at: student.created_at // Fallback if enrollment date is missing
-          }))
-        ).sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        
-        setEnrollments(allEnrollments);
-      } catch (err) {
-        console.error("Failed to fetch enrollments", err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchEnrollments();
   }, []);
 
@@ -96,6 +101,15 @@ export default function EnrollmentLogsPage() {
           columns={columns}
           data={enrollments}
           searchPlaceholder="Search by student email or course..."
+          actions={
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 bg-[#8b5cf6] text-white px-6 py-3 rounded-2xl font-bold hover:-translate-y-1 transition-all shadow-lg shadow-[#8b5cf6]/20 active:scale-95"
+            >
+              <Plus size={18} />
+              Enroll Student
+            </button>
+          }
         />
         {enrollments.length === 0 && (
           <div className="py-20 text-center">
@@ -106,6 +120,12 @@ export default function EnrollmentLogsPage() {
           </div>
         )}
       </div>
+
+      <EnrollStudentModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={fetchEnrollments}
+      />
     </div>
   );
 }

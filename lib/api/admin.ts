@@ -542,5 +542,45 @@ export const adminApi = {
       status: e.payment_status === 'success' || e.payment_status === 'Active' ? 'Active' : 'Pending',
       date: e.created_at ? new Date(e.created_at).toLocaleDateString() : 'N/A'
     }));
+  },
+
+  async getUserByEmail(email: string) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, email, role')
+      .eq('email', email)
+      .maybeSingle();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async manualEnroll(userId: string, courseId: string) {
+    // 1. Check if already enrolled
+    const { data: existing, error: checkError } = await supabase
+      .from('student_enrollments')
+      .select('id')
+      .eq('student_id', userId)
+      .eq('course_id', courseId)
+      .maybeSingle();
+    
+    if (checkError) throw checkError;
+    if (existing) {
+      throw new Error("Student is already enrolled in this course.");
+    }
+
+    // 2. Perform enrollment
+    const { data, error } = await (supabase.from('student_enrollments') as any)
+      .insert([{ 
+        student_id: userId, 
+        course_id: courseId, 
+        payment_status: 'success',
+        amount: 0
+      }])
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
   }
 };

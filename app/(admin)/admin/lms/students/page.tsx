@@ -9,15 +9,18 @@ import {
   BookOpen, 
   Calendar,
   Loader2,
-  GraduationCap
+  GraduationCap,
+  Plus
 } from "lucide-react";
 import DataTable from "@/components/cms-admin/DataTable";
 import { adminApi } from "@/lib/api/admin";
+import { EnrollStudentModal } from "@/components/cms-admin/EnrollStudentModal";
 
 export default function StudentManagementPage() {
   const [students, setStudents] = useState<any[]>([]);
   const [courseStats, setCourseStats] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -99,38 +102,28 @@ export default function StudentManagementPage() {
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Student Management</h1>
-        <p className="text-gray-500 font-medium">Track your students, their enrollments, and course density.</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Student Management</h1>
+          <p className="text-gray-500 font-medium">Track your students, their enrollments, and course density.</p>
+        </div>
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 bg-[#8b5cf6] text-white px-8 py-4 rounded-2xl font-bold hover:-translate-y-1 transition-all shadow-lg shadow-[#8b5cf6]/20 active:scale-95 whitespace-nowrap self-start md:self-center"
+        >
+          <Plus size={20} />
+          Manually Enroll
+        </button>
       </div>
 
-      {/* Course Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {courseStats.map((course) => (
-          <div key={course.id} className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all group">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                <BookOpen size={20} />
-              </div>
-              <div>
-                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Enrollments</div>
-                <div className="text-2xl font-black text-gray-900">{course.enrollment_count}</div>
-              </div>
-            </div>
-            <h3 className="text-sm font-bold text-gray-700 line-clamp-1 group-hover:text-blue-600 transition-colors">
-              {course.title}
-            </h3>
-          </div>
-        ))}
-      </div>
-
-      {/* Student List */}
+      {/* Student List - NOW TOP SECTION */}
       <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
         <DataTable
           title="All Students"
           columns={studentColumns}
           data={students}
           searchPlaceholder="Search students by email..."
+          pageSize={25}
         />
         {students.length === 0 && (
           <div className="py-20 text-center">
@@ -141,6 +134,35 @@ export default function StudentManagementPage() {
           </div>
         )}
       </div>
+
+      {/* Course Stats Grid - NOW BOTTOM SECTION */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-gray-900 ml-2 italic">Course Enrollment Density</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {courseStats.map((course) => (
+            <div key={course.id} className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all group">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                  <BookOpen size={20} />
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Enrollments</div>
+                  <div className="text-2xl font-black text-gray-900">{course.enrollment_count}</div>
+                </div>
+              </div>
+              <h3 className="text-sm font-bold text-gray-700 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                {course.title}
+              </h3>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <EnrollStudentModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={fetchData}
+      />
     </div>
   );
 }

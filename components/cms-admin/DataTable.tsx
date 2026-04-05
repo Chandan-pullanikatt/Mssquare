@@ -1,9 +1,8 @@
 "use client";
 
 import { Search, Filter, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
-import { COLORS } from "@/lib/design-tokens";
 import { useSearch } from "@/components/providers/SearchProvider";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 interface Column {
   header: string;
@@ -19,6 +18,7 @@ interface DataTableProps {
   actions?: React.ReactNode;
   isLoading?: boolean;
   showRowActions?: boolean;
+  pageSize?: number;
 }
 
 export default function DataTable({
@@ -29,8 +29,10 @@ export default function DataTable({
   actions,
   isLoading = false,
   showRowActions = true,
+  pageSize = 10,
 }: DataTableProps) {
   const { searchQuery, setSearchQuery } = useSearch();
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredData = useMemo(() => {
     if (!searchQuery) return data;
@@ -46,6 +48,23 @@ export default function DataTable({
       });
     });
   }, [data, searchQuery, columns]);
+
+  const totalPages = Math.ceil(filteredData.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedData = filteredData.slice(startIndex, startIndex + pageSize);
+
+  // Reset to page 1 on search
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePrev = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
 
   return (
     <div className="bg-white border border-gray-100 rounded-[2rem] shadow-[0_2px_10px_rgba(0,0,0,0.02)] overflow-hidden">
@@ -98,8 +117,8 @@ export default function DataTable({
                   <td className="px-6 py-8"></td>
                 </tr>
               ))
-            ) : filteredData.length > 0 ? (
-              filteredData.map((row, rowIndex) => (
+            ) : paginatedData.length > 0 ? (
+              paginatedData.map((row, rowIndex) => (
                 <tr key={rowIndex} className="hover:bg-gray-50/50 transition-colors group">
                   {columns.map((column, colIndex) => (
                     <td key={colIndex} className="px-6 py-4 text-sm font-medium text-gray-700">
@@ -128,13 +147,24 @@ export default function DataTable({
 
       <div className="p-6 border-t border-gray-50 flex items-center justify-between">
         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-          Showing <span className="text-gray-900">{filteredData.length}</span> results
+          Showing <span className="text-gray-900">{Math.min(startIndex + 1, filteredData.length)}</span> - <span className="text-gray-900">{Math.min(startIndex + pageSize, filteredData.length)}</span> of <span className="text-gray-900">{filteredData.length}</span> results
         </p>
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-xl border border-gray-100 text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all disabled:opacity-50">
+          <button 
+            disabled={currentPage === 1}
+            onClick={handlePrev}
+            className="p-2 rounded-xl border border-gray-100 text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all disabled:opacity-50"
+          >
             <ChevronLeft size={18} />
           </button>
-          <button className="p-2 rounded-xl bg-primary-purple text-white shadow-lg shadow-primary-purple/20 transition-all">
+          <div className="flex items-center gap-1">
+            <span className="text-xs font-bold text-gray-500 px-2 tracking-widest uppercase text-nowrap">Page {currentPage} of {totalPages || 1}</span>
+          </div>
+          <button 
+            disabled={currentPage === totalPages || totalPages === 0}
+            onClick={handleNext}
+            className="p-2 rounded-xl bg-[#8b5cf6] text-white shadow-lg shadow-[#8b5cf6]/20 transition-all hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:translate-y-0"
+          >
             <ChevronRight size={18} />
           </button>
         </div>
