@@ -27,7 +27,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > (window.innerHeight * 0.8));
+      setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
