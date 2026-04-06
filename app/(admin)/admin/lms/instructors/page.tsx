@@ -30,6 +30,9 @@ export default function InstructorManagementPage() {
   const [remarks, setRemarks] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const [password, setPassword] = useState("");
+  const [entryMode, setEntryMode] = useState<"invite" | "manual">("invite");
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -54,8 +57,17 @@ export default function InstructorManagementPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await adminApi.addInstructor(email, remarks);
+      if (entryMode === "manual") {
+        if (!password || password.length < 6) {
+          throw new Error("Password must be at least 6 characters long.");
+        }
+        await adminApi.createInstructorManual(email, password, remarks);
+      } else {
+        await adminApi.addInstructor(email, remarks);
+      }
+      
       setEmail("");
+      setPassword("");
       setRemarks("");
       setShowAddModal(false);
       fetchData();
@@ -278,6 +290,25 @@ export default function InstructorManagementPage() {
                 <X size={20} className="text-gray-400" />
               </button>
             </div>
+            
+            {/* Entry Mode Toggle */}
+            <div className="px-8 pt-8">
+              <div className="flex bg-gray-100 p-1.5 rounded-2xl">
+                <button 
+                  onClick={() => setEntryMode("invite")}
+                  className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all ${entryMode === 'invite' ? 'bg-white text-[#8b5cf6] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                  Email Invitation
+                </button>
+                <button 
+                  onClick={() => setEntryMode("manual")}
+                  className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all ${entryMode === 'manual' ? 'bg-white text-[#8b5cf6] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                  Manual Entry
+                </button>
+              </div>
+            </div>
+
             <form onSubmit={handleAddInstructor} className="p-8 space-y-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
@@ -293,6 +324,21 @@ export default function InstructorManagementPage() {
                   />
                 </div>
               </div>
+
+              {entryMode === "manual" && (
+                <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Password</label>
+                  <input 
+                    required
+                    type="password"
+                    placeholder="At least 6 characters"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-gray-50 border-2 border-transparent rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 focus:bg-white focus:border-[#8b5cf6]/20 outline-none transition-all"
+                  />
+                </div>
+              )}
+
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Remarks (Optional)</label>
                 <textarea 
@@ -302,13 +348,14 @@ export default function InstructorManagementPage() {
                   className="w-full bg-gray-50 border-2 border-transparent rounded-2xl py-4 px-6 text-sm font-bold text-gray-900 focus:bg-white focus:border-[#8b5cf6]/20 outline-none transition-all resize-none h-24"
                 />
               </div>
+
               <button 
                 type="submit" 
                 disabled={submitting}
                 className="w-full bg-[#8b5cf6] text-white py-4 rounded-3xl font-bold shadow-xl shadow-purple-100 hover:shadow-purple-200 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {submitting ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
-                Add Instructor
+                {entryMode === 'invite' ? 'Send Invitation' : 'Create Instructor Account'}
               </button>
             </form>
           </div>

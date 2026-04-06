@@ -263,6 +263,11 @@ export const adminApi = {
     return await inviteInstructor(email, remarks);
   },
 
+  async createInstructorManual(email: string, password: string, remarks?: string) {
+    const { createInstructorManual } = await import('@/app/actions/instructor');
+    return await createInstructorManual(email, password, remarks);
+  },
+
   async updateInstructor(id: string, updates: any) {
     const { error } = await (supabase.from('instructors') as any)
       .update(updates)
