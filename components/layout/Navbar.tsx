@@ -41,7 +41,7 @@ export function Navbar({ variant = "dark" }: NavbarProps) {
           : "bg-white border-gray-100 shadow-sm"
         }`}
     >
-      <div className="px-[5%] h-[70px] flex items-center justify-between w-full">
+      <div className="px-[4%] h-[70px] flex items-center justify-between w-full">
         <div className="flex items-center gap-8">
           {/* Logo */}
           <Link href="/" className="relative h-12 w-48 transition-transform duration-300 hover:scale-[1.02]">

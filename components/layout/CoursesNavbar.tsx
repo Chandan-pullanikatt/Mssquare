@@ -12,7 +12,7 @@ export function CoursesNavbar() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
-      <div className="px-[5%] h-[70px] flex items-center justify-between w-full max-w-7xl mx-auto">
+      <div className="px-[4%] h-[70px] flex items-center justify-between w-full max-w-[1536px] mx-auto">
         {/* Logo */}
         <Link href="/" className="relative h-10 md:h-12 w-40 md:w-48 transition-transform duration-300 hover:scale-[1.02]">
           <img 
