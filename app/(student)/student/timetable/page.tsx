@@ -101,9 +101,21 @@ export default function StudentTimetablePage() {
                           </div>
 
                           {item.location && (
-                             <div className="flex items-center gap-2 text-[11px] font-medium text-[#8b5cf6] mt-1">
-                              <MapPin size={12} />
-                              <span className="truncate max-w-[120px]">{item.location}</span>
+                            <div className="flex items-center gap-2 text-[11px] font-medium text-[#8b5cf6] mt-1 relative z-10">
+                              <MapPin size={12} className="flex-shrink-0" />
+                              {item.location.startsWith('http') ? (
+                                <a 
+                                  href={item.location} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer" 
+                                  className="underline hover:text-[#7c3aed] transition-colors font-bold truncate max-w-[150px]"
+                                  title={item.location}
+                                >
+                                  Join Meeting
+                                </a>
+                              ) : (
+                                <span className="truncate max-w-[120px]">{item.location}</span>
+                              )}
                             </div>
                           )}
                         </div>

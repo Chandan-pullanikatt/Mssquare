@@ -296,10 +296,21 @@ export default function StudentDashboard() {
                       <User size={14} className="text-gray-400" />
                       <span className="truncate">{item.instructor?.email?.split('@')[0] || "Instructor"}</span>
                     </div>
-                    <div>
-                      <span className="bg-emerald-50 text-emerald-600 border border-emerald-100/50 text-[10px] font-bold px-3 py-1.5 rounded-full inline-block truncate max-w-full">
-                        {item.location || "Live Online"}
-                      </span>
+                    <div className="mt-auto">
+                      {item.location && item.location.startsWith('http') ? (
+                        <a 
+                          href={item.location} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="bg-emerald-50 text-emerald-600 border border-emerald-100/50 text-[10px] font-bold px-4 py-1.5 rounded-full inline-flex items-center gap-1 hover:bg-emerald-100 transition-colors shadow-sm"
+                        >
+                          Join Class <ChevronRight size={10} />
+                        </a>
+                      ) : (
+                        <span className="bg-emerald-50 text-emerald-600 border border-emerald-100/50 text-[10px] font-bold px-3 py-1.5 rounded-full inline-block truncate max-w-full">
+                          {item.location || "Live Online"}
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))
