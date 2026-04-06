@@ -25,17 +25,8 @@ export default function EnrollmentLogsPage() {
   const fetchEnrollments = async () => {
     setLoading(true);
     try {
-      const data = await adminApi.getStudents(); // Reusing students data which includes enrollments
-      // Flatten enrollments from students
-      const allEnrollments = data.flatMap((student: any) => 
-        (student.student_enrollments || []).map((e: any) => ({
-          ...e,
-          student_email: student.email,
-          created_at: student.created_at // Fallback if enrollment date is missing
-        }))
-      ).sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      
-      setEnrollments(allEnrollments);
+      const data = await adminApi.getEnrollments();
+      setEnrollments(data);
     } catch (err) {
       console.error("Failed to fetch enrollments", err);
     } finally {
@@ -50,33 +41,50 @@ export default function EnrollmentLogsPage() {
   const columns = [
     {
       header: "Student",
-      accessor: "student_email",
+      accessor: "studentEmail",
       render: (email: string) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-[#8b5cf6] text-xs font-bold">
+          <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-[#8b5cf6] text-xs font-bold font-heading">
             {email?.charAt(0).toUpperCase()}
           </div>
-          <span className="font-bold text-gray-900">{email}</span>
+          <div className="flex flex-col">
+            <span className="font-bold text-gray-900 leading-tight">{email?.split('@')[0]}</span>
+            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{email}</span>
+          </div>
         </div>
       )
     },
     {
       header: "Course",
-      accessor: "courses.title",
+      accessor: "course",
       render: (title: string) => (
-        <div className="flex items-center gap-2 text-gray-700">
-          <BookOpen size={16} className="text-[#8b5cf6]" />
-          <span className="font-medium">{title || "Unknown Course"}</span>
+        <div className="flex items-center gap-2.5 text-gray-700">
+          <div className="w-8 h-8 rounded-lg bg-[#8b5cf6]/5 flex items-center justify-center text-[#8b5cf6]">
+            <BookOpen size={16} />
+          </div>
+          <span className="font-bold text-sm tracking-tight">{title || "Unknown Course"}</span>
+        </div>
+      )
+    },
+    {
+      header: "Status",
+      accessor: "status",
+      render: (status: string) => (
+        <div className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+          status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+        }`}>
+          <div className={`w-1 h-1 rounded-full mr-2 ${status === 'Active' ? 'bg-emerald-600' : 'bg-amber-600'}`} />
+          {status}
         </div>
       )
     },
     {
       header: "Date",
-      accessor: "created_at",
+      accessor: "date",
       render: (date: string) => (
-        <div className="flex items-center gap-2 text-gray-500 text-sm">
-          <Calendar size={14} />
-          {new Date(date).toLocaleDateString()}
+        <div className="flex items-center gap-2 text-gray-400 text-[11px] font-bold">
+          <Calendar size={14} className="text-gray-300" />
+          {date}
         </div>
       )
     }

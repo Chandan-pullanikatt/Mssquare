@@ -44,6 +44,7 @@ const adminSidebarItems = [
   { name: "Group Sessions", href: "/admin/lms/group-sessions", icon: Calendar },
   { name: "Course Timetable", href: "/admin/lms/timetable", icon: Calendar },
   { name: "Manage Notifications", href: "/admin/lms/notifications", icon: Bell },
+  { name: "Enrollment Logs", href: "/admin/lms/enrollments", icon: Zap },
 ];
 
 export default function AdminLayout({
