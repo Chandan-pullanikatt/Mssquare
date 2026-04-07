@@ -11,7 +11,7 @@ export const modulesApi = {
       .order('order_index', { ascending: true });
     
     if (error) throw error;
-    return data;
+    return (data || []) as any[];
   },
 
   async createModule(module: Omit<Module, 'id' | 'created_at'>) {

@@ -5,6 +5,7 @@ import { Save, Layout, ArrowLeft, Image as ImageIcon, Plus, Trash2, Globe, Trend
 import Link from "next/link";
 import { websiteApi } from "@/lib/api/website";
 import { storageApi } from "@/lib/api/storage";
+import { sanitizeFilename } from "@/lib/utils";
 
 export default function LandingPageEditor() {
   const [loading, setLoading] = useState(true);
@@ -169,7 +170,8 @@ export default function LandingPageEditor() {
     }
 
     try {
-      const publicUrl = await storageApi.uploadWebsiteMedia(file, `portfolio-${Date.now()}-${file.name}`);
+      const sanitizedName = sanitizeFilename(file.name);
+      const publicUrl = await storageApi.uploadWebsiteMedia(file, `portfolio-${Date.now()}-${sanitizedName}`);
       const newItems = [...(content.products?.items || [])];
       newItems[index].image = publicUrl;
       setContent({ ...content, products: { ...content.products, items: newItems } });
@@ -191,7 +193,8 @@ export default function LandingPageEditor() {
     }
 
     try {
-      const publicUrl = await storageApi.uploadWebsiteMedia(file, `feature-${Date.now()}-${file.name.replace(/\s+/g, '-')}`);
+      const sanitizedName = sanitizeFilename(file.name);
+      const publicUrl = await storageApi.uploadWebsiteMedia(file, `feature-${Date.now()}-${sanitizedName}`);
       const newFeatures = [...(content.features || [])];
       newFeatures[index].image = publicUrl;
       setContent({ ...content, features: newFeatures });

@@ -19,6 +19,10 @@ import Link from "next/link";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { adminApi } from "@/lib/api/admin";
 import { storageApi } from "@/lib/api/storage";
+import { modulesApi } from "@/lib/api/modules";
+import { lessonsApi } from "@/lib/api/lessons";
+import { sanitizeFilename } from "@/lib/utils";
+import CurriculumEditor, { ModuleInput } from "@/components/courses/CurriculumEditor";
 
 export default function CreateCoursePage() {
   const router = useRouter();
@@ -36,6 +40,7 @@ export default function CreateCoursePage() {
     duration: "",
     overview: "",
   });
+  const [modules, setModules] = useState<ModuleInput[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +55,30 @@ export default function CreateCoursePage() {
         instructor_id: user.id,
         price: Number(formData.price) || 0
       };
-      await adminApi.createCourse(courseData);
+      const createdCourse = await adminApi.createCourse(courseData);
+      
+      // Save Modules and Lessons
+      for (let i = 0; i < modules.length; i++) {
+        const mod = modules[i];
+        const createdModule = await modulesApi.createModule({
+          course_id: createdCourse.id,
+          title: mod.title,
+          order_index: i + 1
+        });
+
+        for (let j = 0; j < mod.lessons.length; j++) {
+          const lesson = mod.lessons[j];
+          await lessonsApi.createLesson({
+            course_id: createdCourse.id,
+            module_id: createdModule.id,
+            title: lesson.title,
+            video_url: lesson.video_url,
+            notes: lesson.notes,
+            order_index: j + 1
+          });
+        }
+      }
+
       setSuccess(true);
       setTimeout(() => {
         router.push("/admin/lms/courses");
@@ -69,7 +97,8 @@ export default function CreateCoursePage() {
 
     try {
       setUploading(true);
-      const fileName = `${Date.now()}-${file.name}`;
+      const sanitizedName = sanitizeFilename(file.name);
+      const fileName = `${Date.now()}-${sanitizedName}`;
       const publicUrl = await storageApi.uploadCourseThumbnail(file, fileName);
       setFormData({ ...formData, thumbnail: publicUrl });
     } catch (err) {
@@ -298,6 +327,11 @@ export default function CreateCoursePage() {
               />
             </div>
           </div>
+        </div>
+
+        {/* Curriculum Section */}
+        <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.02)]">
+          <CurriculumEditor onChange={setModules} />
         </div>
 
         {/* Actions */}

@@ -24,6 +24,7 @@ import { coursesApi } from "@/lib/api/courses";
 import { modulesApi } from "@/lib/api/modules";
 import { lessonsApi } from "@/lib/api/lessons";
 import { storageApi } from "@/lib/api/storage";
+import { sanitizeFilename } from "@/lib/utils";
 
 type ModuleInput = {
   title: string;
@@ -109,7 +110,8 @@ export default function CreateCoursePage() {
 
     setUploadingSyllabus(true);
     try {
-      const fileName = `${Date.now()}-syllabus-${file.name.replace(/\s+/g, '-')}`;
+      const sanitizedName = sanitizeFilename(file.name);
+      const fileName = `${Date.now()}-syllabus-${sanitizedName}`;
       const publicUrl = await storageApi.uploadCourseSyllabus(file, fileName);
       setCourseData(prev => ({ ...prev, syllabus_url: publicUrl }));
       alert("Syllabus uploaded successfully!");

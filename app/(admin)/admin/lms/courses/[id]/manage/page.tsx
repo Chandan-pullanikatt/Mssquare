@@ -27,6 +27,7 @@ import { assignmentsApi } from "@/lib/api/assignments";
 import { certificationMetadataApi } from "@/lib/api/certificationMetadata";
 import { recordedSessionsApi } from "@/lib/api/recordedSessions";
 import { storageApi } from "@/lib/api/storage";
+import { sanitizeFilename } from "@/lib/utils";
 import { Project, Assignment, CertificationMetadata, Course, RecordedSession } from "@/types/database";
 import AssignmentForm from "@/components/courses/AssignmentForm";
 import ProjectForm from "@/components/courses/ProjectForm";
@@ -213,7 +214,8 @@ export default function ManageCourseContent() {
       let templateUrl = formData.get('template_url') as string || null;
 
       if (file && file.size > 0) {
-        const fileName = `cert_${id}_${Date.now()}.${file.name.split('.').pop()}`;
+        const sanitizedName = sanitizeFilename(file.name);
+        const fileName = `cert_${id}_${Date.now()}_${sanitizedName}`;
         templateUrl = await storageApi.uploadCertificateTemplate(file, fileName);
       }
 

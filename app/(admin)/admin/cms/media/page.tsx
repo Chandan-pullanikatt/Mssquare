@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { storageApi } from "@/lib/api/storage";
 import { supabase } from "@/lib/supabase/client";
+import { sanitizeFilename } from "@/lib/utils";
 
 
 import { useSearch } from "@/components/providers/SearchProvider";
@@ -67,7 +68,8 @@ export default function MediaManager() {
 
     setUploading(true);
     try {
-      await storageApi.uploadFile(selectedBucket, `${Date.now()}-${file.name}`, file);
+      const sanitizedName = sanitizeFilename(file.name);
+      await storageApi.uploadFile(selectedBucket, `${Date.now()}-${sanitizedName}`, file);
       alert("File uploaded successfully!");
       fetchFiles();
     } catch (err) {

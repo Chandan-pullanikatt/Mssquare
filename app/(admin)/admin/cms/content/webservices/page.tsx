@@ -5,6 +5,7 @@ import { Save, ArrowLeft, Plus, Trash2, Globe, Rocket, Zap, Code2, Layout, Datab
 import Link from "next/link";
 import { websiteApi } from "@/lib/api/website";
 import { storageApi } from "@/lib/api/storage";
+import { sanitizeFilename } from "@/lib/utils";
 
 export default function WebServicesPageEditor() {
   const [loading, setLoading] = useState(true);
@@ -78,7 +79,8 @@ export default function WebServicesPageEditor() {
     }
 
     try {
-      const fileName = `${type}-${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+      const sanitizedName = sanitizeFilename(file.name);
+      const fileName = `${type}-${Date.now()}-${sanitizedName}`;
       const publicUrl = await storageApi.uploadWebsiteMedia(file, fileName);
       
       const newContent = { ...content };

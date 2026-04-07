@@ -20,6 +20,10 @@ import Link from "next/link";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { adminApi } from "@/lib/api/admin";
 import { storageApi } from "@/lib/api/storage";
+import { modulesApi } from "@/lib/api/modules";
+import { lessonsApi } from "@/lib/api/lessons";
+import { sanitizeFilename } from "@/lib/utils";
+import CurriculumEditor, { ModuleInput } from "@/components/courses/CurriculumEditor";
 
 export default function EditCoursePage() {
   const router = useRouter();
@@ -39,6 +43,8 @@ export default function EditCoursePage() {
     duration: "",
     overview: "",
   });
+  const [modules, setModules] = useState<ModuleInput[]>([]);
+  const [initialModules, setInitialModules] = useState<ModuleInput[]>([]);
 
   useEffect(() => {
     if (id) {
@@ -60,6 +66,21 @@ export default function EditCoursePage() {
         duration: data.duration || "",
         overview: data.overview || "",
       });
+
+      // Fetch Curriculum
+      const modulesData = await modulesApi.getModulesByCourse(id);
+      const formattedModules: ModuleInput[] = modulesData.map((m: any) => ({
+        id: m.id,
+        title: m.title,
+        lessons: (m.lessons || []).map((l: any) => ({
+          id: l.id,
+          title: l.title,
+          video_url: l.video_url || "",
+          notes: l.notes || ""
+        }))
+      }));
+      setInitialModules(formattedModules);
+      setModules(formattedModules);
     } catch (err) {
       console.error("Failed to fetch course data", err);
       alert("Failed to load course details.");
@@ -82,6 +103,77 @@ export default function EditCoursePage() {
         price: Number(formData.price) || 0
       };
       await adminApi.updateCourse(id, updates);
+
+      // --- Curriculum Sync Logic ---
+      
+      // 1. Get current DB state for comparison
+      const existingModules: any[] = await modulesApi.getModulesByCourse(id);
+      const existingModuleIds = existingModules.map((m: any) => m.id);
+      const existingLessonIds = (existingModules.flatMap((m: any) => m.lessons || []) as any[]).map((l: any) => l.id);
+
+      // 2. Track what to keep (to find what to delete)
+      const localModuleIds = modules.map(m => m.id).filter(Boolean) as string[];
+      const localLessonIds = modules.flatMap(m => m.lessons).map(l => l.id).filter(Boolean) as string[];
+
+      // 3. Delete removed lessons
+      const lessonsToDelete = existingLessonIds.filter((id: string) => !localLessonIds.includes(id));
+      for (const lId of lessonsToDelete) {
+        await lessonsApi.deleteLesson(lId);
+      }
+
+      // 4. Delete removed modules
+      const modulesToDelete = existingModuleIds.filter(id => !localModuleIds.includes(id));
+      for (const mId of modulesToDelete) {
+        await modulesApi.deleteModule(mId);
+      }
+
+      // 5. Upsert Modules and Lessons
+      for (let i = 0; i < modules.length; i++) {
+        const mod = modules[i];
+        let moduleId = mod.id;
+
+        if (moduleId) {
+          // Update existing module
+          await modulesApi.updateModule(moduleId, {
+            title: mod.title,
+            order_index: i + 1
+          });
+        } else {
+          // Create new module
+          const newMod = await modulesApi.createModule({
+            course_id: id,
+            title: mod.title,
+            order_index: i + 1
+          });
+          moduleId = newMod.id;
+        }
+
+        // Handle lessons for this module
+        for (let j = 0; j < mod.lessons.length; j++) {
+          const lesson = mod.lessons[j];
+          if (lesson.id) {
+            // Update existing lesson
+            await lessonsApi.updateLesson(lesson.id, {
+              title: lesson.title,
+              video_url: lesson.video_url,
+              notes: lesson.notes,
+              order_index: j + 1,
+              module_id: moduleId
+            });
+          } else {
+            // Create new lesson
+            await lessonsApi.createLesson({
+              course_id: id,
+              module_id: moduleId,
+              title: lesson.title,
+              video_url: lesson.video_url,
+              notes: lesson.notes,
+              order_index: j + 1
+            });
+          }
+        }
+      }
+
       setSuccess(true);
       setTimeout(() => {
         router.push("/admin/lms/courses");
@@ -100,7 +192,8 @@ export default function EditCoursePage() {
 
     try {
       setUploading(true);
-      const fileName = `${Date.now()}-${file.name}`;
+      const sanitizedName = sanitizeFilename(file.name);
+      const fileName = `${Date.now()}-${sanitizedName}`;
       const publicUrl = await storageApi.uploadCourseThumbnail(file, fileName);
       setFormData({ ...formData, thumbnail: publicUrl });
     } catch (err) {
@@ -337,6 +430,14 @@ export default function EditCoursePage() {
               />
             </div>
           </div>
+        </div>
+
+        {/* Curriculum Section */}
+        <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.02)]">
+          <CurriculumEditor 
+            initialModules={initialModules} 
+            onChange={setModules} 
+          />
         </div>
 
         {/* Actions */}
