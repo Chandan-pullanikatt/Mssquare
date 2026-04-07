@@ -52,7 +52,6 @@ export default function CreateCoursePage() {
     try {
       const courseData = {
         ...formData,
-        instructor_id: user.id,
         price: Number(formData.price) || 0
       };
       const createdCourse = await adminApi.createCourse(courseData);
@@ -84,9 +83,10 @@ export default function CreateCoursePage() {
       setTimeout(() => {
         router.push("/admin/lms/courses");
       }, 1500);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to create course", err);
-      alert("Failed to create course. Please try again.");
+      const errorMsg = err.message || (typeof err === 'object' ? JSON.stringify(err) : String(err));
+      alert(`Failed to create course: ${errorMsg}`);
     } finally {
       setLoading(false);
     }
