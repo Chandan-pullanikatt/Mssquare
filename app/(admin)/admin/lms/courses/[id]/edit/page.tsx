@@ -102,9 +102,12 @@ export default function EditCoursePage() {
         ...formData,
         price: Number(formData.price) || 0
       };
+      console.log("[Update] Starting course update...");
       await adminApi.updateCourse(id, updates);
+      console.log("[Update] Course basic info updated.");
 
       // --- Curriculum Sync Logic ---
+      console.log("[Sync] Starting curriculum sync...");
       
       // 1. Get current DB state for comparison
       const existingModules: any[] = await modulesApi.getModulesByCourse(id);
@@ -127,19 +130,36 @@ export default function EditCoursePage() {
         await modulesApi.deleteModule(mId);
       }
 
-      // 5. Upsert Modules and Lessons
+      // --- NEW: SAFETY SHUFFLE ---
+      // Move all remaining existing modules and lessons to high indices to avoid conflicts during the final order assignment.
+      console.log("[Sync] Performing safety shuffle...");
+      const survivingModules = existingModules.filter(m => localModuleIds.includes(m.id));
+      for (let i = 0; i < survivingModules.length; i++) {
+        await modulesApi.updateModule(survivingModules[i].id, { order_index: i + 5000 });
+      }
+
+      const allExistingLessons = existingModules.flatMap(m => (m as any).lessons || []);
+      const survivingLessons = allExistingLessons.filter((l: any) => localLessonIds.includes(l.id));
+      for (let i = 0; i < survivingLessons.length; i++) {
+        await lessonsApi.updateLesson(survivingLessons[i].id, { order_index: i + 5000 });
+      }
+
+      // 5. Upsert Modules and Lessons (with Global Lesson Index)
+      let globalLessonIndex = 1;
       for (let i = 0; i < modules.length; i++) {
         const mod = modules[i];
         let moduleId = mod.id;
 
         if (moduleId) {
           // Update existing module
+          console.log(`[Sync] Updating module: ${mod.title} (${moduleId}) at index ${i + 1}`);
           await modulesApi.updateModule(moduleId, {
             title: mod.title,
             order_index: i + 1
           });
         } else {
           // Create new module
+          console.log(`[Sync] Creating new module: ${mod.title} at index ${i + 1}`);
           const newMod = await modulesApi.createModule({
             course_id: id,
             title: mod.title,
@@ -153,22 +173,24 @@ export default function EditCoursePage() {
           const lesson = mod.lessons[j];
           if (lesson.id) {
             // Update existing lesson
+            console.log(`[Sync] Updating lesson: ${lesson.title} (${lesson.id}) at global index ${globalLessonIndex}`);
             await lessonsApi.updateLesson(lesson.id, {
               title: lesson.title,
               video_url: lesson.video_url,
               notes: lesson.notes,
-              order_index: j + 1,
+              order_index: globalLessonIndex++,
               module_id: moduleId
             });
           } else {
             // Create new lesson
+            console.log(`[Sync] Creating new lesson: ${lesson.title} at global index ${globalLessonIndex}`);
             await lessonsApi.createLesson({
               course_id: id,
               module_id: moduleId,
               title: lesson.title,
               video_url: lesson.video_url,
               notes: lesson.notes,
-              order_index: j + 1
+              order_index: globalLessonIndex++
             });
           }
         }
@@ -178,9 +200,10 @@ export default function EditCoursePage() {
       setTimeout(() => {
         router.push("/admin/lms/courses");
       }, 1500);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to update course", err);
-      alert("Failed to update course. Please try again.");
+      const errorMsg = err.message || (typeof err === 'object' ? JSON.stringify(err) : String(err));
+      alert(`Failed to update course: ${errorMsg}`);
     } finally {
       setSaving(false);
     }

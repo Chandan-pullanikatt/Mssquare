@@ -57,7 +57,8 @@ export default function CreateCoursePage() {
       };
       const createdCourse = await adminApi.createCourse(courseData);
       
-      // Save Modules and Lessons
+      // 2. Create Modules and Lessons sequentially
+      let globalLessonIndex = 1;
       for (let i = 0; i < modules.length; i++) {
         const mod = modules[i];
         const createdModule = await modulesApi.createModule({
@@ -74,7 +75,7 @@ export default function CreateCoursePage() {
             title: lesson.title,
             video_url: lesson.video_url,
             notes: lesson.notes,
-            order_index: j + 1
+            order_index: globalLessonIndex++
           });
         }
       }
